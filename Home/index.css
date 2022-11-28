@@ -205,3 +205,10 @@ nav {
 .image {
     background-image: url('./');
 }
+.home{
+    text-decoration: none;
+}
+.sign{
+    text-decoration: none;
+    color: lightgreen;
+}
