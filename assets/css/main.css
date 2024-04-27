@@ -1,15 +1,4 @@
-/**
-* Template Name: UpConstruction - v1.3.0
-* Template URL: https://bootstrapmade.com/upconstruction-bootstrap-construction-website-template/
-* Author: BootstrapMade.com
-* License: https://bootstrapmade.com/license/
-*/
 
-/*--------------------------------------------------------------
-# Set main reusable colors and fonts using CSS variables
-# Learn more about CSS variables at https://developer.mozilla.org/en-US/docs/Web/CSS/Using_CSS_custom_properties
---------------------------------------------------------------*/
-/* Fonts */
 :root {
   --font-default: "Open Sans", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-primary: "Roboto", sans-serif;
@@ -749,11 +738,12 @@ section {
   display: none;
 }services-cards
 
+/* Hide the text when hovering 
 @keyframes GradientFlow {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
-}
+}*/
 
 .services .service-item:hover .icon:before {
   background: linear-gradient(45deg, #b00153, #9041f7, #626262);
@@ -1581,9 +1571,19 @@ section {
   opacity: 1;
 }
 
-.project-details .portfolio-details-slider .swiper-pagination .swiper-pagination-bullet-active {
-  background-color: var(--color-primary);
+@keyframes movingGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
+
+.project-details .portfolio-details-slider .swiper-pagination .swiper-pagination-bullet-active {
+  background: linear-gradient(45deg, #b00153, #9041f7, #626262);
+  background-size: 200% 200%;  /* Set a larger background size to enable the movement */
+  animation: movingGradient 3s linear infinite;  /* Apply the animation */
+}
+
+
 
 .project-details .swiper-button-prev,
 .project-details .swiper-button-next {
@@ -1626,16 +1626,25 @@ section {
   position: relative;
 }
 
-.project-details .portfolio-info h3:after {
+@keyframes movingGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.project-details .portfolio-info h3::after {
   content: "";
   position: absolute;
   display: block;
   width: 50px;
   height: 3px;
-  background: var(--color-primary);
+  background: linear-gradient(45deg, #b00153, #9041f7, #626262);
+  background-size: 200% 200%;
+  animation: movingGradient 3s linear infinite;
   left: 0;
   bottom: 0;
 }
+
 
 .project-details .portfolio-info ul {
   list-style: none;
