@@ -1140,6 +1140,7 @@ section {
   padding-top: 10px;
 }
 
+
 .faq-item {
   background-color: #ffffff;
   margin-bottom: 10px;
@@ -1743,6 +1744,61 @@ section {
   margin: 0 0 15px 0 0 0;
   padding: 0;
 }
+
+.project-details {
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.project-details ul {
+  list-style-type: disc;
+  padding-left: 20px;
+}
+
+.project-details img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin-top: 20px;
+}
+
+/* Media Queries for Mobile Devices */
+@media (max-width: 768px) {
+  .project-details {
+      padding: 10px;
+      box-shadow: none;
+  }
+
+  .project-details h6 {
+      font-size: 16px; /* Smaller font size on smaller screens */
+  }
+
+  .project-details p, .project-details ul {
+      font-size: 14px; /* Smaller font size on smaller screens */
+  }
+
+  .project-details ul {
+      padding-left: 15px;
+  }
+}
+
+/* Smaller phones */
+@media (max-width: 480px) {
+  .project-details h6 {
+      font-size: 14px;
+  }
+
+  .project-details p, .project-details ul {
+      font-size: 12px;
+  }
+
+  .project-details ul {
+      padding-left: 10px;
+  }
+}
+
 
 /*--------------------------------------------------------------
 # Service Details Section
