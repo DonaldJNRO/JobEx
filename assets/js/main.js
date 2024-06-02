@@ -283,13 +283,5 @@ document.querySelectorAll('.service-item').forEach(item => {
   });
 });
 
-document.addEventListener('DOMContentLoaded', function() {
-  var video = document.getElementById('bg-video');
-  video.play().catch(function(error) {
-    console.log('Autoplay prevented: ', error);
-    video.muted = true;
-    video.play();
-  });
-});
 
 });

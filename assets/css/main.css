@@ -2273,11 +2273,9 @@ section {
   opacity: 0.9;
 }
 
-/* Ensure these rules do not conflict with global styles */
-#video-hero {
+.video-hero {
   position: relative;
   height: 100vh;
-  width: 100vw;
   overflow: hidden;
 }
 
@@ -2319,7 +2317,6 @@ section {
   font-size: 48px;
   font-weight: bold;
   color: #fff;
-  margin: 0;
 }
 
 .btn-get-started {
