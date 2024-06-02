@@ -78,7 +78,20 @@
         <a data-aos="fade-up" data-aos-delay="200" href="#get-started" class="btn-get-started">Get Started</a>
       </div>
     </div>
-  </section><!-- End Hero Section -->
+  </section>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var video = document.getElementById('bg-video');
+      video.play().catch(function(error) {
+        console.log('Autoplay prevented: ', error);
+        video.muted = true;
+        video.play();
+      });
+    });
+  </script>
+
+  <!-- End Hero Section -->
 
   <main id="main">
 
