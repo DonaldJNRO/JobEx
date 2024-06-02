@@ -283,33 +283,5 @@ document.querySelectorAll('.service-item').forEach(item => {
   });
 });
 
-document.addEventListener('DOMContentLoaded', function() {
-  const video = document.getElementById('background-video');
-  const fallbackImage = document.getElementById('fallback-image');
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-
-  video.play().catch(error => {
-      console.log('Autoplay prevented:', error);
-
-      // Set canvas dimensions to the video dimensions
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-
-      // Draw the current video frame to the canvas
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-      // Get the image data URL from the canvas
-      const dataURL = canvas.toDataURL();
-
-      // Set the fallback image source to the captured frame
-      const img = document.createElement('img');
-      img.src = dataURL;
-      fallbackImage.appendChild(img);
-
-      // Display the fallback image
-      fallbackImage.style.display = 'block';
-  });
-});
 
 });

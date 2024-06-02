@@ -2355,11 +2355,19 @@ section {
   object-fit: cover;
 }
 
+/* Hide video controls on iOS */
+#background-video::-webkit-media-controls {
+  display: none !important;
+}
 
+#background-video::--webkit-media-controls-start-playback-button {
+  display: none !important;
+}
 
-
-
-
+video::-webkit-media-controls-start-playback-button {
+  display: none !important;
+  -webkit-appearance: none;
+}
 
 /*--------------------------------------------------------------
 # Blog
