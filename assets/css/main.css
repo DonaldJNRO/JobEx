@@ -2277,6 +2277,8 @@ section {
 
 /* Styles specific to the video section */
 /* Existing styles */
+
+/* Styles specific to the video section */
 #video-section {
   position: relative;
   width: 100%;
@@ -2303,6 +2305,7 @@ section {
   height: 100%;
   object-fit: cover;
   z-index: -1;
+  pointer-events: none; /* Prevent user interaction with the video */
 }
 
 #video-section .overlay {
@@ -2333,10 +2336,25 @@ section {
   padding: 0; /* Ensure there are no paddings */
 }
 
-/* Hide video controls on iOS */
-#background-video::-webkit-media-controls {
-  display: none !important;
+#video-section .fallback-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 2;
 }
+
+#video-section .fallback-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 
 
 
