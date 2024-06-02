@@ -283,5 +283,4 @@ document.querySelectorAll('.service-item').forEach(item => {
   });
 });
 
-
 });
