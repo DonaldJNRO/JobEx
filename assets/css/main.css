@@ -2277,8 +2277,6 @@ section {
 
 /* Styles specific to the video section */
 /* Existing styles */
-
-/* Styles specific to the video section */
 #video-section {
   position: relative;
   width: 100%;
@@ -2334,6 +2332,12 @@ section {
   margin: 0; /* Ensure there are no margins */
   padding: 0; /* Ensure there are no paddings */
 }
+
+/* Hide video controls on iOS */
+#background-video::-webkit-media-controls {
+  display: none !important;
+}
+
 
 
 
