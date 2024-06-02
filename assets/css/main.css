@@ -2273,9 +2273,18 @@ section {
   opacity: 0.9;
 }
 
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
 .video-hero {
   position: relative;
   height: 100vh;
+  width: 100vw;
   overflow: hidden;
 }
 
@@ -2317,6 +2326,7 @@ section {
   font-size: 48px;
   font-weight: bold;
   color: #fff;
+  margin: 0;
 }
 
 .btn-get-started {
