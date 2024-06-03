@@ -2279,9 +2279,6 @@ section {
 /* Existing styles */
 
 /* Styles specific to the video section */
-/* Existing styles */
-
-/* Styles specific to the video section */
 #video-section {
   position: relative;
   width: 100%;
@@ -2377,16 +2374,9 @@ section {
   padding: 0;
 }
 
-.slider-container {
-  display: flex;
-  width: 300%;
-  height: 100%;
-  transition: transform 0.5s ease-in-out;
-}
-
-.slide {
+.carousel-item {
   width: 100%;
-  height: 100%;
+  height: 100vh;
   background-size: cover;
   background-position: center;
 }
@@ -2419,7 +2409,7 @@ section {
   padding: 0;
 }
 
-/* Hide the video section on mobile and the slider section on desktop */
+/* Hide the video section on mobile and the slider section on desktop and tablet */
 @media (max-width: 768px) {
   .desktop-only {
       display: none;

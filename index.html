@@ -79,12 +79,20 @@
 
   <!-- Slider Section for Mobile -->
   <section id="slider-section" class="mobile-only">
-      <div class="slider-container">
-          <div class="slide" style="background-image: url('assets/img/hero: carousel -2px;.jpg');"></div>
-          <div class="slide" style="background-image: url('assets/img/hero-carousel/hero-carousel-3.jpg')"></div>
-          <div class="slide" style="background-image: url('assets/img/hero-carousel/hero-carousel-4.jpg');"></div>
-          <div class="slide" style="background-image: url('assets/img/hero-carousel/hero-carousel-5.jpg');"></div>
-          <!-- Add more slides as needed -->
+      <div id="hero-carousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
+          <div class="carousel-inner">
+              <div class="carousel-item active" style="background-image: url('assets/img/hero-carousel/hero-carousel-1.jpg')"></div>
+              <div class="carousel-item" style="background-image: url('assets/img/hero-carousel/hero-carousel-2.jpg')"></div>
+              <div class="carousel-item" style="background-image: url('assets/img/hero-carousel/hero-carousel-3.jpg')"></div>
+              <div class="carousel-item" style="background-image: url('assets/img/hero-carousel/hero-carousel-4.jpg')"></div>
+              <div class="carousel-item" style="background-image: url('assets/img/hero-carousel/hero-carousel-5.jpg')"></div>
+          </div>
+          <a class="carousel-control-prev" href="#hero-carousel" role="button" data-bs-slide="prev">
+              <span class="carousel-control-prev-icon bi bi-chevron-left" aria-hidden="true"></span>
+          </a>
+          <a class="carousel-control-next" href="#hero-carousel" role="button" data-bs-slide="next">
+              <span class="carousel-control-next-icon bi bi-chevron-right" aria-hidden="true"></span>
+          </a>
       </div>
       <div class="overlay"></div>
       <div class="content">
@@ -94,6 +102,7 @@
 
   <!-- More of your existing HTML content -->
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/js/bootstrap.bundle.min.js"></script>
   <script>
       document.addEventListener('DOMContentLoaded', function() {
           const video = document.getElementById('background-video');
