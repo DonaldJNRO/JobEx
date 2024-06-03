@@ -283,6 +283,35 @@ document.querySelectorAll('.service-item').forEach(item => {
   });
 });
 
+document.addEventListener('DOMContentLoaded', function() {
+  const video = document.getElementById('background-video');
+  const fallbackImage = document.getElementById('fallback-image');
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+
+  video.play().catch(error => {
+      console.log('Autoplay prevented:', error);
+
+      video.addEventListener('loadeddata', () => {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+          const dataURL = canvas.toDataURL();
+
+          const img = document.createElement('img');
+          img.src = dataURL;
+          fallbackImage.appendChild(img);
+
+          const overlay = document.createElement('div');
+          overlay.className = 'fallback-overlay';
+          fallbackImage.appendChild(overlay);
+
+          fallbackImage.style.display = 'flex';
+      });
+  });
+});
 
 
 });
