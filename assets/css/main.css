@@ -2277,6 +2277,7 @@ section {
 
 /* Styles specific to the video section */
 /* Existing styles */
+/* Existing styles */
 
 /* Styles specific to the video section */
 #video-section {
@@ -2436,6 +2437,18 @@ video::-webkit-media-controls-start-playback-button {
   -webkit-appearance: none;
 }
 
+/* Style carousel control arrows */
+.carousel-control-prev,
+.carousel-control-next {
+  z-index: 2; /* Ensure they appear above the overlay */
+}
+
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+  background-color: rgba(0, 0, 0, 0.5); /* Adjust the background color for visibility */
+  border-radius: 50%;
+  padding: 10px;
+}
 
 /*--------------------------------------------------------------
 # Blog
