@@ -62,71 +62,80 @@
   </header><!-- End Header -->
 
   <!-- ======= Hero Section ======= -->
-  <!DOCTYPE html>
-  <html lang="en">
-  <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Your Website</title>
-      <link rel="stylesheet" href="styles.css">
-  </head>
-  <body>
-      <!-- Your existing HTML content -->
-  
-      <section id="video-section">
-          <div class="video-container">
-              <video autoplay muted loop playsinline id="background-video" preload="auto" webkit-playsinline>
-                  <source src="assets/Video/Drone view.mp4" type="video/mp4">
-                  Your browser does not support the video tag.
-              </video>
-              <div class="fallback-image" id="fallback-image"></div>
-              <div class="overlay"></div>
-              <div class="content">
-                  <h1 class="overlay-text">A Better Way to Rent</h1>
-              </div>
-          </div>
-      </section>
-  
-      <!-- More of your existing HTML content -->
-  
-      <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const video = document.getElementById('background-video');
-            const fallbackImage = document.getElementById('fallback-image');
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
+  <section id="video-section">
+    <div class="video-container">
+        <video autoplay muted loop playsinline id="background-video" preload="auto" webkit-playsinline>
+            <source src="assets/Video/Drone view.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <div class="fallback-image" id="fallback-image"></div>
+        <div class="overlay"></div>
+        <div class="content">
+            <h1 class="overlay-text">A Better Way to Rent</h1>
+        </div>
+    </div>
+</section>
+
+<!-- ======= Hero Section ======= -->
+<section id="hero" class="hero">
+    <div class="info d-flex align-items-center">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-6 text-center">
+                    <h2 data-aos="fade-down">A Better way to Rent<span></span></h2>
+                    <a data-aos="fade-up" data-aos-delay="200" href="#get-started" class="btn-get-started">Get Started</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="hero-carousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
+        <div class="carousel-item active" style="background-image: url(assets/img/hero-carousel/hero-carousel-1.jpg)"></div>
+        <div class="carousel-item" style="background-image: url(assets/img/hero-carousel/hero-carousel-2.jpg)"></div>
+        <div class="carousel-item" style="background-image: url(assets/img/hero-carousel/hero-carousel-3.jpg)"></div>
+        <div class="carousel-item" style="background-image: url(assets/img/hero-carousel/hero-carousel-4.jpg)"></div>
+        <div class="carousel-item" style="background-image: url(assets/img/hero-carousel/hero-carousel-5.jpg)"></div>
+        <a class="carousel-control-prev" href="#hero-carousel" role="button" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon bi bi-chevron-left" aria-hidden="true"></span>
+        </a>
+        <a class="carousel-control-next" href="#hero-carousel" role="button" data-bs-slide="next">
+            <span class="carousel-control-next-icon bi bi-chevron-right" aria-hidden="true"></span>
+        </a>
+    </div>
+</section>
     
-            video.play().catch(error => {
-                console.log('Autoplay prevented:', error);
-    
-                // Set canvas dimensions to the video dimensions
-                video.addEventListener('loadeddata', () => {
-                    canvas.width = video.videoWidth;
-                    canvas.height = video.videoHeight;
-    
-                    // Draw the current video frame to the canvas
-                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-    
-                    // Get the image data URL from the canvas
-                    const dataURL = canvas.toDataURL();
-    
-                    // Set the fallback image source to the captured frame
-                    const img = document.createElement('img');
-                    img.src = dataURL;
-                    fallbackImage.appendChild(img);
-    
-                    // Create and append the overlay div
-                    const overlay = document.createElement('div');
-                    overlay.className = 'fallback-overlay';
-                    fallbackImage.appendChild(overlay);
-    
-                    // Display the fallback image
-                    fallbackImage.style.display = 'block';
-                });
-            });
-        });
-    </script>
-    
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const video = document.getElementById('background-video');
+      const fallbackImage = document.getElementById('fallback-image');
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+
+      video.play().catch(error => {
+          console.log('Autoplay prevented:', error);
+
+          video.addEventListener('loadeddata', () => {
+              canvas.width = video.videoWidth;
+              canvas.height = video.videoHeight;
+
+              ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+              const dataURL = canvas.toDataURL();
+
+              const img = document.createElement('img');
+              img.src = dataURL;
+              fallbackImage.appendChild(img);
+
+              const overlay = document.createElement('div');
+              overlay.className = 'fallback-overlay';
+              fallbackImage.appendChild(overlay);
+
+              fallbackImage.style.display = 'flex';
+          });
+      });
+  });
+</script>
+
   </body>
   </html>
   
