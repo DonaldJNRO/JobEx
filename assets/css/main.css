@@ -2276,10 +2276,6 @@ section {
 /* Existing styles */
 
 /* Styles specific to the video section */
-/* Existing styles */
-/* Existing styles */
-
-/* Styles specific to the video section */
 #video-section {
   position: relative;
   width: 100%;
@@ -2320,12 +2316,14 @@ section {
 }
 
 #video-section .content {
-  position: relative;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   z-index: 2;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100%;
   text-align: center;
 }
 
@@ -2393,12 +2391,14 @@ section {
 }
 
 #slider-section .content {
-  position: relative;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   z-index: 2;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100%;
   text-align: center;
 }
 
@@ -2449,6 +2449,7 @@ video::-webkit-media-controls-start-playback-button {
   border-radius: 50%;
   padding: 10px;
 }
+
 
 /*--------------------------------------------------------------
 # Blog
