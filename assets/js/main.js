@@ -283,5 +283,57 @@ document.querySelectorAll('.service-item').forEach(item => {
   });
 });
 
+document.addEventListener('DOMContentLoaded', function() {
+  const video = document.getElementById('background-video');
+  const fallbackImage = document.getElementById('fallback-image');
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+
+  video.play().catch(error => {
+      console.log('Autoplay prevented:', error);
+
+      // Set canvas dimensions to the video dimensions
+      video.addEventListener('loadeddata', () => {
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+
+          // Draw the current video frame to the canvas
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+          // Get the image data URL from the canvas
+          const dataURL = canvas.toDataURL();
+
+          // Set the fallback image source to the captured frame
+          const img = document.createElement('img');
+          img.src = dataURL;
+          fallbackImage.appendChild(img);
+
+          // Create and append the overlay div
+          const overlay = document.createElement('div');
+          overlay.className = 'fallback-overlay';
+          fallbackImage.appendChild(overlay);
+
+          // Display the fallback image
+          fallbackImage.style.display = 'block';
+      });
+  });
+
+  // Slider functionality
+  let currentIndex = 0;
+  const slides = document.querySelectorAll('#slider-section .slide');
+  const totalSlides = slides.length;
+
+  function showSlide(index) {
+      const offset = -index * 100;
+      document.querySelector('.slider-container').style.transform = `translateX(${offset}%)`;
+  }
+
+  function nextSlide() {
+      currentIndex = (currentIndex + 1) % totalSlides;
+      showSlide(currentIndex);
+  }
+
+  setInterval(nextSlide, 5000); // Change slide every 5 seconds
+});
 
 });

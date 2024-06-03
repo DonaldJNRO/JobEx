@@ -62,59 +62,75 @@
   </header><!-- End Header -->
 
   <!-- ======= Hero Section ======= -->
-  <section id="video-section">
-    <div class="video-container">
-        <video autoplay muted loop playsinline id="background-video" preload="auto" webkit-playsinline>
-            <source src="assets/Video/Drone view.mp4" type="video/mp4">
-            Your browser does not support the video tag.
-        </video>
-        <div class="fallback-image" id="fallback-image"></div>
-        <div class="overlay"></div>
-        <div class="content">
-            <h1 class="overlay-text">A Better Way to Rent</h1>
-        </div>
-    </div>
-</section>
+    <!-- Video Section for Desktop and Tablet -->
+    <section id="video-section" class="desktop-only">
+      <div class="video-container">
+          <video autoplay muted loop playsinline id="background-video" preload="auto" webkit-playsinline>
+              <source src="assets/Video/Drone view.mp4" type="video/mp4">
+              Your browser does not support the video tag.
+          </video>
+          <div class="fallback-image" id="fallback-image"></div>
+          <div class="overlay"></div>
+          <div class="content">
+              <h1 class="overlay-text">A Better Way to Rent</h1>
+          </div>
+      </div>
+  </section>
 
-<!-- More of your existing HTML content -->
+  <!-- Slider Section for Mobile -->
+  <section id="slider-section" class="mobile-only">
+      <div class="slider-container">
+          <div class="slide" style="background-image: url('assets/img/hero: carousel -2px;.jpg');"></div>
+          <div class="slide" style="background-image: url('assets/img/hero-carousel/hero-carousel-3.jpg')"></div>
+          <div class="slide" style="background-image: url('assets/img/hero-carousel/hero-carousel-4.jpg');"></div>
+          <div class="slide" style="background-image: url('assets/img/hero-carousel/hero-carousel-5.jpg');"></div>
+          <!-- Add more slides as needed -->
+      </div>
+      <div class="overlay"></div>
+      <div class="content">
+          <h1 class="overlay-text">A Better Way to Rent</h1>
+      </div>
+  </section>
 
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-      const video = document.getElementById('background-video');
-      const fallbackImage = document.getElementById('fallback-image');
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
+  <!-- More of your existing HTML content -->
 
-      video.play().catch(error => {
-          console.log('Autoplay prevented:', error);
+  <script>
+      document.addEventListener('DOMContentLoaded', function() {
+          const video = document.getElementById('background-video');
+          const fallbackImage = document.getElementById('fallback-image');
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
 
-          // Set canvas dimensions to the video dimensions
-          video.addEventListener('loadeddata', () => {
-              canvas.width = video.videoWidth;
-              canvas.height = video.videoHeight;
+          video.play().catch(error => {
+              console.log('Autoplay prevented:', error);
 
-              // Draw the current video frame to the canvas
-              ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+              // Set canvas dimensions to the video dimensions
+              video.addEventListener('loadeddata', () => {
+                  canvas.width = video.videoWidth;
+                  canvas.height = video.videoHeight;
 
-              // Get the image data URL from the canvas
-              const dataURL = canvas.toDataURL();
+                  // Draw the current video frame to the canvas
+                  ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-              // Set the fallback image source to the captured frame
-              const img = document.createElement('img');
-              img.src = dataURL;
-              fallbackImage.appendChild(img);
+                  // Get the image data URL from the canvas
+                  const dataURL = canvas.toDataURL();
 
-              // Create and append the overlay div
-              const overlay = document.createElement('div');
-              overlay.className = 'fallback-overlay';
-              fallbackImage.appendChild(overlay);
+                  // Set the fallback image source to the captured frame
+                  const img = document.createElement('img');
+                  img.src = dataURL;
+                  fallbackImage.appendChild(img);
 
-              // Display the fallback image
-              fallbackImage.style.display = 'block';
+                  // Create and append the overlay div
+                  const overlay = document.createElement('div');
+                  overlay.className = 'fallback-overlay';
+                  fallbackImage.appendChild(overlay);
+
+                  // Display the fallback image
+                  fallbackImage.style.display = 'block';
+              });
           });
       });
-  });
-</script>
+  </script>
 
 
   <!-- End Hero Section -->
