@@ -716,7 +716,7 @@ section {
 }
 
 .services .service-item .card-video {
-  display: none;
+  display: block; /* Always display the video */
   position: absolute;
   top: 0;
   left: 0;
@@ -726,25 +726,51 @@ section {
   z-index: 0; /* Position it behind the text */
 }
 
-.services .service-item:hover .card-video {
-  display: block;
-  z-index: 1; /* Bring it in front of the text on hover */
+.services .service-item .video-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* Overlay with transparency */
+  z-index: 1;
+  pointer-events: none; /* Ensure the overlay does not interfere with hover events */
 }
 
-/* Hide the text when hovering */
-.services .service-item:hover .icon,
-.services .service-item:hover h3,
-.services .service-item:hover p,
-.services .service-item:hover .readmore {
-  display: none;
-}services-cards
+/* Ensure the text is visible on top of the video */
+.services .service-item .icon,
+.services .service-item h3,
+.services .service-item p,
+.services .service-item .readmore {
+  position: relative;
+  z-index: 2;
+}
 
-/* Hide the text when hovering 
+.services .service-item .icon:before {
+  background: #f0f1f2;
+  border-radius: 50px;
+  top: 10px;
+  right: -15px;
+  transition: 0.3s;
+}
+
+.services .service-item h3:after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -3px;
+  height: 3px;
+  width: 100%;
+  background: linear-gradient(45deg, #b00153, #9041f7, #626262);
+  background-size: 300% 300%;
+  animation: GradientFlow 3s ease infinite;
+}
+
 @keyframes GradientFlow {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
-}*/
+}
 
 .services .service-item:hover .icon:before {
   background: linear-gradient(45deg, #b00153, #9041f7, #626262);
@@ -757,17 +783,9 @@ section {
   position: relative; /* Needed if not already set */
 }
 
-.services .service-item:hover h3:after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: -3px; /* Adjust based on your layout */
-  height: 3px; /* Height of the border */
-  width: 100%; /* Full width */
-  background: linear-gradient(45deg, #b00153, #9041f7, #626262);
-  background-size: 300% 300%;
-  animation: GradientFlow 3s ease infinite;
-}
+
+
+
 
 /*--------------------------------------------------------------
 # Features Section
@@ -1536,6 +1554,18 @@ section {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  pointer-events: none; /* This prevents the video from popping out */
+  border-radius: 10px;
+}
+
+.building-future .video-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* Add a semi-transparent overlay */
+  z-index: 1;
 }
 
 .building-future .future-content {
@@ -1547,6 +1577,7 @@ section {
   color: #5e5e5e;
   font-weight: bold;
   margin-bottom: 20px;
+  text-align: center;
 }
 
 .building-future p {
@@ -1571,9 +1602,124 @@ section {
   margin-right: 10px;
 }
 
+@media (max-width: 767px) {
+  .building-future .future-content {
+    margin-top: 20px;
+    padding: 0 20px; /* Add padding to ensure proper spacing on mobile */
+  }
+
+  .building-future h2 {
+    font-size: 24px;
+  }
+
+  .building-future p {
+    font-size: 14px;
+  }
+
+  .building-future .future-list li {
+    font-size: 14px;
+  }
+}
 
 
 
+.features {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
+
+.feature {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin: 40px 0;
+  max-width: 1200px;
+  width: 100%;
+}
+
+.feature.reverse {
+  flex-direction: column-reverse;
+}
+
+.feature img {
+  width: 100%;
+  max-width: 500px; /* Set a maximum width for the image */
+  height: auto;
+  margin-top: 20px;
+}
+
+.feature-text {
+  padding: 20px;
+  max-width: 800px;
+}
+
+.feature-text h2 {
+  color: #5c3c92;
+}
+
+.feature-text ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.feature-text ul li {
+  position: relative;
+  padding-left: 30px;
+  margin: 10px 0;
+}
+
+.feature-text ul li::before {
+  content: '\f00c'; /* FontAwesome check icon */
+  font-family: 'FontAwesome';
+  position: absolute;
+  left: 0;
+  color: #5c3c92;
+  font-size: 20px;
+}
+
+/* Responsive styles */
+@media (min-width: 768px) {
+  .feature {
+    flex-direction: row;
+    text-align: left;
+  }
+
+  .feature.reverse {
+    flex-direction: row-reverse;
+  }
+
+  .feature img {
+    max-width: 50%;
+    margin-top: 0;
+  }
+
+  .feature-text {
+    max-width: 50%;
+    padding: 20px 40px;
+  }
+}
+
+@media (max-width: 767px) {
+  .feature {
+    flex-direction: column;
+  }
+
+  .feature.reverse {
+    flex-direction: column;
+  }
+
+  .feature img {
+    margin-top: 20px;
+  }
+
+  .feature-text ul li::before {
+    font-size: 16px; /* Smaller icon size for mobile */
+  }
+}
 
 
 
