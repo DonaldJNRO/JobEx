@@ -322,4 +322,33 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
   });
 });
 
+document.addEventListener('DOMContentLoaded', function () {
+  // GSAP animations
+  gsap.from('.timeline-item', {
+      opacity: 0,
+      y: 50,
+      duration: 1,
+      stagger: 0.3,
+      ease: 'power2.out'
+  });
+
+  // Adding interactivity
+  const items = document.querySelectorAll('.timeline-item');
+
+  items.forEach(item => {
+      item.addEventListener('click', () => {
+          alert('You clicked on: ' + item.querySelector('h3').innerText);
+      });
+  });
+
+  // Horizontal scroll snapping
+  const container = document.querySelector('.timeline-container');
+  container.addEventListener('wheel', (e) => {
+      if (e.deltaY !== 0) {
+          e.preventDefault();
+          container.scrollLeft += e.deltaY * 3;
+      }
+  });
+});
+
 });
