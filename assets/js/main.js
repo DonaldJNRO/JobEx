@@ -209,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
     aos_init();
   });
 
-  var countDownDate = new Date("November 1, 2024 23:59:59").getTime();
+  var countDownDate = new Date("July 1, 2025 23:59:59").getTime();
 
   // Function to update the countdown number with animation only if the number has changed
   function updateNumber(elementId, value) {
