@@ -160,6 +160,34 @@
       padding: 120px 40px 80px;
       position: relative;
       z-index: 1;
+      overflow: hidden;
+    }
+
+    /* Blurred decorative shapes */
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -100px;
+      left: -150px;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(68, 54, 109, 0.15) 0%, transparent 70%);
+      filter: blur(60px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -150px;
+      right: -100px;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(255, 211, 105, 0.12) 0%, transparent 70%);
+      filter: blur(80px);
+      pointer-events: none;
+      z-index: 0;
     }
 
     .hero-container {
