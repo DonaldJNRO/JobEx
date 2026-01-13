@@ -467,6 +467,61 @@
       color: var(--text-muted);
     }
 
+    /* Backed By Section */
+    .backed-by {
+      padding: 60px 40px;
+      background: var(--neutral-light);
+      position: relative;
+      z-index: 1;
+    }
+
+    .backed-by-container {
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .backed-by-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+    }
+
+    .backed-by-logos {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 48px;
+      flex-wrap: wrap;
+    }
+
+    .backed-by-logo {
+      height: 40px;
+      opacity: 0.8;
+      transition: opacity 0.3s ease;
+    }
+
+    .backed-by-logo:hover {
+      opacity: 1;
+    }
+
+    @media (max-width: 768px) {
+      .backed-by {
+        padding: 48px 20px;
+      }
+
+      .backed-by-logos {
+        gap: 32px;
+      }
+
+      .backed-by-logo {
+        height: 32px;
+      }
+    }
+
     /* Waitlist Section */
     .waitlist {
       padding: 120px 40px;
@@ -882,6 +937,21 @@
           <h3 class="feature-title">Trip Chat</h3>
           <p class="feature-desc">Keep everything in one place</p>
         </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Backed By Section -->
+  <section class="backed-by">
+    <div class="backed-by-container fade-up">
+      <p class="backed-by-label">Backed by</p>
+      <div class="backed-by-logos">
+        <a href="https://labs.uk.barclays/" target="_blank" rel="noopener noreferrer">
+          <img src="assets/img/barclays-eagle-labs-logo.svg" alt="Barclays Eagle Labs" class="backed-by-logo">
+        </a>
+        <a href="https://www.foundervine.com/" target="_blank" rel="noopener noreferrer">
+          <img src="assets/img/fv-partner-new24.svg" alt="Foundervine" class="backed-by-logo">
+        </a>
       </div>
     </div>
   </section>
