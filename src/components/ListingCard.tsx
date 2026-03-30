@@ -15,11 +15,11 @@ export default function ListingCard({ listing, index = 0 }: { listing: Listing; 
   return (
     <Link
       href={`/listing/${listing.id}`}
-      className="group block card-hover rounded-2xl overflow-hidden bg-white dark:bg-card-dark border border-border-light dark:border-border-dark"
+      className="group block card-hover rounded-2xl overflow-hidden bg-[#18181f] border border-white/6"
       style={{ animationDelay: `${index * 0.06}s` }}
     >
       {/* Image */}
-      <div className="relative aspect-[4/3] overflow-hidden bg-neutral-light dark:bg-neutral-dark">
+      <div className="relative aspect-[4/3] overflow-hidden bg-[#0f0f13]">
         {image ? (
           <Image
             src={image}
@@ -38,7 +38,7 @@ export default function ListingCard({ listing, index = 0 }: { listing: Listing; 
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
         {/* Category pill */}
-        <div className="absolute top-3 left-3 bg-white/90 dark:bg-black/60 backdrop-blur-md text-[11px] font-semibold px-2.5 py-1 rounded-full text-text-primary dark:text-white shadow-sm">
+        <div className="absolute top-3 left-3 bg-white/90 bg-black/60 backdrop-blur-md text-[11px] font-semibold px-2.5 py-1 rounded-full text-white shadow-sm">
           {category}
         </div>
 
@@ -51,7 +51,7 @@ export default function ListingCard({ listing, index = 0 }: { listing: Listing; 
 
         {/* Price on hover */}
         <div className="absolute bottom-3 left-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-          <span className="bg-white/95 dark:bg-black/80 backdrop-blur-md text-sm font-bold text-primary dark:text-secondary px-3 py-1.5 rounded-lg shadow-md">
+          <span className="bg-white/95 bg-black/80 backdrop-blur-md text-sm font-bold text-secondary px-3 py-1.5 rounded-lg shadow-md">
             {price}
           </span>
         </div>
@@ -60,7 +60,7 @@ export default function ListingCard({ listing, index = 0 }: { listing: Listing; 
       {/* Info */}
       <div className="p-3.5">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="font-semibold text-[13px] text-text-primary dark:text-white leading-snug line-clamp-1 group-hover:text-primary dark:group-hover:text-secondary transition-colors">
+          <h3 className="font-semibold text-[13px] text-white leading-snug line-clamp-1 group-hover:text-primary group-hover:text-secondary transition-colors">
             {name}
           </h3>
           {listing.rating && (
@@ -76,7 +76,7 @@ export default function ListingCard({ listing, index = 0 }: { listing: Listing; 
             <span className="truncate">{location}</span>
           </p>
         )}
-        <p className="text-sm font-bold text-primary dark:text-secondary mt-2">{price}</p>
+        <p className="text-sm font-bold text-secondary mt-2">{price}</p>
       </div>
     </Link>
   );

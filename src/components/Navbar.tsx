@@ -3,57 +3,72 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 import { Menu, X, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+
+const NAV_LINKS = [
+  { href: "/explore", label: "Explore" },
+  { href: "/about", label: "About" },
+  { href: "/contact", label: "Contact" },
+];
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user, userProfile, loading } = useAuth();
+  const pathname = usePathname();
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-neutral-dark/80 backdrop-blur-xl border-b border-black/5 dark:border-white/5">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0f0f13]/80 backdrop-blur-xl border-b border-white/5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2.5">
             <Image src="/images/logo-sabie.jpg" alt="Sabie" width={32} height={32} className="rounded-lg" />
-            <span className="text-lg font-bold text-primary dark:text-white">Sabię</span>
+            <span className="text-lg font-bold text-white">Sabię</span>
           </Link>
 
           {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-8">
-            <Link href="/explore" className="text-sm font-medium text-text-primary dark:text-white/80 hover:text-primary transition-colors">
-              Explore
-            </Link>
-            <Link href="/about" className="text-sm font-medium text-text-primary dark:text-white/80 hover:text-primary transition-colors">
-              About
-            </Link>
-            <Link href="/contact" className="text-sm font-medium text-text-primary dark:text-white/80 hover:text-primary transition-colors">
-              Contact
-            </Link>
+          <div className="hidden md:flex items-center gap-1">
+            {NAV_LINKS.map((link) => {
+              const isActive = pathname === link.href || pathname.startsWith(link.href + "/");
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`text-sm font-medium px-4 py-2 rounded-lg transition-all ${
+                    isActive
+                      ? "text-white bg-white/10"
+                      : "text-white/50 hover:text-white hover:bg-white/5"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </div>
 
           {/* Auth CTA */}
           <div className="hidden md:flex items-center gap-3">
             {!loading && user ? (
-              <Link href="/account" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+              <Link href="/account" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
                 {userProfile?.profileImage ? (
-                  <Image src={userProfile.profileImage} alt="" width={32} height={32} className="rounded-full" />
+                  <Image src={userProfile.profileImage} alt="" width={32} height={32} className="rounded-full border border-white/10" />
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                    <User size={16} className="text-primary" />
+                  <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                    <User size={16} className="text-secondary" />
                   </div>
                 )}
-                <span className="text-sm font-medium text-text-primary dark:text-white">
+                <span className="text-sm font-medium text-white/80">
                   {userProfile?.fullName?.split(" ")[0] || "Account"}
                 </span>
               </Link>
             ) : !loading ? (
               <>
-                <Link href="/auth/login" className="text-sm font-medium text-text-primary dark:text-white/80 hover:text-primary transition-colors px-3 py-2">
+                <Link href="/auth/login" className="text-sm font-medium text-white/50 hover:text-white px-4 py-2 transition-colors">
                   Log in
                 </Link>
-                <Link href="/auth/signup" className="text-sm font-semibold bg-primary hover:bg-primary-dark text-white px-5 py-2.5 rounded-full transition-colors">
+                <Link href="/auth/signup" className="text-sm font-semibold bg-secondary hover:bg-secondary-dark text-[#0f0f13] px-5 py-2.5 rounded-full transition-colors">
                   Sign up
                 </Link>
               </>
@@ -61,7 +76,7 @@ export default function Navbar() {
           </div>
 
           {/* Mobile menu button */}
-          <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden p-2 text-text-primary dark:text-white">
+          <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden p-2 text-white/70">
             {mobileOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
@@ -69,21 +84,30 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden bg-white dark:bg-neutral-dark border-t border-black/5 dark:border-white/5 px-4 py-4 space-y-3">
-          <Link href="/explore" className="block text-sm font-medium py-2" onClick={() => setMobileOpen(false)}>Explore</Link>
-          <Link href="/about" className="block text-sm font-medium py-2" onClick={() => setMobileOpen(false)}>About</Link>
-          <Link href="/contact" className="block text-sm font-medium py-2" onClick={() => setMobileOpen(false)}>Contact</Link>
-          <hr className="border-black/5 dark:border-white/10" />
+        <div className="md:hidden bg-[#0f0f13] border-t border-white/5 px-4 py-4 space-y-1">
+          {NAV_LINKS.map((link) => {
+            const isActive = pathname === link.href;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`block text-sm font-medium py-2.5 px-3 rounded-lg transition-colors ${isActive ? "text-white bg-white/10" : "text-white/50 hover:text-white"}`}
+                onClick={() => setMobileOpen(false)}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
+          <hr className="border-white/5 my-2" />
           {user ? (
             <>
-              <Link href="/account" className="block text-sm font-medium py-2" onClick={() => setMobileOpen(false)}>My Account</Link>
-              <Link href="/bookings" className="block text-sm font-medium py-2" onClick={() => setMobileOpen(false)}>My Bookings</Link>
-              <Link href="/favorites" className="block text-sm font-medium py-2" onClick={() => setMobileOpen(false)}>Saved</Link>
+              <Link href="/account" className="block text-sm font-medium py-2.5 px-3 text-white/50 hover:text-white" onClick={() => setMobileOpen(false)}>My Account</Link>
+              <Link href="/bookings" className="block text-sm font-medium py-2.5 px-3 text-white/50 hover:text-white" onClick={() => setMobileOpen(false)}>My Bookings</Link>
             </>
           ) : (
             <>
-              <Link href="/auth/login" className="block text-sm font-medium py-2" onClick={() => setMobileOpen(false)}>Log in</Link>
-              <Link href="/auth/signup" className="block text-sm font-semibold bg-primary text-white text-center py-3 rounded-full" onClick={() => setMobileOpen(false)}>Sign up</Link>
+              <Link href="/auth/login" className="block text-sm font-medium py-2.5 px-3 text-white/50" onClick={() => setMobileOpen(false)}>Log in</Link>
+              <Link href="/auth/signup" className="block text-sm font-semibold bg-secondary text-[#0f0f13] text-center py-3 rounded-full mt-2" onClick={() => setMobileOpen(false)}>Sign up</Link>
             </>
           )}
         </div>

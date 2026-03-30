@@ -19,13 +19,13 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <head>
         <link rel="icon" href="/images/favicon.ico" />
         <link rel="apple-touch-icon" href="/images/apple-touch-icon.png" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
       </head>
-      <body className="min-h-screen bg-neutral-light dark:bg-neutral-dark antialiased">
+      <body className="min-h-screen bg-[#0f0f13] text-[#e4e4e8] antialiased">
         <AuthProvider>
           <Navbar />
           <main className="pt-16">{children}</main>

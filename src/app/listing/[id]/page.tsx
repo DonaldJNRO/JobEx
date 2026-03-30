@@ -44,17 +44,17 @@ export default function ListingDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-neutral-light dark:bg-neutral-dark">
+      <div className="min-h-screen bg-[#0f0f13]">
         <div className="max-w-6xl mx-auto px-4 py-8">
           <div className="animate-pulse space-y-6">
-            <div className="aspect-[2.2/1] rounded-2xl bg-black/5 dark:bg-white/5 animate-shimmer" />
+            <div className="aspect-[2.2/1] rounded-2xl bg-white/5 animate-shimmer" />
             <div className="grid lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2 space-y-4">
-                <div className="h-8 w-2/3 rounded-lg bg-black/5 dark:bg-white/5" />
-                <div className="h-4 w-1/3 rounded-lg bg-black/5 dark:bg-white/5" />
-                <div className="h-32 rounded-xl bg-black/5 dark:bg-white/5" />
+                <div className="h-8 w-2/3 rounded-lg bg-white/5" />
+                <div className="h-4 w-1/3 rounded-lg bg-white/5" />
+                <div className="h-32 rounded-xl bg-white/5" />
               </div>
-              <div className="h-64 rounded-2xl bg-black/5 dark:bg-white/5" />
+              <div className="h-64 rounded-2xl bg-white/5" />
             </div>
           </div>
         </div>
@@ -64,12 +64,12 @@ export default function ListingDetailPage() {
 
   if (!listing) {
     return (
-      <div className="min-h-screen bg-neutral-light dark:bg-neutral-dark flex items-center justify-center">
+      <div className="min-h-screen bg-[#0f0f13] flex items-center justify-center">
         <div className="text-center">
           <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
             <MapPin size={32} className="text-primary/40" />
           </div>
-          <h2 className="text-2xl font-bold text-text-primary dark:text-white">Listing not found</h2>
+          <h2 className="text-2xl font-bold text-white">Listing not found</h2>
           <p className="text-text-muted mt-2">This listing may have been removed.</p>
           <Link href="/explore" className="inline-flex items-center gap-2 mt-6 bg-primary text-white px-6 py-3 rounded-full font-semibold hover:bg-primary-dark transition-colors">
             Browse Listings
@@ -88,7 +88,7 @@ export default function ListingDetailPage() {
   const amenities = listing.selectedAmenities || listing.amenities || [];
 
   return (
-    <div ref={revealRef} className="min-h-screen bg-neutral-light dark:bg-neutral-dark">
+    <div ref={revealRef} className="min-h-screen bg-[#0f0f13]">
       {/* Image Gallery */}
       <div className="relative bg-neutral-dark">
         <div className="max-w-6xl mx-auto">
@@ -194,12 +194,12 @@ export default function ListingDetailPage() {
             {(listing.subCategory?.name || location) && (
               <div className="flex flex-wrap gap-2 reveal">
                 {listing.subCategory?.name && (
-                  <span className="inline-flex items-center gap-1.5 bg-primary/5 dark:bg-primary/10 text-primary dark:text-secondary text-xs font-semibold px-3.5 py-2 rounded-xl">
+                  <span className="inline-flex items-center gap-1.5 bg-primary/10 text-secondary text-xs font-semibold px-3.5 py-2 rounded-xl">
                     <Globe size={12} /> {listing.subCategory.name}
                   </span>
                 )}
                 {location && (
-                  <span className="inline-flex items-center gap-1.5 bg-black/5 dark:bg-white/5 text-text-muted text-xs font-medium px-3.5 py-2 rounded-xl">
+                  <span className="inline-flex items-center gap-1.5 bg-white/5 text-text-muted text-xs font-medium px-3.5 py-2 rounded-xl">
                     <MapPin size={12} /> {location}
                   </span>
                 )}
@@ -209,7 +209,7 @@ export default function ListingDetailPage() {
             {/* Description */}
             {listing.description && (
               <div className="reveal">
-                <h2 className="text-lg font-bold text-text-primary dark:text-white mb-4">About this place</h2>
+                <h2 className="text-lg font-bold text-white mb-4">About this place</h2>
                 <p className="text-text-muted leading-[1.8] whitespace-pre-line">{listing.description}</p>
               </div>
             )}
@@ -217,16 +217,16 @@ export default function ListingDetailPage() {
             {/* Amenities */}
             {amenities.length > 0 && (
               <div className="reveal">
-                <h2 className="text-lg font-bold text-text-primary dark:text-white mb-5">What this place offers</h2>
+                <h2 className="text-lg font-bold text-white mb-5">What this place offers</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {amenities.slice(0, 12).map((a) => {
                     const IconComp = AMENITY_ICONS[a.toLowerCase()] || Check;
                     return (
-                      <div key={a} className="flex items-center gap-3 p-3.5 rounded-xl bg-white dark:bg-card-dark border border-border-light dark:border-border-dark group hover:border-primary/20 dark:hover:border-secondary/20 transition-colors">
-                        <div className="w-9 h-9 rounded-lg bg-primary/8 dark:bg-primary/15 flex items-center justify-center group-hover:scale-110 transition-transform">
-                          <IconComp size={16} className="text-primary dark:text-secondary" />
+                      <div key={a} className="flex items-center gap-3 p-3.5 rounded-xl bg-[#18181f] border border-white/6 group hover:border-secondary/20 transition-colors">
+                        <div className="w-9 h-9 rounded-lg bg-primary/12 flex items-center justify-center group-hover:scale-110 transition-transform">
+                          <IconComp size={16} className="text-secondary" />
                         </div>
-                        <span className="text-sm font-medium capitalize text-text-primary dark:text-white">{a.replace(/_/g, " ")}</span>
+                        <span className="text-sm font-medium capitalize text-white">{a.replace(/_/g, " ")}</span>
                       </div>
                     );
                   })}
@@ -237,8 +237,8 @@ export default function ListingDetailPage() {
 
           {/* Sidebar — Booking Card */}
           <div className="lg:col-span-1">
-            <div className="sticky top-24 bg-white dark:bg-card-dark rounded-2xl border border-border-light dark:border-border-dark p-7 shadow-xl shadow-black/5 dark:shadow-black/20">
-              <div className="text-3xl font-extrabold text-primary dark:text-secondary mb-1">{price}</div>
+            <div className="sticky top-24 bg-[#18181f] rounded-2xl border border-white/6 p-7 shadow-xl shadow-black/5 ">
+              <div className="text-3xl font-extrabold text-secondary mb-1">{price}</div>
               <p className="text-sm text-text-muted mb-7">per {listing.pricingUnit?.replace("per_", "").replace(/_/g, " ") || "night"}</p>
 
               {/* Book on app */}
@@ -252,31 +252,31 @@ export default function ListingDetailPage() {
               </a>
               <p className="text-[11px] text-text-muted text-center mt-3">Download Sabię to book and manage your trip</p>
 
-              <div className="my-6 border-t border-border-light dark:border-border-dark" />
+              <div className="my-6 border-t border-white/6" />
 
               {/* Quick info */}
               <div className="space-y-4 text-sm">
                 {listing.subCategory?.name && (
                   <div className="flex justify-between">
                     <span className="text-text-muted">Type</span>
-                    <span className="font-semibold text-text-primary dark:text-white">{listing.subCategory.name}</span>
+                    <span className="font-semibold text-white">{listing.subCategory.name}</span>
                   </div>
                 )}
                 {location && (
                   <div className="flex justify-between">
                     <span className="text-text-muted">Location</span>
-                    <span className="font-semibold text-text-primary dark:text-white text-right max-w-[60%]">{location}</span>
+                    <span className="font-semibold text-white text-right max-w-[60%]">{location}</span>
                   </div>
                 )}
                 {(listing.viewsCount || listing.views) && (
                   <div className="flex justify-between">
                     <span className="text-text-muted">Views</span>
-                    <span className="font-semibold text-text-primary dark:text-white">{(listing.viewsCount || listing.views || 0).toLocaleString()}</span>
+                    <span className="font-semibold text-white">{(listing.viewsCount || listing.views || 0).toLocaleString()}</span>
                   </div>
                 )}
               </div>
 
-              <div className="my-6 border-t border-border-light dark:border-border-dark" />
+              <div className="my-6 border-t border-white/6" />
 
               {/* Trust badges */}
               <div className="space-y-3">
@@ -286,7 +286,7 @@ export default function ListingDetailPage() {
                   { icon: Heart, text: "Free cancellation" },
                 ].map((badge) => (
                   <div key={badge.text} className="flex items-center gap-2.5 text-xs text-text-muted">
-                    <badge.icon size={14} className="text-primary dark:text-secondary shrink-0" />
+                    <badge.icon size={14} className="text-secondary shrink-0" />
                     {badge.text}
                   </div>
                 ))}
@@ -298,14 +298,14 @@ export default function ListingDetailPage() {
 
       {/* Similar Listings */}
       {similarListings.length > 0 && (
-        <section className="py-16 bg-white dark:bg-card-dark border-t border-border-light dark:border-border-dark">
+        <section className="py-16 bg-[#18181f] border-t border-white/6">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-end justify-between mb-8 reveal">
               <div>
-                <p className="text-xs font-bold text-primary dark:text-secondary uppercase tracking-[0.2em] mb-2">More to explore</p>
-                <h2 className="text-2xl font-extrabold text-text-primary dark:text-white">Similar Listings</h2>
+                <p className="text-xs font-bold text-secondary uppercase tracking-[0.2em] mb-2">More to explore</p>
+                <h2 className="text-2xl font-extrabold text-white">Similar Listings</h2>
               </div>
-              <Link href="/explore" className="text-sm font-bold text-primary dark:text-secondary hover:underline underline-offset-4">
+              <Link href="/explore" className="text-sm font-bold text-secondary hover:underline underline-offset-4">
                 View all <ChevronRight size={14} className="inline" />
               </Link>
             </div>

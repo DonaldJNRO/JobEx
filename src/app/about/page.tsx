@@ -10,7 +10,7 @@ const TEAM = [
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen bg-neutral-light dark:bg-neutral-dark">
+    <div className="min-h-screen bg-[#0f0f13]">
       {/* Hero */}
       <section className="bg-gradient-to-br from-primary to-primary-dark py-24 text-center">
         <div className="max-w-3xl mx-auto px-4">
@@ -26,7 +26,7 @@ export default function AboutPage() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-2xl font-bold text-text-primary dark:text-white mb-4">Our Mission</h2>
+              <h2 className="text-2xl font-bold text-white mb-4">Our Mission</h2>
               <p className="text-text-muted leading-relaxed mb-4">
                 Travel is better with friends. But planning a group trip? That&apos;s a nightmare of WhatsApp polls, spreadsheet budgets, and someone always ghosting the chat.
               </p>
@@ -36,14 +36,14 @@ export default function AboutPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               {[
-                { icon: Globe, label: "50+ Countries", desc: "Listings worldwide" },
-                { icon: Users, label: "10K+ Users", desc: "Growing community" },
+                { icon: Globe, label: "Global", desc: "Listings worldwide" },
                 { icon: Sparkles, label: "AI-Powered", desc: "Smart recommendations" },
                 { icon: Shield, label: "Verified", desc: "Trusted hosts" },
+                { icon: Users, label: "Group-First", desc: "Built for crews" },
               ].map((s) => (
-                <div key={s.label} className="bg-white dark:bg-card-dark p-5 rounded-2xl border border-black/5 dark:border-white/5 text-center">
-                  <s.icon size={24} className="mx-auto text-primary dark:text-secondary mb-2" />
-                  <p className="font-bold text-sm text-text-primary dark:text-white">{s.label}</p>
+                <div key={s.label} className="bg-[#18181f] p-5 rounded-2xl border border-white/6 text-center">
+                  <s.icon size={24} className="mx-auto text-secondary mb-2" />
+                  <p className="font-bold text-sm text-white">{s.label}</p>
                   <p className="text-xs text-text-muted mt-0.5">{s.desc}</p>
                 </div>
               ))}
@@ -53,16 +53,16 @@ export default function AboutPage() {
       </section>
 
       {/* Team */}
-      <section className="py-20 bg-white dark:bg-card-dark">
+      <section className="py-20 bg-[#18181f]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-bold text-text-primary dark:text-white text-center mb-12">Meet the Team</h2>
+          <h2 className="text-2xl font-bold text-white text-center mb-12">Meet the Team</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {TEAM.map((t) => (
               <div key={t.name} className="text-center">
-                <div className="relative w-28 h-28 mx-auto rounded-full overflow-hidden bg-black/5 dark:bg-white/5 mb-4">
+                <div className="relative w-28 h-28 mx-auto rounded-full overflow-hidden bg-white/5 mb-4">
                   <Image src={t.image} alt={t.name} fill className="object-cover" />
                 </div>
-                <h3 className="font-semibold text-sm text-text-primary dark:text-white">{t.name}</h3>
+                <h3 className="font-semibold text-sm text-white">{t.name}</h3>
                 <p className="text-xs text-text-muted mt-0.5">{t.role}</p>
               </div>
             ))}

@@ -25,16 +25,16 @@ export default function ExplorePage() {
 
 function ExploreLoading() {
   return (
-    <div className="min-h-screen bg-neutral-light dark:bg-neutral-dark pt-8">
+    <div className="min-h-screen bg-[#0f0f13] pt-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 mt-12">
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="animate-pulse rounded-2xl overflow-hidden bg-white dark:bg-card-dark border border-border-light dark:border-border-dark">
-              <div className="aspect-[4/3] bg-black/5 dark:bg-white/5" />
+            <div key={i} className="animate-pulse rounded-2xl overflow-hidden bg-[#18181f] border border-white/6">
+              <div className="aspect-[4/3] bg-white/5" />
               <div className="p-4 space-y-2.5">
-                <div className="h-4 w-3/4 rounded-lg bg-black/5 dark:bg-white/5" />
-                <div className="h-3 w-1/2 rounded-lg bg-black/5 dark:bg-white/5" />
-                <div className="h-4 w-1/3 rounded-lg bg-black/5 dark:bg-white/5" />
+                <div className="h-4 w-3/4 rounded-lg bg-white/5" />
+                <div className="h-3 w-1/2 rounded-lg bg-white/5" />
+                <div className="h-4 w-1/3 rounded-lg bg-white/5" />
               </div>
             </div>
           ))}
@@ -84,7 +84,7 @@ function ExploreContent() {
     : listings;
 
   return (
-    <div ref={revealRef} className="min-h-screen bg-neutral-light dark:bg-neutral-dark">
+    <div ref={revealRef} className="min-h-screen bg-[#0f0f13]">
       {/* Hero header */}
       <div className="relative bg-gradient-to-br from-primary via-primary-dark to-neutral-dark overflow-hidden">
         <div className="absolute inset-0">
@@ -147,7 +147,7 @@ function ExploreContent() {
                 Loading...
               </span>
             ) : (
-              <span><strong className="text-text-primary dark:text-white">{filtered.length}</strong> listing{filtered.length !== 1 ? "s" : ""} found</span>
+              <span><strong className="text-white">{filtered.length}</strong> listing{filtered.length !== 1 ? "s" : ""} found</span>
             )}
           </p>
         </div>
@@ -155,12 +155,12 @@ function ExploreContent() {
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="animate-pulse rounded-2xl overflow-hidden bg-white dark:bg-card-dark border border-border-light dark:border-border-dark">
-                <div className="aspect-[4/3] bg-black/5 dark:bg-white/5 animate-shimmer" />
+              <div key={i} className="animate-pulse rounded-2xl overflow-hidden bg-[#18181f] border border-white/6">
+                <div className="aspect-[4/3] bg-white/5 animate-shimmer" />
                 <div className="p-4 space-y-2.5">
-                  <div className="h-4 w-3/4 rounded-lg bg-black/5 dark:bg-white/5" />
-                  <div className="h-3 w-1/2 rounded-lg bg-black/5 dark:bg-white/5" />
-                  <div className="h-4 w-1/3 rounded-lg bg-black/5 dark:bg-white/5" />
+                  <div className="h-4 w-3/4 rounded-lg bg-white/5" />
+                  <div className="h-3 w-1/2 rounded-lg bg-white/5" />
+                  <div className="h-4 w-1/3 rounded-lg bg-white/5" />
                 </div>
               </div>
             ))}
@@ -170,9 +170,9 @@ function ExploreContent() {
             <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
               <Search size={32} className="text-primary/40" />
             </div>
-            <h3 className="text-xl font-bold text-text-primary dark:text-white mb-2">No listings found</h3>
+            <h3 className="text-xl font-bold text-white mb-2">No listings found</h3>
             <p className="text-sm text-text-muted max-w-sm mx-auto">Try a different search term or browse another category</p>
-            <button onClick={() => { setSearchQuery(""); setCategory("all"); }} className="mt-6 text-sm font-semibold text-primary dark:text-secondary hover:underline underline-offset-4">
+            <button onClick={() => { setSearchQuery(""); setCategory("all"); }} className="mt-6 text-sm font-semibold text-secondary hover:underline underline-offset-4">
               Clear filters
             </button>
           </div>

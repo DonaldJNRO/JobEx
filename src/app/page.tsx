@@ -78,20 +78,6 @@ export default function HomePage() {
                 </a>
               </div>
 
-              {/* Stats */}
-              <div className="mt-14 flex gap-10 flex-wrap">
-                {[
-                  { value: "10K+", label: "Travelers" },
-                  { value: "50+", label: "Countries" },
-                  { value: "1,200+", label: "Listings" },
-                  { value: "4.9", label: "App Rating" },
-                ].map((s, i) => (
-                  <div key={s.label} style={{ animationDelay: `${0.5 + i * 0.1}s` }}>
-                    <p className="text-3xl font-extrabold text-white">{s.value}</p>
-                    <p className="text-xs text-white/35 mt-1 uppercase tracking-wider">{s.label}</p>
-                  </div>
-                ))}
-              </div>
             </div>
 
             {/* Right — Phone */}
@@ -122,19 +108,19 @@ export default function HomePage() {
       </section>
 
       {/* ── Features ── */}
-      <section className="py-24 bg-white dark:bg-card-dark border-b border-border-light dark:border-border-dark">
+      <section className="py-24 bg-[#18181f] border-b border-white/6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <p className="text-xs font-bold text-primary dark:text-secondary uppercase tracking-[0.2em] mb-3">Why Sabię</p>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-text-primary dark:text-white">Everything you need for group trips</h2>
+            <p className="text-xs font-bold text-secondary uppercase tracking-[0.2em] mb-3">Why Sabię</p>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white">Everything you need for group trips</h2>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 stagger-children">
             {FEATURES.map((f) => (
-              <div key={f.title} className="reveal group p-6 rounded-2xl border border-border-light dark:border-border-dark hover:border-primary/20 dark:hover:border-secondary/20 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 cursor-default">
+              <div key={f.title} className="reveal group p-6 rounded-2xl border border-white/6 hover:border-secondary/20 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 cursor-default">
                 <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${f.color} flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300`}>
-                  <f.icon size={22} className="text-primary dark:text-secondary" />
+                  <f.icon size={22} className="text-secondary" />
                 </div>
-                <h3 className="font-bold text-text-primary dark:text-white mb-1.5">{f.title}</h3>
+                <h3 className="font-bold text-white mb-1.5">{f.title}</h3>
                 <p className="text-sm text-text-muted leading-relaxed">{f.desc}</p>
               </div>
             ))}
@@ -144,15 +130,15 @@ export default function HomePage() {
 
       {/* ── Featured Listings ── */}
       {listings.length > 0 && (
-        <section className="py-24 bg-neutral-light dark:bg-neutral-dark">
+        <section className="py-24 bg-[#0f0f13]">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-end justify-between mb-12">
               <div>
-                <p className="text-xs font-bold text-primary dark:text-secondary uppercase tracking-[0.2em] mb-3">Explore</p>
-                <h2 className="text-3xl sm:text-4xl font-extrabold text-text-primary dark:text-white">Discover Amazing Places</h2>
+                <p className="text-xs font-bold text-secondary uppercase tracking-[0.2em] mb-3">Explore</p>
+                <h2 className="text-3xl sm:text-4xl font-extrabold text-white">Discover Amazing Places</h2>
                 <p className="text-text-muted mt-2 max-w-md">Handpicked stays, experiences, and events from around the world</p>
               </div>
-              <Link href="/explore" className="hidden sm:flex items-center gap-1.5 text-sm font-bold text-primary dark:text-secondary hover:underline underline-offset-4 transition-all">
+              <Link href="/explore" className="hidden sm:flex items-center gap-1.5 text-sm font-bold text-secondary hover:underline underline-offset-4 transition-all">
                 View all <ChevronRight size={16} />
               </Link>
             </div>
@@ -164,7 +150,7 @@ export default function HomePage() {
               ))}
             </div>
             <div className="sm:hidden text-center mt-10 reveal">
-              <Link href="/explore" className="inline-flex items-center gap-1.5 text-sm font-bold text-primary dark:text-secondary">
+              <Link href="/explore" className="inline-flex items-center gap-1.5 text-sm font-bold text-secondary">
                 View all listings <ChevronRight size={16} />
               </Link>
             </div>
@@ -173,11 +159,11 @@ export default function HomePage() {
       )}
 
       {/* ── How It Works ── */}
-      <section className="py-24 bg-white dark:bg-card-dark">
+      <section className="py-24 bg-[#18181f]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <p className="text-xs font-bold text-primary dark:text-secondary uppercase tracking-[0.2em] mb-3">How It Works</p>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-text-primary dark:text-white">Three steps to your next adventure</h2>
+            <p className="text-xs font-bold text-secondary uppercase tracking-[0.2em] mb-3">How It Works</p>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white">Three steps to your next adventure</h2>
           </div>
           <div className="grid md:grid-cols-3 gap-8 stagger-children">
             {[
@@ -185,12 +171,12 @@ export default function HomePage() {
               { step: "02", icon: Users, title: "Plan Together", desc: "Invite your crew, vote on options, and build your itinerary with AI assistance." },
               { step: "03", icon: Zap, title: "Book & Go", desc: "Book directly, split expenses, and get real-time updates. Your trip is sorted." },
             ].map((item) => (
-              <div key={item.step} className="reveal relative text-center p-8 rounded-2xl border border-border-light dark:border-border-dark group hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
-                <span className="absolute top-4 right-4 text-6xl font-black text-primary/5 dark:text-secondary/5 leading-none">{item.step}</span>
-                <div className="w-16 h-16 rounded-2xl bg-primary/10 dark:bg-primary/20 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 group-hover:bg-primary/15 transition-all duration-300">
-                  <item.icon size={28} className="text-primary dark:text-secondary" />
+              <div key={item.step} className="reveal relative text-center p-8 rounded-2xl border border-white/6 group hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
+                <span className="absolute top-4 right-4 text-6xl font-black text-secondary/5 leading-none">{item.step}</span>
+                <div className="w-16 h-16 rounded-2xl bg-primary/15 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 group-hover:bg-primary/15 transition-all duration-300">
+                  <item.icon size={28} className="text-secondary" />
                 </div>
-                <h3 className="font-bold text-lg text-text-primary dark:text-white mb-2">{item.title}</h3>
+                <h3 className="font-bold text-lg text-white mb-2">{item.title}</h3>
                 <p className="text-sm text-text-muted leading-relaxed">{item.desc}</p>
               </div>
             ))}
@@ -199,27 +185,27 @@ export default function HomePage() {
       </section>
 
       {/* ── Testimonials ── */}
-      <section className="py-24 bg-neutral-light dark:bg-neutral-dark">
+      <section className="py-24 bg-[#0f0f13]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <p className="text-xs font-bold text-primary dark:text-secondary uppercase tracking-[0.2em] mb-3">Testimonials</p>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-text-primary dark:text-white">Loved by travelers</h2>
+            <p className="text-xs font-bold text-secondary uppercase tracking-[0.2em] mb-3">Testimonials</p>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white">Loved by travelers</h2>
           </div>
           <div className="grid md:grid-cols-3 gap-6 stagger-children">
             {TESTIMONIALS.map((t) => (
-              <div key={t.name} className="reveal bg-white dark:bg-card-dark p-7 rounded-2xl border border-border-light dark:border-border-dark hover:shadow-lg transition-shadow duration-300">
+              <div key={t.name} className="reveal bg-[#18181f] p-7 rounded-2xl border border-white/6 hover:shadow-lg transition-shadow duration-300">
                 <div className="flex gap-1 mb-4">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} size={14} className="fill-secondary text-secondary" />
                   ))}
                 </div>
-                <p className="text-sm text-text-primary dark:text-white/80 leading-relaxed mb-5">&ldquo;{t.text}&rdquo;</p>
+                <p className="text-sm text-white/80 leading-relaxed mb-5">&ldquo;{t.text}&rdquo;</p>
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-sm font-bold text-primary dark:text-secondary">
+                  <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center text-sm font-bold text-secondary">
                     {t.avatar}
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-text-primary dark:text-white">{t.name}</p>
+                    <p className="text-sm font-semibold text-white">{t.name}</p>
                     <p className="text-xs text-text-muted">{t.role}</p>
                   </div>
                 </div>
@@ -230,7 +216,7 @@ export default function HomePage() {
       </section>
 
       {/* ── Backed By ── */}
-      <section className="py-14 bg-white dark:bg-card-dark border-y border-border-light dark:border-border-dark">
+      <section className="py-14 bg-[#18181f] border-y border-white/6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 reveal">
           <p className="text-center text-[10px] font-bold text-text-muted uppercase tracking-[0.3em] mb-8">Backed by</p>
           <div className="flex items-center justify-center gap-16 opacity-40 hover:opacity-60 transition-opacity duration-500">
@@ -241,7 +227,7 @@ export default function HomePage() {
       </section>
 
       {/* ── App Download CTA ── */}
-      <section className="py-24 bg-neutral-light dark:bg-neutral-dark">
+      <section className="py-24 bg-[#0f0f13]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 reveal">
           <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-primary-dark to-neutral-dark p-12 sm:p-16 text-center">
             {/* Background decoration */}

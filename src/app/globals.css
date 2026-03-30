@@ -25,12 +25,8 @@
   }
   body {
     font-family: var(--font-sans);
-    color: var(--color-text-primary);
-    background-color: var(--color-neutral-light);
-  }
-  .dark body {
     color: #e4e4e8;
-    background-color: var(--color-neutral-dark);
+    background-color: #0f0f13;
   }
   * { transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease; }
 }
