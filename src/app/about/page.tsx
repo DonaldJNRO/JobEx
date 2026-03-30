@@ -2,10 +2,10 @@ import Image from "next/image";
 import { Globe, Users, Sparkles, Shield } from "lucide-react";
 
 const TEAM = [
-  { name: "Donald Jr-Precious Okolocha", role: "CEO & Founder", image: "/images/team/team-1.jpg" },
-  { name: "Sandra Aziken", role: "COO", image: "/images/team/team-2.jpg" },
-  { name: "Muhammed Ahmed", role: "CTO", image: "/images/team/team-3.jpg" },
-  { name: "Beam Adetola", role: "Design Lead", image: "/images/team/Beam.JPG" },
+  { name: "Donald Jr-Precious Okolocha", role: "Co-founder & CEO", image: "/images/team/team-1.jpg" },
+  { name: "Kanyinsola Fakeye", role: "Co-founder & COO", image: "/images/team/team-2.jpg" },
+  { name: "Mahamadou Mangane", role: "Co-founder & CFO", image: "/images/team/team-3.jpg" },
+  { name: "Kanokwan Techathanapaiboon", role: "Brand Manager", image: "/images/team/Beam.JPG" },
 ];
 
 export default function AboutPage() {
