@@ -124,7 +124,7 @@ export default function HomePage() {
       {/* ── Features ── */}
       <section className="py-24 bg-white dark:bg-card-dark border-b border-border-light dark:border-border-dark">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14 reveal">
+          <div className="text-center mb-14">
             <p className="text-xs font-bold text-primary dark:text-secondary uppercase tracking-[0.2em] mb-3">Why Sabię</p>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-text-primary dark:text-white">Everything you need for group trips</h2>
           </div>
@@ -146,7 +146,7 @@ export default function HomePage() {
       {listings.length > 0 && (
         <section className="py-24 bg-neutral-light dark:bg-neutral-dark">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-end justify-between mb-12 reveal">
+            <div className="flex items-end justify-between mb-12">
               <div>
                 <p className="text-xs font-bold text-primary dark:text-secondary uppercase tracking-[0.2em] mb-3">Explore</p>
                 <h2 className="text-3xl sm:text-4xl font-extrabold text-text-primary dark:text-white">Discover Amazing Places</h2>
@@ -175,7 +175,7 @@ export default function HomePage() {
       {/* ── How It Works ── */}
       <section className="py-24 bg-white dark:bg-card-dark">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16 reveal">
+          <div className="text-center mb-16">
             <p className="text-xs font-bold text-primary dark:text-secondary uppercase tracking-[0.2em] mb-3">How It Works</p>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-text-primary dark:text-white">Three steps to your next adventure</h2>
           </div>
@@ -201,7 +201,7 @@ export default function HomePage() {
       {/* ── Testimonials ── */}
       <section className="py-24 bg-neutral-light dark:bg-neutral-dark">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14 reveal">
+          <div className="text-center mb-14">
             <p className="text-xs font-bold text-primary dark:text-secondary uppercase tracking-[0.2em] mb-3">Testimonials</p>
             <h2 className="text-3xl sm:text-4xl font-extrabold text-text-primary dark:text-white">Loved by travelers</h2>
           </div>
