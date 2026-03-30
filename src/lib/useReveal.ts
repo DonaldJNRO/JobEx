@@ -9,23 +9,30 @@ export function useReveal() {
     const el = ref.current;
     if (!el) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("visible");
-          }
-        });
-      },
-      { threshold: 0.1, rootMargin: "0px 0px -40px 0px" }
-    );
+    // Small delay to let layout settle, then observe
+    const timer = setTimeout(() => {
+      const children = el.querySelectorAll(".reveal");
 
-    const children = el.querySelectorAll(".reveal");
-    children.forEach((child) => observer.observe(child));
-    // Also observe the element itself
-    if (el.classList.contains("reveal")) observer.observe(el);
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("visible");
+              observer.unobserve(entry.target); // Only animate once
+            }
+          });
+        },
+        { threshold: 0.05, rootMargin: "50px 0px 0px 0px" }
+      );
 
-    return () => observer.disconnect();
+      children.forEach((child) => observer.observe(child));
+      if (el.classList.contains("reveal")) observer.observe(el);
+
+      // Cleanup
+      return () => observer.disconnect();
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, []);
 
   return ref;
