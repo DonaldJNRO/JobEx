@@ -38,7 +38,7 @@ export default function ListingCard({ listing, index = 0 }: { listing: Listing; 
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
         {/* Category pill */}
-        <div className="absolute top-3 left-3 bg-white/90 bg-black/60 backdrop-blur-md text-[11px] font-semibold px-2.5 py-1 rounded-full text-white shadow-sm">
+        <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md text-[11px] font-semibold px-2.5 py-1 rounded-full text-white shadow-sm">
           {category}
         </div>
 
@@ -51,7 +51,7 @@ export default function ListingCard({ listing, index = 0 }: { listing: Listing; 
 
         {/* Price on hover */}
         <div className="absolute bottom-3 left-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-          <span className="bg-white/95 bg-black/80 backdrop-blur-md text-sm font-bold text-secondary px-3 py-1.5 rounded-lg shadow-md">
+          <span className="bg-black/80 backdrop-blur-md text-sm font-bold text-secondary px-3 py-1.5 rounded-lg shadow-md">
             {price}
           </span>
         </div>
