@@ -22,10 +22,13 @@ const TESTIMONIALS = [
 ];
 
 const MOCKUPS = [
-  { src: "/images/app-mockup-1.png", alt: "Sabię AI Itinerary" },
-  { src: "/images/app-mockup-2.png", alt: "Sabię Search" },
-  { src: "/images/app-mockup-3.png", alt: "Sabię Explore" },
-  { src: "/images/app-mockup-4.png", alt: "Sabię Trip Planning" },
+  { src: "/images/app-mockup-1.png", alt: "Sabię Home — Explore and Following" },
+  { src: "/images/app-mockup-2.png", alt: "Sabię Search — Map, Ask Bie, Spin Together" },
+  { src: "/images/app-mockup-3.png", alt: "Sabię Country — at-a-glance country info" },
+  { src: "/images/app-mockup-4.png", alt: "Sabię Inbox — chat with friends and Bie AI" },
+  { src: "/images/app-mockup-5.png", alt: "Sabię Moments — capture the trip" },
+  { src: "/images/app-mockup-6.png", alt: "Sabię Shortcuts — @ to jump anywhere" },
+  { src: "/images/app-mockup-7.png", alt: "Sabię Sidebar — everything in one place" },
 ];
 
 export default function HomePage() {
