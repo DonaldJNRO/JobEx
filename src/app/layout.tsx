@@ -5,13 +5,13 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export const metadata: Metadata = {
-  title: "Sabię — Plan Trips With Friends",
-  description: "Stop the endless group chats. Sabię brings everyone together to plan, vote, and book trips that actually happen. AI-powered recommendations, built-in budget splitting, and vibes that match your crew.",
-  keywords: ["travel", "group travel", "trip planning", "AI travel", "book accommodation", "experiences", "events"],
+  title: "Sabīę — Plan the trip back home, with the crew",
+  description: "Sabīę is the group travel app for the diaspora. Plan, vote, split and book trips together — UK to Lagos, Accra, and everywhere in between.",
+  keywords: ["diaspora travel", "group travel", "trip planning", "Lagos travel", "Accra travel", "African diaspora", "Detty December", "travel with friends"],
   openGraph: {
-    title: "Sabię — Plan Trips With Friends",
-    description: "AI-powered group travel planning. Browse stays, experiences, and events.",
-    siteName: "Sabię",
+    title: "Sabīę — Plan the trip back home, with the crew",
+    description: "The group travel app for the diaspora. UK to Lagos, Accra, and everywhere in between.",
+    siteName: "Sabīę",
     type: "website",
     url: "https://www.sabieapp.com",
   },

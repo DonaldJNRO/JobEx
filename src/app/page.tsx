@@ -90,12 +90,12 @@ export default function HomePage() {
               </div>
 
               <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white leading-[1.05] tracking-tight">
-                Plan trips<br />
-                <span className="gradient-text">with friends.</span>
+                Plan the trip back home,<br />
+                <span className="gradient-text">with the crew.</span>
               </h1>
 
               <p className="mt-6 text-lg sm:text-xl text-white/50 max-w-lg leading-relaxed">
-                Stop the endless group chats. Sabię brings everyone together to plan, vote, and book trips that actually happen.
+                Stop the WhatsApp chaos. Sabīę brings everyone together to plan, vote, book — trips that actually happen.
               </p>
 
               <div className="mt-10 flex flex-wrap gap-4">
