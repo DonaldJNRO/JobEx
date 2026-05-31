@@ -20,10 +20,31 @@ const FEATURES = [
   { icon: MessageCircle, title: "Trip Chat", desc: "Everything in one place, not 10 group chats", color: "from-pink-500/20 to-rose-500/20" },
 ];
 
-const TESTIMONIALS = [
-  { name: "Sarah K.", role: "Travel Creator", text: "Sabię made planning our group trip to Morocco actually fun. The AI suggestions were spot-on.", avatar: "S" },
-  { name: "James M.", role: "Adventure Traveler", text: "The expense splitting alone saved us so much drama. Everyone could see what they owed in real-time.", avatar: "J" },
-  { name: "Priya D.", role: "Digital Nomad", text: "I've tried every travel app. Sabię is the only one that actually works for group trips.", avatar: "P" },
+// Real beta-user testimonials, tightened from raw transcripts. Ordered
+// diaspora-first per the wedge (Tolu London-via-Lagos → Maureen Birmingham-
+// via-Lagos → Seb London). `photo` is optional — falls back to an initial
+// avatar (used for Maureen until we have her pic).
+const TESTIMONIALS: { name: string; role: string; text: string; avatar: string; photo?: string }[] = [
+  {
+    name: "Tolu O.",
+    role: "London · originally from Lagos",
+    text: "Chatted with Bie, planned my whole trip, booked a place, and set up a shared wallet with the crew. UI's clean too — easy on the eye.",
+    avatar: "T",
+    photo: "/images/testimonials/tolu-omidan.jpg",
+  },
+  {
+    name: "Maureen N.",
+    role: "Birmingham · originally from Nigeria",
+    text: "Honestly the app's amazing. Everything that needs to be done is done. Insane potential — feels like the start of something.",
+    avatar: "M",
+  },
+  {
+    name: "Seb F.",
+    role: "London",
+    text: "Trying to plan a Croatia trip in August, I had to check Airbnb and Booking.com, then message six friends about prices and dates. Sabīę puts it all in one place. I was literally thinking 'someone should build this' a few weeks ago — and here it is.",
+    avatar: "S",
+    photo: "/images/testimonials/seb-finlan.jpg",
+  },
 ];
 
 const MOCKUPS = [
@@ -217,9 +238,21 @@ export default function HomePage() {
                 </div>
                 <p className="text-sm text-white/80 leading-relaxed mb-5">&ldquo;{t.text}&rdquo;</p>
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center text-sm font-bold text-secondary">
-                    {t.avatar}
-                  </div>
+                  {/* Real photo if we have it, initial-circle fallback otherwise.
+                      Maureen has no photo yet — falls back cleanly to "M". */}
+                  {t.photo ? (
+                    <Image
+                      src={t.photo}
+                      alt={t.name}
+                      width={40}
+                      height={40}
+                      className="w-10 h-10 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center text-sm font-bold text-secondary">
+                      {t.avatar}
+                    </div>
+                  )}
                   <div>
                     <p className="text-sm font-semibold text-white">{t.name}</p>
                     <p className="text-xs text-text-muted">{t.role}</p>
