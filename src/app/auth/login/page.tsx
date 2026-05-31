@@ -48,7 +48,7 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
-          <Image src="/images/logo-sabie.jpg" alt="Sabie" width={48} height={48} className="rounded-xl mx-auto mb-4" />
+          <Image src="/images/logo-sabie.jpg" alt="Sabię" width={48} height={48} className="rounded-xl mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-white">Welcome back</h1>
           <p className="text-sm text-text-muted mt-1">Log in to your Sabię account</p>
         </div>

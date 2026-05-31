@@ -10,7 +10,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
-              <Image src="/images/logo-sabie.jpg" alt="Sabie" width={28} height={28} className="rounded-lg" />
+              <Image src="/images/logo-sabie.jpg" alt="Sabię" width={28} height={28} className="rounded-lg" />
               <span className="text-lg font-bold text-white">Sabię</span>
             </div>
             <p className="text-sm leading-relaxed">

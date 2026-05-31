@@ -9,7 +9,7 @@ import { getFeaturedListings, Listing } from "@/lib/listings";
 import { useReveal } from "@/lib/useReveal";
 import WaitlistForm from "@/components/WaitlistForm";
 
-// TestFlight public link — lets visitors install Sabīę BEFORE the App Store
+// TestFlight public link — lets visitors install Sabię BEFORE the App Store
 // approval lands. Flip back to the real App Store URL when Apple approves.
 const TESTFLIGHT_URL = "https://testflight.apple.com/join/d94TEDU7";
 
@@ -41,7 +41,7 @@ const TESTIMONIALS: { name: string; role: string; text: string; avatar: string; 
   {
     name: "Seb F.",
     role: "London",
-    text: "Trying to plan a Croatia trip in August, I had to check Airbnb and Booking.com, then message six friends about prices and dates. Sabīę puts it all in one place. I was literally thinking 'someone should build this' a few weeks ago — and here it is.",
+    text: "Trying to plan a Croatia trip in August, I had to check Airbnb and Booking.com, then message six friends about prices and dates. Sabię puts it all in one place. I was literally thinking 'someone should build this' a few weeks ago — and here it is.",
     avatar: "S",
     photo: "/images/testimonials/seb-finlan.jpg",
   },
@@ -95,7 +95,7 @@ export default function HomePage() {
               </h1>
 
               <p className="mt-6 text-lg sm:text-xl text-white/50 max-w-lg leading-relaxed">
-                Stop the WhatsApp chaos. Sabīę brings everyone together to plan, vote, book — trips that actually happen.
+                Stop the WhatsApp chaos. Sabię brings everyone together to plan, vote, book — trips that actually happen.
               </p>
 
               <div className="mt-10 flex flex-wrap gap-4">
@@ -304,7 +304,7 @@ export default function HomePage() {
               {/* Bottom waitlist — second chance to capture an email if the
                   visitor scrolled all the way down without signing up earlier. */}
               <div className="mt-8 flex justify-center">
-                <WaitlistForm source="homepage-bottom-cta" placeholder="Get notified when Sabīę launches" buttonLabel="Notify me" variant="hero" />
+                <WaitlistForm source="homepage-bottom-cta" placeholder="Get notified when Sabię launches" buttonLabel="Notify me" variant="hero" />
               </div>
             </div>
           </div>

@@ -62,7 +62,7 @@ export default function WaitlistForm({
     return (
       <div className={`flex items-center gap-2 text-sm ${variant === "hero" ? "text-emerald-300" : "text-emerald-600"}`}>
         <Check className="w-4 h-4" />
-        <span>You&apos;re on the list — we&apos;ll email when Sabīę launches.</span>
+        <span>You&apos;re on the list — we&apos;ll email when Sabię launches.</span>
       </div>
     );
   }

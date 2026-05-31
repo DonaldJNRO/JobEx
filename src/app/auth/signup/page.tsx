@@ -49,7 +49,7 @@ export default function SignupPage() {
     <div className="min-h-screen bg-[#0f0f13] flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Image src="/images/logo-sabie.jpg" alt="Sabie" width={48} height={48} className="rounded-xl mx-auto mb-4" />
+          <Image src="/images/logo-sabie.jpg" alt="Sabię" width={48} height={48} className="rounded-xl mx-auto mb-4" />
           <h1 className="text-2xl font-bold text-white">Create your account</h1>
           <p className="text-sm text-text-muted mt-1">Join Sabię and start planning trips</p>
         </div>
