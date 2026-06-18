@@ -7,11 +7,11 @@ import { Users, Sparkles, Wallet, MessageCircle, ArrowRight, ChevronRight, Globe
 import ListingCard from "@/components/ListingCard";
 import { getFeaturedListings, Listing } from "@/lib/listings";
 import { useReveal } from "@/lib/useReveal";
-import WaitlistForm from "@/components/WaitlistForm";
 
-// TestFlight public link — lets visitors install Sabię BEFORE the App Store
-// approval lands. Flip back to the real App Store URL when Apple approves.
-const TESTFLIGHT_URL = "https://testflight.apple.com/join/d94TEDU7";
+// App Store link — Sabię launched on the App Store 2026-06-01.
+// iOS only today; Android coming. The two CTAs (hero + bottom) both
+// route here.
+const APP_STORE_URL = "https://apps.apple.com/gb/app/sabie/id6752625262";
 
 const FEATURES = [
   { icon: Users, title: "Group Planning", desc: "Real-time collaboration with your whole crew", color: "from-blue-500/20 to-purple-500/20" },
@@ -85,8 +85,8 @@ export default function HomePage() {
             {/* Left */}
             <div className="stagger-children">
               <div className="inline-flex items-center gap-2.5 glass text-white/70 text-xs font-medium px-4 py-2 rounded-full mb-8">
-                <span className="w-2 h-2 bg-amber-400 rounded-full animate-pulse" />
-                Now in TestFlight · App Store launch soon
+                <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
+                Live on the App Store · iOS
               </div>
 
               <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white leading-[1.05] tracking-tight">
@@ -99,21 +99,20 @@ export default function HomePage() {
               </p>
 
               <div className="mt-10 flex flex-wrap gap-4">
-                <a href={TESTFLIGHT_URL} target="_blank" rel="noopener noreferrer" className="btn-shine inline-flex items-center gap-2.5 bg-secondary hover:bg-secondary-dark text-neutral-dark font-bold px-8 py-4 rounded-full transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-secondary/25">
-                  <Smartphone size={18} /> Try in TestFlight
+                <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" className="btn-shine inline-flex items-center gap-2.5 bg-secondary hover:bg-secondary-dark text-neutral-dark font-bold px-8 py-4 rounded-full transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-secondary/25">
+                  <Smartphone size={18} /> Download on App Store
                 </a>
                 <Link href="/explore" className="inline-flex items-center gap-2.5 glass text-white font-semibold px-8 py-4 rounded-full hover:bg-white/10 transition-all">
                   Browse Listings <ArrowRight size={18} />
                 </Link>
               </div>
 
-              {/* Waitlist — for visitors who'd rather wait for the public App
-                  Store launch than install via TestFlight. Writes to Firestore
-                  /waitlist; rendered against the dark hero so use variant=hero. */}
-              <div className="mt-8 max-w-md">
-                <p className="text-xs text-white/40 mb-2">Prefer to wait for the App Store launch?</p>
-                <WaitlistForm source="homepage-hero" placeholder="your@email.com" buttonLabel="Notify me" variant="hero" />
-              </div>
+              {/* Android coming-soon note — replaces the old waitlist
+                  block. Keeps the visual weight under the CTAs and
+                  tells Android visitors not to bounce. */}
+              <p className="mt-6 text-xs text-white/40">
+                Android coming next. iPhone or iPad for now.
+              </p>
 
             </div>
 
@@ -285,26 +284,21 @@ export default function HomePage() {
 
             <div className="relative z-10">
               <div className="inline-flex items-center gap-2 glass text-white/60 text-xs font-medium px-4 py-2 rounded-full mb-6">
-                <Smartphone size={14} /> TestFlight beta · iOS
+                <Smartphone size={14} /> Live on the App Store · iOS
               </div>
               <h2 className="text-3xl sm:text-5xl font-extrabold text-white mb-4">
-                Try Sabię today.
+                Download Sabię today.
               </h2>
               <p className="text-white/45 text-lg max-w-md mx-auto mb-10">
-                Install the iPhone beta in TestFlight, or join the waitlist for the App Store launch.
+                Get the iPhone app from the App Store and start planning with your crew. Android coming next.
               </p>
               <div className="flex flex-wrap justify-center gap-4">
-                <a href={TESTFLIGHT_URL} target="_blank" rel="noopener noreferrer" className="btn-shine inline-flex items-center gap-2.5 bg-white text-primary font-bold px-8 py-4 rounded-full hover:scale-[1.02] hover:shadow-xl transition-all">
-                  <Smartphone size={18} /> Try in TestFlight
+                <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" className="btn-shine inline-flex items-center gap-2.5 bg-white text-primary font-bold px-8 py-4 rounded-full hover:scale-[1.02] hover:shadow-xl transition-all">
+                  <Smartphone size={18} /> Download on App Store
                 </a>
                 <Link href="/explore" className="inline-flex items-center gap-2.5 glass text-white font-bold px-8 py-4 rounded-full hover:bg-white/10 transition-all">
                   Browse Listings <ArrowRight size={18} />
                 </Link>
-              </div>
-              {/* Bottom waitlist — second chance to capture an email if the
-                  visitor scrolled all the way down without signing up earlier. */}
-              <div className="mt-8 flex justify-center">
-                <WaitlistForm source="homepage-bottom-cta" placeholder="Get notified when Sabię launches" buttonLabel="Notify me" variant="hero" />
               </div>
             </div>
           </div>
