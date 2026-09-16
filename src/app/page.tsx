@@ -48,9 +48,9 @@ const MOCKUPS = [
   { src: "/images/app-mockup-2.png", alt: "Sabię Search, Map, Ask Bie, Spin Together" },
   { src: "/images/app-mockup-3.png", alt: "Sabię Country, at-a-glance country info" },
   { src: "/images/app-mockup-4.png", alt: "Sabię Inbox, chat with friends and Bie AI" },
-  { src: "/images/app-mockup-5.png", alt: "Sabię Moments — capture the trip" },
-  { src: "/images/app-mockup-6.png", alt: "Sabię Shortcuts — @ to jump anywhere" },
-  { src: "/images/app-mockup-7.png", alt: "Sabię Sidebar — everything in one place" },
+  { src: "/images/app-mockup-5.png", alt: "Sabię Moments, capture the trip" },
+  { src: "/images/app-mockup-6.png", alt: "Sabię Shortcuts, @ to jump anywhere" },
+  { src: "/images/app-mockup-7.png", alt: "Sabię Sidebar, everything in one place" },
 ];
 
 export default function HomePage() {
@@ -221,7 +221,7 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <p className="text-xs font-bold text-primary uppercase tracking-[0.2em] mb-3">Testimonials</p>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-ink">Loved by travelers</h2>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-ink">Loved by travellers</h2>
           </div>
           <div className="grid md:grid-cols-3 gap-6 stagger-children">
             {TESTIMONIALS.map((t) => (

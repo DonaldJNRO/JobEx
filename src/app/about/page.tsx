@@ -12,7 +12,7 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-surface">
       {/* Hero */}
-      <section className="bg-gradient-to-br from-primary to-primary-dark py-24 text-center">
+      <section className="bg-gradient-to-br from-primary to-primary-dark py-page text-center">
         <div className="max-w-3xl mx-auto px-4">
           <h1 className="text-4xl sm:text-5xl font-extrabold text-white mb-4">About Sabię</h1>
           <p className="text-lg text-white/85 leading-relaxed">
@@ -22,7 +22,7 @@ export default function AboutPage() {
       </section>
 
       {/* Mission */}
-      <section className="py-20">
+      <section className="py-section">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>

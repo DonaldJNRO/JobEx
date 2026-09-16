@@ -7,12 +7,14 @@ const BASE_URL = "https://www.sabieapp.com";
 // afternoon, and the read is thirty-odd documents, not a crawl.
 export const revalidate = 3600;
 
+// /blog is deliberately absent: it is a Coming Soon card with no posts behind
+// it, and a search result that leads there costs more than it returns. Put it
+// back the day it has something to read.
 const STATIC_PAGES: MetadataRoute.Sitemap = [
   { url: BASE_URL, changeFrequency: "weekly", priority: 1 },
   { url: `${BASE_URL}/explore`, changeFrequency: "daily", priority: 0.9 },
   { url: `${BASE_URL}/about`, changeFrequency: "monthly", priority: 0.7 },
   { url: `${BASE_URL}/contact`, changeFrequency: "monthly", priority: 0.6 },
-  { url: `${BASE_URL}/blog`, changeFrequency: "weekly", priority: 0.5 },
   { url: `${BASE_URL}/privacy`, changeFrequency: "yearly", priority: 0.3 },
   { url: `${BASE_URL}/terms`, changeFrequency: "yearly", priority: 0.3 },
 ];
