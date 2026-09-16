@@ -1,4 +1,5 @@
 import { Smartphone, X } from "lucide-react";
+import { APP_STORE_URL } from "@/lib/app-links";
 import { useState } from "react";
 
 export default function AppDownloadBanner() {
@@ -15,7 +16,7 @@ export default function AppDownloadBanner() {
           <p className="text-xs text-ink-muted">Book faster, plan with friends</p>
         </div>
         <a
-          href="https://apps.apple.com/app/sabie/id6504672498"
+          href={APP_STORE_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="bg-secondary text-neutral-dark text-xs font-bold px-4 py-2 rounded-full shrink-0"

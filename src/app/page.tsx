@@ -1,17 +1,13 @@
 "use client";
 
 import Image from "next/image";
+import { APP_STORE_URL } from "@/lib/app-links";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Users, Sparkles, Wallet, MessageCircle, ArrowRight, ChevronRight, Globe, Shield, Zap, Star, Smartphone } from "lucide-react";
 import ListingCard from "@/components/ListingCard";
 import { getFeaturedListings, Listing } from "@/lib/listings";
 import { useReveal } from "@/lib/useReveal";
-
-// App Store link — Sabię launched on the App Store 2026-06-01.
-// iOS only today; Android coming. The two CTAs (hero + bottom) both
-// route here.
-const APP_STORE_URL = "https://apps.apple.com/gb/app/sabie/id6752625262";
 
 const FEATURES = [
   { icon: Users, title: "Group Planning", desc: "Real-time collaboration with your whole crew", color: "from-blue-500/20 to-purple-500/20" },

@@ -8,12 +8,7 @@ import { MapPin, Star, ChevronLeft, ChevronRight, Share2, Link2, Heart, Wifi, Ca
 import { resolveListing, getListingPrice, getListingLocation, getListingType, getCategoryLabel, getFeaturedListings, Listing } from "@/lib/listings";
 import ListingCard from "@/components/ListingCard";
 import { useReveal } from "@/lib/useReveal";
-
-// One place for the store link. The site carried two different App Store ids
-// (id6504672498 here and on the download banner, id6752625262 on the home page)
-// and at most one of them can be right; naming the constant is what makes the
-// next person fix it once rather than notice it never.
-const APP_STORE_URL = "https://apps.apple.com/app/sabie/id6504672498";
+import { APP_STORE_URL } from "@/lib/app-links";
 
 const AMENITY_ICONS: Record<string, typeof Wifi> = {
   wifi: Wifi, parking: Car, pool: Waves, coffee: Coffee, security: Shield,
