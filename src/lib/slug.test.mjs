@@ -1,4 +1,4 @@
-import { makeSlug, looksLikeSlug, slugCandidates, uniqueSlug } from './slug.ts'
+import { makeSlug, looksLikeSlug, slugCandidates, uniqueSlug, slugForListing, bookingLink } from './slug.ts'
 let fails = 0
 const is = (got, want, label) => { const ok = got === want
   if (!ok) fails++
@@ -36,6 +36,11 @@ is(await uniqueSlug('Central Park', 'Abuja', taken(['central-park'])), 'central-
 is(await uniqueSlug('Central Park', 'Abuja', taken(['central-park', 'central-park-abuja'])), 'central-park-abuja-2', 'numbers come after the city, not instead of it')
 is(await uniqueSlug('Central Park', 'Abuja', taken(['central-park', 'central-park-abuja', 'central-park-abuja-2'])), 'central-park-abuja-3', 'and they count up past the ones taken')
 is(await uniqueSlug('Lagos Kitchen', 'Lagos', taken(['lagos-kitchen'])), 'lagos-kitchen-2', 'with no city to add, numbering starts straight away')
+
+is(slugForListing({ slug: 'arrows-den' }), 'arrows-den', 'a stored slug wins')
+is(slugForListing({ businessName: 'Arrows Den', citySlug: 'lagos' }), 'arrows-den', 'no stored slug computes the plain name, not the city form')
+is(slugForListing({ listingName: 'Pause Cafe' }), 'pause-cafe', 'listingName is accepted when businessName is absent')
+is(bookingLink('arrows-den'), 'https://www.sabieapp.com/listing/arrows-den', 'the link an operator is given')
 
 console.log(fails ? `\n${fails} FAILED` : '\nall passed')
 process.exit(fails ? 1 : 0)

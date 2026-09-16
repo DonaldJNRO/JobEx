@@ -1,6 +1,6 @@
 import { collection, getDocs, doc, getDoc, query, limit, where, orderBy, startAt, endAt, documentId } from "firebase/firestore";
 import { db } from "./firebase";
-import { makeSlug, slugCandidates, looksLikeSlug } from "./slug";
+import { makeSlug, slugCandidates, looksLikeSlug, slugForListing } from "./slug";
 
 export type ListingRole = "Landlord" | "Host" | "HospitalityManager" | "ExperienceProviders" | "EventOrganizer" | "FoodBeverageManager";
 
@@ -128,7 +128,7 @@ export function getListingCity(listing: Listing): string {
  * which is what the backfill will write for anything without a name collision.
  */
 export function listingSlug(listing: Listing): string {
-  return listing.slug || makeSlug(listing.businessName || listing.listingName || listing.title || "");
+  return slugForListing(listing);
 }
 
 export function getListingImage(listing: Listing): string | null {

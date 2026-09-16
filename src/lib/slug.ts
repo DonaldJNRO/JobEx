@@ -117,3 +117,38 @@ export async function uniqueSlug(
   }
   throw new Error(`Could not find a free slug for "${stem}" after 99 tries`);
 }
+
+/**
+ * The link we actually give an operator.
+ *
+ * One definition of the URL, for the same reason there is one definition of the
+ * slug: Studio, admin and the public site all print this string, and three
+ * copies of a hostname is three chances to print a link that does not resolve.
+ */
+export const LISTING_LINK_BASE = "https://www.sabieapp.com/listing";
+
+export function bookingLink(slug: string): string {
+  return `${LISTING_LINK_BASE}/${slug}`;
+}
+
+/** The fields any of the three apps can hand us to work out a listing's slug. */
+export interface SluggableListing {
+  slug?: string | null;
+  businessName?: string | null;
+  listingName?: string | null;
+  title?: string | null;
+  citySlug?: string | null;
+}
+
+/**
+ * A listing's slug, stored if it has one and computed if it does not.
+ *
+ * Every listing on the platform predates slugs, so the computed path is not a
+ * fallback for an edge case, it is the common case until the backfill lands. It
+ * returns the plain-name candidate, which is what the backfill writes for
+ * anything without a name collision.
+ */
+export function slugForListing(listing: SluggableListing): string {
+  if (listing.slug) return listing.slug;
+  return makeSlug(listing.businessName || listing.listingName || listing.title || "");
+}
