@@ -29,7 +29,7 @@ export default function Navbar() {
               69KB JPEG from every page load, which was being rendered at 32px
               and rounded off because a JPEG cannot hold transparency and the
               square corners showed otherwise. */}
-          <Link href="/" className="flex items-center" aria-label="Sabię, home">
+          <Link href="/" className="flex items-center h-11 -ml-1 px-1" aria-label="Sabię, home">
             <span className="font-display text-xl font-semibold text-white tracking-tight">
               Sabię
             </span>
@@ -83,7 +83,12 @@ export default function Navbar() {
           </div>
 
           {/* Mobile menu button */}
-          <button onClick={() => setMobileOpen(!mobileOpen)} className="md:hidden p-2 text-white/70">
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            aria-expanded={mobileOpen}
+            className="md:hidden -mr-2 w-11 h-11 inline-flex items-center justify-center text-white/70"
+          >
             {mobileOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>

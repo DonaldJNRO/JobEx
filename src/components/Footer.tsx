@@ -25,11 +25,11 @@ export default function Footer() {
           <div>
             <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wider">Product</h4>
             <ul className="space-y-2.5 text-sm">
-              <li><Link href="/explore" className="hover:text-white transition-colors">Explore</Link></li>
-              <li><Link href="/explore?category=stays" className="hover:text-white transition-colors">Stays</Link></li>
-              <li><Link href="/explore?category=experiences" className="hover:text-white transition-colors">Experiences</Link></li>
-              <li><Link href="/explore?category=events" className="hover:text-white transition-colors">Events</Link></li>
-              <li><Link href="/explore?category=food" className="hover:text-white transition-colors">Food & Drink</Link></li>
+              <li><Link href="/explore" className="inline-flex items-center min-h-9 hover:text-white transition-colors">Explore</Link></li>
+              <li><Link href="/explore?category=stays" className="inline-flex items-center min-h-9 hover:text-white transition-colors">Stays</Link></li>
+              <li><Link href="/explore?category=experiences" className="inline-flex items-center min-h-9 hover:text-white transition-colors">Experiences</Link></li>
+              <li><Link href="/explore?category=events" className="inline-flex items-center min-h-9 hover:text-white transition-colors">Events</Link></li>
+              <li><Link href="/explore?category=food" className="inline-flex items-center min-h-9 hover:text-white transition-colors">Food & Drink</Link></li>
             </ul>
           </div>
 
@@ -37,11 +37,11 @@ export default function Footer() {
           <div>
             <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wider">Company</h4>
             <ul className="space-y-2.5 text-sm">
-              <li><Link href="/about" className="hover:text-white transition-colors">About</Link></li>
-              <li><Link href="/blog" className="hover:text-white transition-colors">Blog</Link></li>
-              <li><Link href="/contact" className="hover:text-white transition-colors">Contact</Link></li>
-              <li><Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link></li>
-              <li><Link href="/terms" className="hover:text-white transition-colors">Terms</Link></li>
+              <li><Link href="/about" className="inline-flex items-center min-h-9 hover:text-white transition-colors">About</Link></li>
+              <li><Link href="/blog" className="inline-flex items-center min-h-9 hover:text-white transition-colors">Blog</Link></li>
+              <li><Link href="/contact" className="inline-flex items-center min-h-9 hover:text-white transition-colors">Contact</Link></li>
+              <li><Link href="/privacy" className="inline-flex items-center min-h-9 hover:text-white transition-colors">Privacy</Link></li>
+              <li><Link href="/terms" className="inline-flex items-center min-h-9 hover:text-white transition-colors">Terms</Link></li>
             </ul>
           </div>
 
@@ -55,7 +55,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-2">
                 <Mail size={16} className="shrink-0" />
-                <a href="mailto:hello@sabieapp.com" className="hover:text-white transition-colors">hello@sabieapp.com</a>
+                <a href="mailto:hello@sabieapp.com" className="inline-flex items-center min-h-9 hover:text-white transition-colors">hello@sabieapp.com</a>
               </li>
             </ul>
             <div className="flex gap-3 mt-5">

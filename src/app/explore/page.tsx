@@ -100,9 +100,16 @@ function ExploreContent() {
           {/* Search bar */}
           <div className="max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: "0.15s" }}>
             <div className={`relative transition-all duration-300 ${searchFocused ? "scale-[1.02]" : ""}`}>
-              <Search size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-white/40" />
+              <Search size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-white/40" aria-hidden="true" />
+              {/* An accessible NAME, not a visible label. A hero search bar
+                  with a magnifier in it explains itself to anyone who can see
+                  it, so a label above would be noise; a screen reader still got
+                  an unnamed edit box, which is the part that was broken.
+                  type="search" also gets the platform's clear affordance and
+                  the right keyboard. */}
               <input
-                type="text"
+                type="search"
+                aria-label="Search destinations, stays and experiences"
                 placeholder="Search destinations, stays, experiences..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -111,7 +118,11 @@ function ExploreContent() {
                 className="w-full pl-13 pr-12 py-4 rounded-2xl glass text-white placeholder:text-white/30 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/40 transition-all"
               />
               {searchQuery && (
-                <button onClick={() => setSearchQuery("")} className="absolute right-5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors">
+                <button
+                  onClick={() => setSearchQuery("")}
+                  aria-label="Clear search"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-11 h-11 inline-flex items-center justify-center text-white/40 hover:text-white transition-colors rounded-xl"
+                >
                   <X size={18} />
                 </button>
               )}

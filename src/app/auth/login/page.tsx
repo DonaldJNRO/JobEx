@@ -79,30 +79,57 @@ export default function LoginPage() {
 
           {/* Email form */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="relative">
-              <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" />
-              <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full pl-11 pr-4 py-3 rounded-xl bg-[#0f0f13] border border-white/8 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-              />
+            {/* LABELS, not placeholders. Both fields relied on placeholder text
+                alone, so a screen reader announced "edit text" with no name,
+                and the moment anyone typed, the only thing saying what the box
+                was for disappeared. The label is visible, not sr-only, because
+                that second problem affects everybody, not only screen readers. */}
+            <div>
+              <label htmlFor="login-email" className="block text-small text-text-muted mb-1.5">
+                Email
+              </label>
+              <div className="relative">
+                <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" aria-hidden="true" />
+                <input
+                  id="login-email"
+                  type="email"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="w-full pl-11 pr-4 py-3 rounded-xl bg-[#0f0f13] border border-white/8 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                />
+              </div>
             </div>
-            <div className="relative">
-              <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" />
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full pl-11 pr-11 py-3 rounded-xl bg-[#0f0f13] border border-white/8 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-              />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted">
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
+            <div>
+              <label htmlFor="login-password" className="block text-small text-text-muted mb-1.5">
+                Password
+              </label>
+              <div className="relative">
+                <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" aria-hidden="true" />
+                <input
+                  id="login-password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="w-full pl-11 pr-12 py-3 rounded-xl bg-[#0f0f13] border border-white/8 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                />
+                {/* Was a 16x16 hit area. That is a quarter of the 44px minimum,
+                    on the control most likely to be pressed by someone who has
+                    mistyped a password on a phone. The icon stays 16px; the
+                    button around it is now 44. */}
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  aria-pressed={showPassword}
+                  className="absolute right-1 top-1/2 -translate-y-1/2 w-11 h-11 inline-flex items-center justify-center text-text-muted hover:text-white rounded-lg"
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
             </div>
             <button
               type="submit"

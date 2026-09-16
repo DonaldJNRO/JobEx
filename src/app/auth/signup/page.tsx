@@ -77,20 +77,43 @@ export default function SignupPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="relative">
-              <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" />
-              <input type="text" placeholder="Full name" value={name} onChange={(e) => setName(e.target.value)} required className="w-full pl-11 pr-4 py-3 rounded-xl bg-[#0f0f13] border border-white/8 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+            {/* Same three problems as the login form: no labels, so a screen
+                reader announces an unnamed edit box and the only hint vanishes
+                the moment you type; and a 16x16 reveal button, a quarter of the
+                44px minimum. The password rule moves out of the placeholder to
+                a hint under the field, where it survives being typed into. */}
+            <div>
+              <label htmlFor="signup-name" className="block text-small text-text-muted mb-1.5">Full name</label>
+              <div className="relative">
+                <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" aria-hidden="true" />
+                <input id="signup-name" type="text" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} required className="w-full pl-11 pr-4 py-3 rounded-xl bg-[#0f0f13] border border-white/8 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+              </div>
             </div>
-            <div className="relative">
-              <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" />
-              <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required className="w-full pl-11 pr-4 py-3 rounded-xl bg-[#0f0f13] border border-white/8 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+            <div>
+              <label htmlFor="signup-email" className="block text-small text-text-muted mb-1.5">Email</label>
+              <div className="relative">
+                <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" aria-hidden="true" />
+                <input id="signup-email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="w-full pl-11 pr-4 py-3 rounded-xl bg-[#0f0f13] border border-white/8 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+              </div>
             </div>
-            <div className="relative">
-              <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" />
-              <input type={showPassword ? "text" : "password"} placeholder="Password (min 6 chars)" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full pl-11 pr-11 py-3 rounded-xl bg-[#0f0f13] border border-white/8 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
-              <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-text-muted">
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
+            <div>
+              <label htmlFor="signup-password" className="block text-small text-text-muted mb-1.5">Password</label>
+              <div className="relative">
+                <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" aria-hidden="true" />
+                <input id="signup-password" type={showPassword ? "text" : "password"} autoComplete="new-password" aria-describedby="signup-password-hint" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full pl-11 pr-12 py-3 rounded-xl bg-[#0f0f13] border border-white/8 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                  aria-pressed={showPassword}
+                  className="absolute right-1 top-1/2 -translate-y-1/2 w-11 h-11 inline-flex items-center justify-center text-text-muted hover:text-white rounded-lg"
+                >
+                  {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+              <p id="signup-password-hint" className="mt-1.5 text-caption text-text-muted">
+                At least 6 characters.
+              </p>
             </div>
             <button type="submit" disabled={loading} className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 rounded-xl transition-colors disabled:opacity-50">
               {loading ? "Creating account..." : "Create account"}

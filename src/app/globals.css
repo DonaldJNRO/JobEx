@@ -36,6 +36,17 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+  /* THE DISPLAY FACE, ACTUALLY USED. Stage 1 loaded Fraunces and then only the
+     wordmark rendered in it: every h1 and h2 on every page was still Instrument
+     Sans, so the site had a display typeface it never showed. Set here rather
+     than on each heading, because the next page anyone adds should inherit it
+     without having to remember. h3 and below stay sans: a serif at 18px and
+     under stops being a voice and starts being noise. */
+  h1, h2 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+  }
   body {
     font-family: var(--font-sans);
     color: #e4e4e8;
