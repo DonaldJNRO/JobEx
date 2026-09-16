@@ -8,6 +8,8 @@ import { MapPin, Star, ChevronLeft, ChevronRight, Share2, Link2, Heart, Wifi, Ca
 import { resolveListing, getListingPrice, getListingLocation, getListingType, getCategoryLabel, getFeaturedListings, Listing } from "@/lib/listings";
 import ListingCard from "@/components/ListingCard";
 import { useReveal } from "@/lib/useReveal";
+import { useAuth } from "@/contexts/AuthContext";
+import { isSaved, saveListing, unsaveListing } from "@/lib/saved";
 import { APP_STORE_URL } from "@/lib/app-links";
 
 const AMENITY_ICONS: Record<string, typeof Wifi> = {
@@ -22,12 +24,17 @@ export default function ListingDetailPage() {
   const [listing, setListing] = useState<Listing | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentImage, setCurrentImage] = useState(0);
+  // The heart used to be local state only: it filled in, wrote nothing, and
+  // /favorites told people their taps were being saved. `savingLike` stops a
+  // double tap racing two writes at the same document.
   const [liked, setLiked] = useState(false);
+  const [savingLike, setSavingLike] = useState(false);
   const [similarListings, setSimilarListings] = useState<Listing[]>([]);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [slug, setSlug] = useState("");
   const [copied, setCopied] = useState(false);
   const revealRef = useReveal();
+  const { user } = useAuth();
 
   useEffect(() => {
     if (!id) return;
@@ -49,6 +56,38 @@ export default function ListingDetailPage() {
       .catch(() => setListing(null))
       .finally(() => setLoading(false));
   }, [id, router]);
+
+  // Reads the saved state once both the viewer and the listing are known.
+  // Sits above the loading return, so it is not a conditional hook.
+  useEffect(() => {
+    if (!user?.uid || !listing?.id) { setLiked(false); return; }
+    let cancelled = false;
+    isSaved(user.uid, listing.id).then((saved) => {
+      if (!cancelled) setLiked(saved);
+    });
+    return () => { cancelled = true; };
+  }, [user?.uid, listing?.id]);
+
+  const toggleLike = async () => {
+    if (!listing) return;
+    // Signed out, the heart is an invitation to sign in rather than a control
+    // that silently does nothing.
+    if (!user?.uid) { router.push("/auth/login"); return; }
+    if (savingLike) return;
+    setSavingLike(true);
+    const next = !liked;
+    setLiked(next);
+    try {
+      if (next) await saveListing(user.uid, listing);
+      else await unsaveListing(user.uid, listing.id);
+    } catch {
+      // The write failed, so the heart has to go back. Leaving it filled is
+      // the same lie this whole change exists to remove.
+      setLiked(!next);
+    } finally {
+      setSavingLike(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -194,10 +233,12 @@ export default function ListingDetailPage() {
               </Link>
               <div className="flex gap-2">
                 <button
-                  onClick={() => setLiked(!liked)}
-                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${liked ? "bg-red-500 text-ink scale-110" : "glass text-ink hover:bg-line-strong"}`}
+                  onClick={toggleLike}
+                  aria-pressed={liked}
+                  aria-label={liked ? "Remove from saved listings" : "Save this listing"}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${liked ? "bg-red-500 text-white scale-110" : "glass text-ink hover:bg-line-strong"}`}
                 >
-                  <Heart size={18} fill={liked ? "white" : "none"} />
+                  <Heart size={18} fill={liked ? "currentColor" : "none"} />
                 </button>
                 <button
                   onClick={copyLink}

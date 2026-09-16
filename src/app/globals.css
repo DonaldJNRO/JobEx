@@ -36,6 +36,18 @@
   --font-sans: var(--font-sans-local), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-display: var(--font-display-local), Georgia, "Times New Roman", serif;
 
+  /* A SPACING SCALE, named by ROLE rather than by size.
+     Vertical rhythm was decided per page: py-12 here, py-16 there, py-20 on
+     the legal pages, all of them somebody's guess on the day. Naming the three
+     jobs that actually exist means the next page inherits the rhythm instead of
+     picking a number, and changing the rhythm is one edit rather than a search.
+     Tailwind v4 turns each of these into utilities, so --spacing-section gives
+     py-section, mt-section, gap-section and the rest. */
+  --spacing-gutter: 1rem;    /* page side padding, phone */
+  --spacing-block: 1.5rem;   /* between blocks inside one section */
+  --spacing-section: 3.5rem; /* between major sections, and page top and tail */
+  --spacing-page: 5rem;      /* the big one: a hero or a legal page's breathing room */
+
   /* A TYPE SCALE, so a heading is a step on a ladder rather than a number
      somebody picked. Same ratio Scout uses. */
   --text-hero: 3.25rem;
