@@ -23,9 +23,16 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5">
-            <Image src="/images/logo-sabie.jpg" alt="Sabię" width={32} height={32} className="rounded-lg" />
-            <span className="text-lg font-bold text-white">Sabię</span>
+          {/* THE WORDMARK ALREADY CONTAINS THE BEE. It is one or the other,
+              never both, and this was both: the bee mark and the word side by
+              side, in the header of every page. Dropping the mark also drops a
+              69KB JPEG from every page load, which was being rendered at 32px
+              and rounded off because a JPEG cannot hold transparency and the
+              square corners showed otherwise. */}
+          <Link href="/" className="flex items-center" aria-label="Sabię, home">
+            <span className="font-display text-xl font-semibold text-white tracking-tight">
+              Sabię
+            </span>
           </Link>
 
           {/* Desktop Nav */}

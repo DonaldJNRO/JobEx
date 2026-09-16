@@ -14,7 +14,20 @@
   --color-card-dark: #18181f;
   --color-border-light: rgba(0, 0, 0, 0.06);
   --color-border-dark: rgba(255, 255, 255, 0.06);
-  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  /* Supplied by next/font in layout.tsx, which self-hosts and preloads the
+     files. The fallback stack is next/font's own, so this is only the name. */
+  --font-sans: var(--font-sans-local), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-display: var(--font-display-local), Georgia, "Times New Roman", serif;
+
+  /* A TYPE SCALE, so a heading is a step on a ladder rather than a number
+     somebody picked. Same ratio Scout uses. */
+  --text-hero: 3.25rem;
+  --text-display: 2.25rem;
+  --text-title: 1.5rem;
+  --text-heading: 1.125rem;
+  --text-body: 1rem;
+  --text-small: 0.875rem;
+  --text-caption: 0.75rem;
 }
 
 @layer base {
@@ -28,14 +41,29 @@
     color: #e4e4e8;
     background-color: #0f0f13;
   }
-  * { transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease; }
+  /* NOT on the universal selector. `*` put a transition on every node in the
+     document, including ones that never change colour, so the browser kept
+     animation state for all of them; it also meant anything appearing mid-page
+     faded its colours in, which reads as jank rather than polish. Scoped to the
+     things that actually have states. */
+  a, button, input, select, textarea, [role="button"] {
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.15s ease;
+  }
+  /* Respect the setting. Someone who has asked their OS to stop animations has
+     usually asked for a reason. */
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+  }
 }
 
 /* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.25); }
+/* This site is dark. A black thumb on a #0f0f13 track is an invisible
+   scrollbar, which is what it was. */
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.30); }
 
 /* ── Animations ── */
 @keyframes float {

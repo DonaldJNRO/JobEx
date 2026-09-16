@@ -9,9 +9,12 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           {/* Brand */}
           <div className="md:col-span-1">
-            <div className="flex items-center gap-2 mb-4">
-              <Image src="/images/logo-sabie.jpg" alt="Sabię" width={28} height={28} className="rounded-lg" />
-              <span className="text-lg font-bold text-white">Sabię</span>
+            {/* Same rule as the header: the wordmark, not the wordmark
+                beside the bee. */}
+            <div className="mb-4">
+              <span className="font-display text-xl font-semibold text-white tracking-tight">
+                Sabię
+              </span>
             </div>
             <p className="text-sm leading-relaxed">
               Plan trips with friends. AI-powered recommendations, built-in budget splitting, and vibes that match your crew.

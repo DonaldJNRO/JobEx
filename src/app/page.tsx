@@ -16,7 +16,7 @@ const APP_STORE_URL = "https://apps.apple.com/gb/app/sabie/id6752625262";
 const FEATURES = [
   { icon: Users, title: "Group Planning", desc: "Real-time collaboration with your whole crew", color: "from-blue-500/20 to-purple-500/20" },
   { icon: Sparkles, title: "AI Recommendations", desc: "Bie finds places personalized to your vibe", color: "from-amber-500/20 to-orange-500/20" },
-  { icon: Wallet, title: "Split Expenses", desc: "Built-in cost splitting — no more IOUs", color: "from-green-500/20 to-emerald-500/20" },
+  { icon: Wallet, title: "Split Expenses", desc: "Built-in cost splitting, no more IOUs", color: "from-green-500/20 to-emerald-500/20" },
   { icon: MessageCircle, title: "Trip Chat", desc: "Everything in one place, not 10 group chats", color: "from-pink-500/20 to-rose-500/20" },
 ];
 
@@ -48,10 +48,10 @@ const TESTIMONIALS: { name: string; role: string; text: string; avatar: string; 
 ];
 
 const MOCKUPS = [
-  { src: "/images/app-mockup-1.png", alt: "Sabię Home — Explore and Following" },
-  { src: "/images/app-mockup-2.png", alt: "Sabię Search — Map, Ask Bie, Spin Together" },
-  { src: "/images/app-mockup-3.png", alt: "Sabię Country — at-a-glance country info" },
-  { src: "/images/app-mockup-4.png", alt: "Sabię Inbox — chat with friends and Bie AI" },
+  { src: "/images/app-mockup-1.png", alt: "Sabię Home, Explore and Following" },
+  { src: "/images/app-mockup-2.png", alt: "Sabię Search, Map, Ask Bie, Spin Together" },
+  { src: "/images/app-mockup-3.png", alt: "Sabię Country, at-a-glance country info" },
+  { src: "/images/app-mockup-4.png", alt: "Sabię Inbox, chat with friends and Bie AI" },
   { src: "/images/app-mockup-5.png", alt: "Sabię Moments — capture the trip" },
   { src: "/images/app-mockup-6.png", alt: "Sabię Shortcuts — @ to jump anywhere" },
   { src: "/images/app-mockup-7.png", alt: "Sabię Sidebar — everything in one place" },
@@ -95,7 +95,7 @@ export default function HomePage() {
               </h1>
 
               <p className="mt-6 text-lg sm:text-xl text-white/50 max-w-lg leading-relaxed">
-                Stop the WhatsApp chaos. Sabię brings everyone together to plan, vote, book — trips that actually happen.
+                Stop the WhatsApp chaos. Sabię brings everyone together to plan, vote and book. Trips that actually happen.
               </p>
 
               <div className="mt-10 flex flex-wrap gap-4">
