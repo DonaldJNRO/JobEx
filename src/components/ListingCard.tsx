@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { MapPin, Star } from "lucide-react";
-import { Listing, getListingImage, getListingPrice, getListingLocation, getCategoryLabel } from "@/lib/listings";
+import { Listing, getListingImage, getListingPrice, getListingLocation, getCategoryLabel, listingSlug } from "@/lib/listings";
 
 export default function ListingCard({ listing, index = 0 }: { listing: Listing; index?: number }) {
   const image = getListingImage(listing);
@@ -14,7 +14,11 @@ export default function ListingCard({ listing, index = 0 }: { listing: Listing; 
 
   return (
     <Link
-      href={`/listing/${listing.id}`}
+      // The slug, not the document id. Every card on the site linked by id,
+      // so the readable URL only ever appeared after a redirect fired, and the
+      // address a visitor could copy out of their bar was whatever they landed
+      // on first. Link to the address we want people to have.
+      href={`/listing/${listingSlug(listing)}`}
       className="group block card-hover rounded-2xl overflow-hidden bg-card border border-line"
       style={{ animationDelay: `${index * 0.06}s` }}
     >

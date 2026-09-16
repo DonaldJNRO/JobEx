@@ -66,7 +66,7 @@ export interface Listing {
 const FOUNDER_TEST_IDS = new Set(['founder_test_hospitality']);
 const FOUNDER_UIDS = new Set(['dYJAiyJCVQWzW13IWfGEpM1JQJE2']); // Donald
 
-function isPublicListing(l: Listing): boolean {
+export function isPublicListing(l: Listing): boolean {
   if (FOUNDER_TEST_IDS.has(l.id)) return false;
   // Hide anything Donald owns from the marketing site — his account
   // is the founder dev account and everything he posts is test data.
@@ -207,7 +207,7 @@ export async function getListingById(id: string): Promise<Listing | null> {
 
 /** Every ad document, across all six role collections. Small enough to do
     (thirty-odd listings) and only reached on the fallback paths below. */
-async function getAllListings(): Promise<Listing[]> {
+export async function getAllListings(): Promise<Listing[]> {
   const all: Listing[] = [];
   await Promise.all(
     ROLE_COLLECTIONS.map(async (role) => {
