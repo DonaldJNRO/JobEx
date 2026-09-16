@@ -14,6 +14,23 @@
   --color-card-dark: #18181f;
   --color-border-light: rgba(0, 0, 0, 0.06);
   --color-border-dark: rgba(255, 255, 255, 0.06);
+
+  /* SEMANTIC SURFACES AND INK, so a colour is chosen by what it IS rather than
+     by what it looks like. The site was built dark with 311 hardcoded
+     white/opacity utilities scattered through 26 files; naming the roles is
+     what makes the theme a decision in one place instead of a find and
+     replace over the whole repo. */
+  --color-surface: #ffffff;
+  --color-surface-sunken: #f8f7f4;
+  --color-card: #ffffff;
+  --color-ink: #1c1c22;
+  --color-ink-body: #3a3a42;
+  --color-ink-muted: #63636b;
+  /* Darkened from #8a8a93, which was 3.19:1 at 12px on the sunken
+     surface where the captions and the copyright line live. */
+  --color-ink-faint: #6e6e77;
+  --color-line: rgba(28, 28, 34, 0.10);
+  --color-line-strong: rgba(28, 28, 34, 0.16);
   /* Supplied by next/font in layout.tsx, which self-hosts and preloads the
      files. The fallback stack is next/font's own, so this is only the name. */
   --font-sans: var(--font-sans-local), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -49,8 +66,8 @@
   }
   body {
     font-family: var(--font-sans);
-    color: #e4e4e8;
-    background-color: #0f0f13;
+    color: var(--color-ink-body);
+    background-color: var(--color-surface);
   }
   /* NOT on the universal selector. `*` put a transition on every node in the
      document, including ones that never change colour, so the browser kept
@@ -71,10 +88,12 @@
 /* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-/* This site is dark. A black thumb on a #0f0f13 track is an invisible
-   scrollbar, which is what it was. */
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.18); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.30); }
+/* Dark thumb on a light track. This was rgba(0,0,0,0.15) when the site was
+   dark, which made the scrollbar invisible; it is the right value again now
+   that the page is white, which is the kind of thing that flips back silently
+   if nobody writes down why. */
+::-webkit-scrollbar-thumb { background: rgba(28,28,34,0.20); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(28,28,34,0.35); }
 
 /* ── Animations ── */
 @keyframes float {
@@ -133,7 +152,8 @@
 .animate-gradient-x { animation: gradient-x 3s ease infinite; background-size: 200% 200%; }
 .animate-blob { animation: blob 7s ease-in-out infinite; }
 .animate-shimmer {
-  background: linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.08) 50%, transparent 75%);
+  /* A white sheen is invisible on a white page. This is the loading skeleton. */
+  background: linear-gradient(90deg, transparent 25%, rgba(28,28,34,0.06) 50%, transparent 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
@@ -157,12 +177,28 @@
 .card-hover { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease; }
 .card-hover:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.08); }
 
-/* Glass */
-.glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255,255,255,0.08); }
+/* Glass, on a light page. A 5% WHITE fill over a white background is nothing
+   at all: every glass panel on the site would have rendered as an invisible
+   rectangle. Frosted white over whatever sits behind it, with a real border so
+   the edge exists. */
+.glass {
+  background: rgba(255,255,255,0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--color-line);
+}
 
-/* Gradient text */
+/* Gradient text.
+   The stops were brand gold to coral, which sat on a near-black page and read
+   brilliantly. On a white one the same three colours are barely there: this is
+   the biggest text on the homepage and it washed out to roughly 1.1:1.
+   The contrast checker cannot see this, because clipped gradient text has a
+   transparent fill colour and the checker skips it by design, so it stayed at
+   zero failures while the hero headline was unreadable. Deepened to amber and
+   terracotta, which clear 3:1 for large text on white and still read as the
+   same warm brand colour. */
 .gradient-text {
-  background: linear-gradient(135deg, var(--color-secondary), #ff9a5c, var(--color-secondary));
+  background: linear-gradient(135deg, #C2830E, #C9552A, #C2830E);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

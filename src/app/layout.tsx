@@ -51,12 +51,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`dark ${instrumentSans.variable} ${fraunces.variable}`}>
+    <html lang="en" className={`${instrumentSans.variable} ${fraunces.variable}`}>
       <head>
         <link rel="icon" href="/images/favicon.ico" />
         <link rel="apple-touch-icon" href="/images/apple-touch-icon.png" />
       </head>
-      <body className="min-h-screen bg-[#0f0f13] text-[#e4e4e8] antialiased">
+      <body className="min-h-screen bg-surface text-ink-body antialiased">
         <AuthProvider>
           <Navbar />
           <main className="pt-16">{children}</main>

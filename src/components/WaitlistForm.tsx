@@ -68,11 +68,11 @@ export default function WaitlistForm({
   }
 
   const inputBase = variant === "hero"
-    ? "bg-white/10 border-white/15 text-white placeholder-white/40 focus:bg-white/15 focus:border-white/30"
+    ? "bg-surface-sunken border-white/15 text-ink placeholder-white/40 focus:bg-white/15 focus:border-white/30"
     : "bg-black/[0.04] border-black/10 text-[#0f0f13] placeholder-black/40 focus:bg-black/[0.06] focus:border-black/20";
   const buttonBase = variant === "hero"
     ? "bg-white text-[#0f0f13] hover:bg-white/90"
-    : "bg-[#0f0f13] text-white hover:bg-[#0f0f13]/90";
+    : "bg-surface text-ink hover:bg-surface/90";
 
   return (
     <form onSubmit={onSubmit} className="w-full">

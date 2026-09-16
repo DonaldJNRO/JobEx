@@ -15,11 +15,11 @@ export default function ListingCard({ listing, index = 0 }: { listing: Listing; 
   return (
     <Link
       href={`/listing/${listing.id}`}
-      className="group block card-hover rounded-2xl overflow-hidden bg-[#18181f] border border-white/6"
+      className="group block card-hover rounded-2xl overflow-hidden bg-card border border-line"
       style={{ animationDelay: `${index * 0.06}s` }}
     >
       {/* Image */}
-      <div className="relative aspect-[4/3] overflow-hidden bg-[#0f0f13]">
+      <div className="relative aspect-[4/3] overflow-hidden bg-surface">
         {image ? (
           <Image
             src={image}
@@ -38,7 +38,7 @@ export default function ListingCard({ listing, index = 0 }: { listing: Listing; 
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
         {/* Category pill */}
-        <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md text-[11px] font-semibold px-2.5 py-1 rounded-full text-white shadow-sm">
+        <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md text-[11px] font-semibold px-2.5 py-1 rounded-full text-ink shadow-sm">
           {category}
         </div>
 
@@ -60,7 +60,7 @@ export default function ListingCard({ listing, index = 0 }: { listing: Listing; 
       {/* Info */}
       <div className="p-3.5">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="font-semibold text-[13px] text-white leading-snug line-clamp-1 group-hover:text-primary group-hover:text-secondary transition-colors">
+          <h3 className="font-semibold text-[13px] text-ink leading-snug line-clamp-1 group-hover:text-primary group-hover:text-secondary transition-colors">
             {name}
           </h3>
           {listing.rating && (

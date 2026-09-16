@@ -17,7 +17,7 @@ export default function AccountPage() {
 
   if (loading || !user) {
     return (
-      <div className="min-h-screen bg-[#0f0f13] flex items-center justify-center">
+      <div className="min-h-screen bg-surface flex items-center justify-center">
         <div className="animate-pulse text-text-muted">Loading...</div>
       </div>
     );
@@ -29,12 +29,12 @@ export default function AccountPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0f0f13] py-12">
+    <div className="min-h-screen bg-surface py-12">
       <div className="max-w-2xl mx-auto px-4">
-        <h1 className="text-2xl font-bold text-white mb-8">My Account</h1>
+        <h1 className="text-2xl font-bold text-ink mb-8">My Account</h1>
 
         {/* Profile card */}
-        <div className="bg-[#18181f] rounded-2xl border border-white/6 p-6 mb-6">
+        <div className="bg-card rounded-2xl border border-line p-6 mb-6">
           <div className="flex items-center gap-4">
             {userProfile?.profileImage ? (
               <Image src={userProfile.profileImage} alt="" width={56} height={56} className="rounded-full" />
@@ -44,7 +44,7 @@ export default function AccountPage() {
               </div>
             )}
             <div>
-              <h2 className="font-bold text-white">{userProfile?.fullName || "User"}</h2>
+              <h2 className="font-bold text-ink">{userProfile?.fullName || "User"}</h2>
               <p className="text-sm text-text-muted">{user.email}</p>
               {userProfile?.handle && (
                 <p className="text-xs text-text-muted">@{userProfile.handle}</p>
@@ -54,14 +54,14 @@ export default function AccountPage() {
         </div>
 
         {/* Menu */}
-        <div className="bg-[#18181f] rounded-2xl border border-white/6 overflow-hidden mb-6">
+        <div className="bg-card rounded-2xl border border-line overflow-hidden mb-6">
           {[
             { icon: Calendar, label: "My Bookings", href: "/bookings" },
             { icon: Bookmark, label: "Saved Listings", href: "/favorites" },
           ].map((item) => (
-            <Link key={item.label} href={item.href} className="flex items-center gap-4 px-6 py-4 border-b border-white/6 last:border-0 hover:bg-neutral-light hover:bg-white/5 transition-colors">
+            <Link key={item.label} href={item.href} className="flex items-center gap-4 px-6 py-4 border-b border-line last:border-0 hover:bg-neutral-light hover:bg-surface-sunken transition-colors">
               <item.icon size={20} className="text-text-muted" />
-              <span className="text-sm font-medium text-white">{item.label}</span>
+              <span className="text-sm font-medium text-ink">{item.label}</span>
             </Link>
           ))}
         </div>

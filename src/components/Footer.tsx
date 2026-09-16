@@ -4,7 +4,7 @@ import { MapPin, Mail } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="bg-neutral-dark text-white/70">
+    <footer className="bg-surface-sunken text-ink-muted border-t border-line">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           {/* Brand */}
@@ -12,7 +12,7 @@ export default function Footer() {
             {/* Same rule as the header: the wordmark, not the wordmark
                 beside the bee. */}
             <div className="mb-4">
-              <span className="font-display text-xl font-semibold text-white tracking-tight">
+              <span className="font-display text-xl font-semibold text-ink tracking-tight">
                 Sabię
               </span>
             </div>
@@ -23,31 +23,31 @@ export default function Footer() {
 
           {/* Product */}
           <div>
-            <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wider">Product</h4>
+            <h4 className="text-sm font-semibold text-ink mb-4 uppercase tracking-wider">Product</h4>
             <ul className="space-y-2.5 text-sm">
-              <li><Link href="/explore" className="inline-flex items-center min-h-9 hover:text-white transition-colors">Explore</Link></li>
-              <li><Link href="/explore?category=stays" className="inline-flex items-center min-h-9 hover:text-white transition-colors">Stays</Link></li>
-              <li><Link href="/explore?category=experiences" className="inline-flex items-center min-h-9 hover:text-white transition-colors">Experiences</Link></li>
-              <li><Link href="/explore?category=events" className="inline-flex items-center min-h-9 hover:text-white transition-colors">Events</Link></li>
-              <li><Link href="/explore?category=food" className="inline-flex items-center min-h-9 hover:text-white transition-colors">Food & Drink</Link></li>
+              <li><Link href="/explore" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">Explore</Link></li>
+              <li><Link href="/explore?category=stays" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">Stays</Link></li>
+              <li><Link href="/explore?category=experiences" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">Experiences</Link></li>
+              <li><Link href="/explore?category=events" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">Events</Link></li>
+              <li><Link href="/explore?category=food" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">Food & Drink</Link></li>
             </ul>
           </div>
 
           {/* Company */}
           <div>
-            <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wider">Company</h4>
+            <h4 className="text-sm font-semibold text-ink mb-4 uppercase tracking-wider">Company</h4>
             <ul className="space-y-2.5 text-sm">
-              <li><Link href="/about" className="inline-flex items-center min-h-9 hover:text-white transition-colors">About</Link></li>
-              <li><Link href="/blog" className="inline-flex items-center min-h-9 hover:text-white transition-colors">Blog</Link></li>
-              <li><Link href="/contact" className="inline-flex items-center min-h-9 hover:text-white transition-colors">Contact</Link></li>
-              <li><Link href="/privacy" className="inline-flex items-center min-h-9 hover:text-white transition-colors">Privacy</Link></li>
-              <li><Link href="/terms" className="inline-flex items-center min-h-9 hover:text-white transition-colors">Terms</Link></li>
+              <li><Link href="/about" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">About</Link></li>
+              <li><Link href="/blog" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">Blog</Link></li>
+              <li><Link href="/contact" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">Contact</Link></li>
+              <li><Link href="/privacy" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">Privacy</Link></li>
+              <li><Link href="/terms" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">Terms</Link></li>
             </ul>
           </div>
 
           {/* Contact */}
           <div>
-            <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wider">Get in Touch</h4>
+            <h4 className="text-sm font-semibold text-ink mb-4 uppercase tracking-wider">Get in Touch</h4>
             <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-2">
                 <MapPin size={16} className="mt-0.5 shrink-0" />
@@ -55,19 +55,19 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-2">
                 <Mail size={16} className="shrink-0" />
-                <a href="mailto:hello@sabieapp.com" className="inline-flex items-center min-h-9 hover:text-white transition-colors">hello@sabieapp.com</a>
+                <a href="mailto:hello@sabieapp.com" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">hello@sabieapp.com</a>
               </li>
             </ul>
             <div className="flex gap-3 mt-5">
-              <a href="https://twitter.com/sabieapp" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors text-xs font-bold">X</a>
-              <a href="https://instagram.com/sabieapp" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors text-xs font-bold">IG</a>
-              <a href="https://linkedin.com/company/sabieapp" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors text-xs font-bold">in</a>
+              <a href="https://twitter.com/sabieapp" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-surface-sunken flex items-center justify-center hover:bg-line-strong transition-colors text-xs font-bold">X</a>
+              <a href="https://instagram.com/sabieapp" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-surface-sunken flex items-center justify-center hover:bg-line-strong transition-colors text-xs font-bold">IG</a>
+              <a href="https://linkedin.com/company/sabieapp" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-surface-sunken flex items-center justify-center hover:bg-line-strong transition-colors text-xs font-bold">in</a>
             </div>
           </div>
         </div>
 
-        <div className="border-t border-white/10 mt-12 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-white/40">&copy; {new Date().getFullYear()} Sabię. All rights reserved.</p>
+        <div className="border-t border-line mt-12 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-xs text-ink-faint">&copy; {new Date().getFullYear()} Sabię. All rights reserved.</p>
           <div className="flex items-center gap-4">
             <Image src="/images/barclays-eagle-labs-logo.svg" alt="Barclays Eagle Labs" width={100} height={24} className="opacity-50 hover:opacity-80 transition-opacity" />
             <Image src="/images/fv-partner-new24.svg" alt="Foundervine" width={80} height={24} className="opacity-50 hover:opacity-80 transition-opacity" />

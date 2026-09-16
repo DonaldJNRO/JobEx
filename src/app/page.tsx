@@ -74,7 +74,7 @@ export default function HomePage() {
   return (
     <div ref={revealRef}>
       {/* ── Hero ── */}
-      <section className="relative overflow-hidden min-h-[92vh] flex items-center bg-neutral-dark">
+      <section className="relative overflow-hidden min-h-[92vh] flex items-center bg-surface-sunken">
         {/* Animated gradient blobs */}
         <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-primary/30 rounded-full blur-[120px] animate-blob" />
         <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-secondary/20 rounded-full blur-[120px] animate-blob" style={{ animationDelay: "2s" }} />
@@ -84,17 +84,17 @@ export default function HomePage() {
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             {/* Left */}
             <div className="stagger-children">
-              <div className="inline-flex items-center gap-2.5 glass text-white/70 text-xs font-medium px-4 py-2 rounded-full mb-8">
+              <div className="inline-flex items-center gap-2.5 glass text-ink-body text-xs font-medium px-4 py-2 rounded-full mb-8">
                 <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
                 Live on the App Store · iOS
               </div>
 
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-white leading-[1.05] tracking-tight">
+              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-ink leading-[1.05] tracking-tight">
                 Plan the trip back home,<br />
                 <span className="gradient-text">with the crew.</span>
               </h1>
 
-              <p className="mt-6 text-lg sm:text-xl text-white/50 max-w-lg leading-relaxed">
+              <p className="mt-6 text-lg sm:text-xl text-ink-muted max-w-lg leading-relaxed">
                 Stop the WhatsApp chaos. Sabię brings everyone together to plan, vote and book. Trips that actually happen.
               </p>
 
@@ -102,7 +102,7 @@ export default function HomePage() {
                 <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" className="btn-shine inline-flex items-center gap-2.5 bg-secondary hover:bg-secondary-dark text-neutral-dark font-bold px-8 py-4 rounded-full transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-secondary/25">
                   <Smartphone size={18} /> Download on App Store
                 </a>
-                <Link href="/explore" className="inline-flex items-center gap-2.5 glass text-white font-semibold px-8 py-4 rounded-full hover:bg-white/10 transition-all">
+                <Link href="/explore" className="inline-flex items-center gap-2.5 glass text-ink font-semibold px-8 py-4 rounded-full hover:bg-surface-sunken transition-all">
                   Browse Listings <ArrowRight size={18} />
                 </Link>
               </div>
@@ -110,7 +110,7 @@ export default function HomePage() {
               {/* Android coming-soon note — replaces the old waitlist
                   block. Keeps the visual weight under the CTAs and
                   tells Android visitors not to bounce. */}
-              <p className="mt-6 text-xs text-white/40">
+              <p className="mt-6 text-xs text-ink-faint">
                 Android coming next. iPhone or iPad for now.
               </p>
 
@@ -135,7 +135,7 @@ export default function HomePage() {
               {/* Dots */}
               <div className="absolute bottom-[-20px] flex gap-2">
                 {MOCKUPS.map((_, i) => (
-                  <button key={i} onClick={() => setMockupIndex(i)} className={`h-2 rounded-full transition-all duration-300 ${i === mockupIndex ? "bg-secondary w-8" : "bg-white/20 w-2 hover:bg-white/40"}`} />
+                  <button key={i} onClick={() => setMockupIndex(i)} className={`h-2 rounded-full transition-all duration-300 ${i === mockupIndex ? "bg-secondary w-8" : "bg-line-strong w-2 hover:bg-white/40"}`} />
                 ))}
               </div>
             </div>
@@ -144,19 +144,19 @@ export default function HomePage() {
       </section>
 
       {/* ── Features ── */}
-      <section className="py-24 bg-[#18181f] border-b border-white/6">
+      <section className="py-24 bg-card border-b border-line">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <p className="text-xs font-bold text-secondary uppercase tracking-[0.2em] mb-3">Why Sabię</p>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white">Everything you need for group trips</h2>
+            <p className="text-xs font-bold text-primary uppercase tracking-[0.2em] mb-3">Why Sabię</p>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-ink">Everything you need for group trips</h2>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 stagger-children">
             {FEATURES.map((f) => (
-              <div key={f.title} className="reveal group p-6 rounded-2xl border border-white/6 hover:border-secondary/20 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 cursor-default">
+              <div key={f.title} className="reveal group p-6 rounded-2xl border border-line hover:border-secondary/20 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 cursor-default">
                 <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${f.color} flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300`}>
                   <f.icon size={22} className="text-secondary" />
                 </div>
-                <h3 className="font-bold text-white mb-1.5">{f.title}</h3>
+                <h3 className="font-bold text-ink mb-1.5">{f.title}</h3>
                 <p className="text-sm text-text-muted leading-relaxed">{f.desc}</p>
               </div>
             ))}
@@ -166,15 +166,15 @@ export default function HomePage() {
 
       {/* ── Featured Listings ── */}
       {listings.length > 0 && (
-        <section className="py-24 bg-[#0f0f13]">
+        <section className="py-24 bg-surface">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-end justify-between mb-12">
               <div>
-                <p className="text-xs font-bold text-secondary uppercase tracking-[0.2em] mb-3">Explore</p>
-                <h2 className="text-3xl sm:text-4xl font-extrabold text-white">Discover Amazing Places</h2>
+                <p className="text-xs font-bold text-primary uppercase tracking-[0.2em] mb-3">Explore</p>
+                <h2 className="text-3xl sm:text-4xl font-extrabold text-ink">Discover Amazing Places</h2>
                 <p className="text-text-muted mt-2 max-w-md">Handpicked stays, experiences, and events from around the world</p>
               </div>
-              <Link href="/explore" className="hidden sm:flex items-center gap-1.5 text-sm font-bold text-secondary hover:underline underline-offset-4 transition-all">
+              <Link href="/explore" className="hidden sm:flex items-center gap-1.5 text-sm font-bold text-primary hover:underline underline-offset-4 transition-all">
                 View all <ChevronRight size={16} />
               </Link>
             </div>
@@ -186,7 +186,7 @@ export default function HomePage() {
               ))}
             </div>
             <div className="sm:hidden text-center mt-10 reveal">
-              <Link href="/explore" className="inline-flex items-center gap-1.5 text-sm font-bold text-secondary">
+              <Link href="/explore" className="inline-flex items-center gap-1.5 text-sm font-bold text-primary">
                 View all listings <ChevronRight size={16} />
               </Link>
             </div>
@@ -195,11 +195,11 @@ export default function HomePage() {
       )}
 
       {/* ── How It Works ── */}
-      <section className="py-24 bg-[#18181f]">
+      <section className="py-24 bg-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <p className="text-xs font-bold text-secondary uppercase tracking-[0.2em] mb-3">How It Works</p>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white">Three steps to your next adventure</h2>
+            <p className="text-xs font-bold text-primary uppercase tracking-[0.2em] mb-3">How It Works</p>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-ink">Three steps to your next adventure</h2>
           </div>
           <div className="grid md:grid-cols-3 gap-8 stagger-children">
             {[
@@ -207,12 +207,12 @@ export default function HomePage() {
               { step: "02", icon: Users, title: "Plan Together", desc: "Invite your crew, vote on options, and build your itinerary with AI assistance." },
               { step: "03", icon: Zap, title: "Book & Go", desc: "Book directly, split expenses, and get real-time updates. Your trip is sorted." },
             ].map((item) => (
-              <div key={item.step} className="reveal relative text-center p-8 rounded-2xl border border-white/6 group hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
-                <span className="absolute top-4 right-4 text-6xl font-black text-secondary/5 leading-none">{item.step}</span>
+              <div key={item.step} className="reveal relative text-center p-8 rounded-2xl border border-line group hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
+                <span aria-hidden="true" className="absolute top-4 right-4 text-6xl font-black text-primary/10 leading-none select-none">{item.step}</span>
                 <div className="w-16 h-16 rounded-2xl bg-primary/15 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 group-hover:bg-primary/15 transition-all duration-300">
                   <item.icon size={28} className="text-secondary" />
                 </div>
-                <h3 className="font-bold text-lg text-white mb-2">{item.title}</h3>
+                <h3 className="font-bold text-lg text-ink mb-2">{item.title}</h3>
                 <p className="text-sm text-text-muted leading-relaxed">{item.desc}</p>
               </div>
             ))}
@@ -221,21 +221,21 @@ export default function HomePage() {
       </section>
 
       {/* ── Testimonials ── */}
-      <section className="py-24 bg-[#0f0f13]">
+      <section className="py-24 bg-surface">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <p className="text-xs font-bold text-secondary uppercase tracking-[0.2em] mb-3">Testimonials</p>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white">Loved by travelers</h2>
+            <p className="text-xs font-bold text-primary uppercase tracking-[0.2em] mb-3">Testimonials</p>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-ink">Loved by travelers</h2>
           </div>
           <div className="grid md:grid-cols-3 gap-6 stagger-children">
             {TESTIMONIALS.map((t) => (
-              <div key={t.name} className="reveal bg-[#18181f] p-7 rounded-2xl border border-white/6 hover:shadow-lg transition-shadow duration-300">
+              <div key={t.name} className="reveal bg-card p-7 rounded-2xl border border-line hover:shadow-lg transition-shadow duration-300">
                 <div className="flex gap-1 mb-4">
                   {[...Array(5)].map((_, i) => (
                     <Star key={i} size={14} className="fill-secondary text-secondary" />
                   ))}
                 </div>
-                <p className="text-sm text-white/80 leading-relaxed mb-5">&ldquo;{t.text}&rdquo;</p>
+                <p className="text-sm text-ink-body leading-relaxed mb-5">&ldquo;{t.text}&rdquo;</p>
                 <div className="flex items-center gap-3">
                   {/* Real photo if we have it, initial-circle fallback otherwise.
                       Maureen has no photo yet — falls back cleanly to "M". */}
@@ -248,12 +248,12 @@ export default function HomePage() {
                       className="w-10 h-10 rounded-full object-cover"
                     />
                   ) : (
-                    <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center text-sm font-bold text-secondary">
+                    <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center text-sm font-bold text-primary">
                       {t.avatar}
                     </div>
                   )}
                   <div>
-                    <p className="text-sm font-semibold text-white">{t.name}</p>
+                    <p className="text-sm font-semibold text-ink">{t.name}</p>
                     <p className="text-xs text-text-muted">{t.role}</p>
                   </div>
                 </div>
@@ -264,7 +264,7 @@ export default function HomePage() {
       </section>
 
       {/* ── Backed By ── */}
-      <section className="py-14 bg-[#18181f] border-y border-white/6">
+      <section className="py-14 bg-card border-y border-line">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 reveal">
           <p className="text-center text-[10px] font-bold text-text-muted uppercase tracking-[0.3em] mb-8">Backed by</p>
           <div className="flex items-center justify-center gap-16 opacity-40 hover:opacity-60 transition-opacity duration-500">
@@ -275,7 +275,7 @@ export default function HomePage() {
       </section>
 
       {/* ── App Download CTA ── */}
-      <section className="py-24 bg-[#0f0f13]">
+      <section className="py-24 bg-surface">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 reveal">
           <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-primary-dark to-neutral-dark p-12 sm:p-16 text-center">
             {/* Background decoration */}
@@ -283,20 +283,20 @@ export default function HomePage() {
             <div className="absolute bottom-0 left-0 w-[200px] h-[200px] bg-purple-500/10 rounded-full blur-[80px]" />
 
             <div className="relative z-10">
-              <div className="inline-flex items-center gap-2 glass text-white/60 text-xs font-medium px-4 py-2 rounded-full mb-6">
+              <div className="inline-flex items-center gap-2 glass text-ink-muted text-xs font-medium px-4 py-2 rounded-full mb-6">
                 <Smartphone size={14} /> Live on the App Store · iOS
               </div>
-              <h2 className="text-3xl sm:text-5xl font-extrabold text-white mb-4">
+              <h2 className="text-3xl sm:text-5xl font-extrabold text-ink mb-4">
                 Download Sabię today.
               </h2>
-              <p className="text-white/45 text-lg max-w-md mx-auto mb-10">
+              <p className="text-ink-muted text-lg max-w-md mx-auto mb-10">
                 Get the iPhone app from the App Store and start planning with your crew. Android coming next.
               </p>
               <div className="flex flex-wrap justify-center gap-4">
                 <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" className="btn-shine inline-flex items-center gap-2.5 bg-white text-primary font-bold px-8 py-4 rounded-full hover:scale-[1.02] hover:shadow-xl transition-all">
                   <Smartphone size={18} /> Download on App Store
                 </a>
-                <Link href="/explore" className="inline-flex items-center gap-2.5 glass text-white font-bold px-8 py-4 rounded-full hover:bg-white/10 transition-all">
+                <Link href="/explore" className="inline-flex items-center gap-2.5 glass text-ink font-bold px-8 py-4 rounded-full hover:bg-surface-sunken transition-all">
                   Browse Listings <ArrowRight size={18} />
                 </Link>
               </div>

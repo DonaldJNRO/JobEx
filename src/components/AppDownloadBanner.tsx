@@ -12,7 +12,7 @@ export default function AppDownloadBanner() {
         <Smartphone size={20} className="shrink-0" />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold">Get the Sabię app</p>
-          <p className="text-xs text-white/60">Book faster, plan with friends</p>
+          <p className="text-xs text-ink-muted">Book faster, plan with friends</p>
         </div>
         <a
           href="https://apps.apple.com/app/sabie/id6504672498"
@@ -22,7 +22,7 @@ export default function AppDownloadBanner() {
         >
           Open
         </a>
-        <button onClick={() => setDismissed(true)} className="text-white/50 shrink-0">
+        <button onClick={() => setDismissed(true)} className="text-ink-muted shrink-0">
           <X size={18} />
         </button>
       </div>

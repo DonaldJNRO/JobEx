@@ -25,16 +25,16 @@ export default function ExplorePage() {
 
 function ExploreLoading() {
   return (
-    <div className="min-h-screen bg-[#0f0f13] pt-8">
+    <div className="min-h-screen bg-surface pt-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 mt-12">
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="animate-pulse rounded-2xl overflow-hidden bg-[#18181f] border border-white/6">
-              <div className="aspect-[4/3] bg-white/5" />
+            <div key={i} className="animate-pulse rounded-2xl overflow-hidden bg-card border border-line">
+              <div className="aspect-[4/3] bg-surface-sunken" />
               <div className="p-4 space-y-2.5">
-                <div className="h-4 w-3/4 rounded-lg bg-white/5" />
-                <div className="h-3 w-1/2 rounded-lg bg-white/5" />
-                <div className="h-4 w-1/3 rounded-lg bg-white/5" />
+                <div className="h-4 w-3/4 rounded-lg bg-surface-sunken" />
+                <div className="h-3 w-1/2 rounded-lg bg-surface-sunken" />
+                <div className="h-4 w-1/3 rounded-lg bg-surface-sunken" />
               </div>
             </div>
           ))}
@@ -84,7 +84,7 @@ function ExploreContent() {
     : listings;
 
   return (
-    <div ref={revealRef} className="min-h-screen bg-[#0f0f13]">
+    <div ref={revealRef} className="min-h-screen bg-surface">
       {/* Hero header */}
       <div className="relative bg-gradient-to-br from-primary via-primary-dark to-neutral-dark overflow-hidden">
         <div className="absolute inset-0">
@@ -93,14 +93,14 @@ function ExploreContent() {
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-20 relative z-10">
           <div className="text-center mb-10 animate-fade-in-up">
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-3">Explore Listings</h1>
-            <p className="text-white/50 max-w-md mx-auto">Find your perfect stay, experience, or event anywhere in the world</p>
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-ink mb-3">Explore Listings</h1>
+            <p className="text-ink-muted max-w-md mx-auto">Find your perfect stay, experience, or event anywhere in the world</p>
           </div>
 
           {/* Search bar */}
           <div className="max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: "0.15s" }}>
             <div className={`relative transition-all duration-300 ${searchFocused ? "scale-[1.02]" : ""}`}>
-              <Search size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-white/40" aria-hidden="true" />
+              <Search size={20} className="absolute left-5 top-1/2 -translate-y-1/2 text-ink-faint" aria-hidden="true" />
               {/* An accessible NAME, not a visible label. A hero search bar
                   with a magnifier in it explains itself to anyone who can see
                   it, so a label above would be noise; a screen reader still got
@@ -115,13 +115,13 @@ function ExploreContent() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => setSearchFocused(true)}
                 onBlur={() => setSearchFocused(false)}
-                className="w-full pl-13 pr-12 py-4 rounded-2xl glass text-white placeholder:text-white/30 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/40 transition-all"
+                className="w-full pl-13 pr-12 py-4 rounded-2xl glass text-ink placeholder:text-ink-faint text-sm focus:outline-none focus:ring-2 focus:ring-secondary/40 transition-all"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery("")}
                   aria-label="Clear search"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 w-11 h-11 inline-flex items-center justify-center text-white/40 hover:text-white transition-colors rounded-xl"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 w-11 h-11 inline-flex items-center justify-center text-ink-faint hover:text-ink transition-colors rounded-xl"
                 >
                   <X size={18} />
                 </button>
@@ -138,7 +138,7 @@ function ExploreContent() {
                 className={`px-6 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all duration-300 ${
                   category === c.id
                     ? "bg-secondary text-neutral-dark shadow-lg shadow-secondary/25 scale-105"
-                    : "glass text-white/60 hover:text-white hover:bg-white/10"
+                    : "glass text-ink-muted hover:text-ink hover:bg-surface-sunken"
                 }`}
               >
                 {c.label}
@@ -158,7 +158,7 @@ function ExploreContent() {
                 Loading...
               </span>
             ) : (
-              <span><strong className="text-white">{filtered.length}</strong> listing{filtered.length !== 1 ? "s" : ""} found</span>
+              <span><strong className="text-ink">{filtered.length}</strong> listing{filtered.length !== 1 ? "s" : ""} found</span>
             )}
           </p>
         </div>
@@ -166,12 +166,12 @@ function ExploreContent() {
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="animate-pulse rounded-2xl overflow-hidden bg-[#18181f] border border-white/6">
-                <div className="aspect-[4/3] bg-white/5 animate-shimmer" />
+              <div key={i} className="animate-pulse rounded-2xl overflow-hidden bg-card border border-line">
+                <div className="aspect-[4/3] bg-surface-sunken animate-shimmer" />
                 <div className="p-4 space-y-2.5">
-                  <div className="h-4 w-3/4 rounded-lg bg-white/5" />
-                  <div className="h-3 w-1/2 rounded-lg bg-white/5" />
-                  <div className="h-4 w-1/3 rounded-lg bg-white/5" />
+                  <div className="h-4 w-3/4 rounded-lg bg-surface-sunken" />
+                  <div className="h-3 w-1/2 rounded-lg bg-surface-sunken" />
+                  <div className="h-4 w-1/3 rounded-lg bg-surface-sunken" />
                 </div>
               </div>
             ))}
@@ -181,9 +181,9 @@ function ExploreContent() {
             <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
               <Search size={32} className="text-primary/40" />
             </div>
-            <h3 className="text-xl font-bold text-white mb-2">No listings found</h3>
+            <h3 className="text-xl font-bold text-ink mb-2">No listings found</h3>
             <p className="text-sm text-text-muted max-w-sm mx-auto">Try a different search term or browse another category</p>
-            <button onClick={() => { setSearchQuery(""); setCategory("all"); }} className="mt-6 text-sm font-semibold text-secondary hover:underline underline-offset-4">
+            <button onClick={() => { setSearchQuery(""); setCategory("all"); }} className="mt-6 text-sm font-semibold text-primary hover:underline underline-offset-4">
               Clear filters
             </button>
           </div>
