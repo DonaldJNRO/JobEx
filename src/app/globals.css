@@ -169,9 +169,19 @@
 .stagger-children > *:nth-child(7) { animation-delay: 0.48s; }
 .stagger-children > *:nth-child(8) { animation-delay: 0.56s; }
 
-/* Scroll-reveal — add .reveal class + IntersectionObserver */
-.reveal { opacity: 0; transform: translateY(20px); transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
-.reveal.visible { opacity: 1; transform: translateY(0); }
+/* Scroll-reveal.
+   VISIBLE BY DEFAULT. This used to be `.reveal { opacity: 0 }` unconditionally,
+   so any element carrying the class was invisible until JavaScript came along
+   and added .visible. On the listing page that JavaScript never ran, and the
+   entire page below the hero was blank while the content sat there at zero
+   opacity. Content must never need JS to become readable, so the hidden state
+   is switched on by the hook itself, once it is running and able to undo it. */
+.reveal { opacity: 1; transform: none; }
+html.reveal-ready .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
+html.reveal-ready .reveal.visible { opacity: 1; transform: translateY(0); }
+@media (prefers-reduced-motion: reduce) {
+  .reveal, html.reveal-ready .reveal { opacity: 1 !important; transform: none !important; }
+}
 
 /* Card hover */
 .card-hover { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease; }
