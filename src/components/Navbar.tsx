@@ -63,7 +63,7 @@ export default function Navbar() {
                   <Image src={userProfile.profileImage} alt="" width={32} height={32} className="rounded-full border border-line" />
                 ) : (
                   <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                    <User size={16} className="text-secondary" />
+                    <User size={16} className="text-primary" />
                   </div>
                 )}
                 <span className="text-sm font-medium text-ink-body">

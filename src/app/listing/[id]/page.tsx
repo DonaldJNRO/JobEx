@@ -166,16 +166,16 @@ export default function ListingDetailPage() {
             <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8">
               <div className="max-w-6xl mx-auto">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="glass text-ink text-xs font-semibold px-3 py-1 rounded-full">{category}</span>
+                  <span className="bg-black/55 text-white text-xs font-semibold px-3 py-1 rounded-full backdrop-blur-sm">{category}</span>
                   {listing.rating && (
-                    <span className="glass text-ink text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1">
+                    <span className="bg-black/55 text-white text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1 backdrop-blur-sm">
                       <Star size={10} className="fill-secondary text-secondary" /> {listing.rating}
                     </span>
                   )}
                 </div>
-                <h1 className="text-2xl sm:text-4xl font-extrabold text-ink drop-shadow-lg">{name}</h1>
+                <h1 className="text-2xl sm:text-4xl font-extrabold text-white drop-shadow-lg">{name}</h1>
                 {location && (
-                  <p className="text-ink-muted text-sm mt-1.5 flex items-center gap-1.5">
+                  <p className="text-white/90 text-sm mt-1.5 flex items-center gap-1.5 drop-shadow">
                     <MapPin size={14} /> {location}
                   </p>
                 )}
@@ -194,7 +194,7 @@ export default function ListingDetailPage() {
             {(listing.subCategory?.name || location) && (
               <div className="flex flex-wrap gap-2 reveal">
                 {listing.subCategory?.name && (
-                  <span className="inline-flex items-center gap-1.5 bg-primary/10 text-secondary text-xs font-semibold px-3.5 py-2 rounded-xl">
+                  <span className="inline-flex items-center gap-1.5 bg-primary/10 text-primary text-xs font-semibold px-3.5 py-2 rounded-xl">
                     <Globe size={12} /> {listing.subCategory.name}
                   </span>
                 )}
@@ -224,7 +224,7 @@ export default function ListingDetailPage() {
                     return (
                       <div key={a} className="flex items-center gap-3 p-3.5 rounded-xl bg-card border border-line group hover:border-secondary/20 transition-colors">
                         <div className="w-9 h-9 rounded-lg bg-primary/12 flex items-center justify-center group-hover:scale-110 transition-transform">
-                          <IconComp size={16} className="text-secondary" />
+                          <IconComp size={16} className="text-primary" />
                         </div>
                         <span className="text-sm font-medium capitalize text-ink">{a.replace(/_/g, " ")}</span>
                       </div>
@@ -238,7 +238,7 @@ export default function ListingDetailPage() {
           {/* Sidebar — Booking Card */}
           <div className="lg:col-span-1">
             <div className="sticky top-24 bg-card rounded-2xl border border-line p-7 shadow-xl shadow-black/5 ">
-              <div className="text-3xl font-extrabold text-secondary mb-1">{price}</div>
+              <div className="text-3xl font-extrabold text-primary mb-1">{price}</div>
               <p className="text-sm text-text-muted mb-7">per {listing.pricingUnit?.replace("per_", "").replace(/_/g, " ") || "night"}</p>
 
               {/* Book on app */}
@@ -286,7 +286,7 @@ export default function ListingDetailPage() {
                   { icon: Heart, text: "Free cancellation" },
                 ].map((badge) => (
                   <div key={badge.text} className="flex items-center gap-2.5 text-xs text-text-muted">
-                    <badge.icon size={14} className="text-secondary shrink-0" />
+                    <badge.icon size={14} className="text-primary shrink-0" />
                     {badge.text}
                   </div>
                 ))}

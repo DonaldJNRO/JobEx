@@ -14,9 +14,9 @@ export default function AboutPage() {
       {/* Hero */}
       <section className="bg-gradient-to-br from-primary to-primary-dark py-24 text-center">
         <div className="max-w-3xl mx-auto px-4">
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-ink mb-4">About Sabię</h1>
-          <p className="text-lg text-ink-muted leading-relaxed">
-            We&apos;re building the future of group travel — where planning is fun, booking is easy, and every trip actually happens.
+          <h1 className="text-4xl sm:text-5xl font-extrabold text-white mb-4">About Sabię</h1>
+          <p className="text-lg text-white/85 leading-relaxed">
+            We&apos;re building the future of group travel, where planning is fun, booking is easy, and every trip actually happens.
           </p>
         </div>
       </section>
@@ -42,7 +42,7 @@ export default function AboutPage() {
                 { icon: Users, label: "Group-First", desc: "Built for crews" },
               ].map((s) => (
                 <div key={s.label} className="bg-card p-5 rounded-2xl border border-line text-center">
-                  <s.icon size={24} className="mx-auto text-secondary mb-2" />
+                  <s.icon size={24} className="mx-auto text-primary mb-2" />
                   <p className="font-bold text-sm text-ink">{s.label}</p>
                   <p className="text-xs text-text-muted mt-0.5">{s.desc}</p>
                 </div>

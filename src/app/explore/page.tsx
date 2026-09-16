@@ -93,8 +93,8 @@ function ExploreContent() {
         </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-20 relative z-10">
           <div className="text-center mb-10 animate-fade-in-up">
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-ink mb-3">Explore Listings</h1>
-            <p className="text-ink-muted max-w-md mx-auto">Find your perfect stay, experience, or event anywhere in the world</p>
+            <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-3">Explore Listings</h1>
+            <p className="text-white/85 max-w-md mx-auto">Find your perfect stay, experience, or event anywhere in the world</p>
           </div>
 
           {/* Search bar */}
@@ -138,7 +138,11 @@ function ExploreContent() {
                 className={`px-6 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all duration-300 ${
                   category === c.id
                     ? "bg-secondary text-neutral-dark shadow-lg shadow-secondary/25 scale-105"
-                    : "glass text-ink-muted hover:text-ink hover:bg-surface-sunken"
+                    // These pills sit on the purple hero, not on the page, so
+                    // `glass` (a frosted WHITE panel) with page-ink text put
+                    // grey on purple at about 2:1. On brand colour they get
+                    // brand-colour treatment.
+                    : "bg-white/15 border border-white/25 text-white hover:bg-white/25"
                 }`}
               >
                 {c.label}

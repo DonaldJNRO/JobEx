@@ -38,7 +38,7 @@ export default function ListingCard({ listing, index = 0 }: { listing: Listing; 
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
         {/* Category pill */}
-        <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md text-[11px] font-semibold px-2.5 py-1 rounded-full text-ink shadow-sm">
+        <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md text-[11px] font-semibold px-2.5 py-1 rounded-full text-white shadow-sm">
           {category}
         </div>
 
@@ -60,13 +60,13 @@ export default function ListingCard({ listing, index = 0 }: { listing: Listing; 
       {/* Info */}
       <div className="p-3.5">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="font-semibold text-[13px] text-ink leading-snug line-clamp-1 group-hover:text-primary group-hover:text-secondary transition-colors">
+          <h3 className="font-semibold text-[13px] text-ink leading-snug line-clamp-1 group-hover:text-primary transition-colors">
             {name}
           </h3>
           {listing.rating && (
             <div className="flex items-center gap-0.5 shrink-0 bg-secondary/10 px-1.5 py-0.5 rounded">
               <Star size={10} className="fill-secondary text-secondary" />
-              <span className="text-[11px] font-bold text-secondary">{listing.rating}</span>
+              <span className="text-[11px] font-bold text-ink">{listing.rating}</span>
             </div>
           )}
         </div>
@@ -76,7 +76,7 @@ export default function ListingCard({ listing, index = 0 }: { listing: Listing; 
             <span className="truncate">{location}</span>
           </p>
         )}
-        <p className="text-sm font-bold text-secondary mt-2">{price}</p>
+        <p className="text-sm font-bold text-ink mt-2">{price}</p>
       </div>
     </Link>
   );

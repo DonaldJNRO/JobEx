@@ -19,8 +19,8 @@ export default function ContactPage() {
   return (
     <div className="min-h-screen bg-surface">
       <section className="bg-gradient-to-br from-primary to-primary-dark py-20 text-center">
-        <h1 className="text-4xl font-extrabold text-ink">Get in Touch</h1>
-        <p className="text-ink-muted mt-3">We&apos;d love to hear from you</p>
+        <h1 className="text-4xl font-extrabold text-white">Get in Touch</h1>
+        <p className="text-white/85 mt-3">We&apos;d love to hear from you</p>
       </section>
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
@@ -32,7 +32,7 @@ export default function ContactPage() {
               <div className="space-y-5">
                 <div className="flex items-start gap-4">
                   <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                    <MapPin size={18} className="text-secondary" />
+                    <MapPin size={18} className="text-primary" />
                   </div>
                   <div>
                     <p className="font-medium text-sm text-ink">Address</p>
@@ -41,7 +41,7 @@ export default function ContactPage() {
                 </div>
                 <div className="flex items-start gap-4">
                   <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                    <Mail size={18} className="text-secondary" />
+                    <Mail size={18} className="text-primary" />
                   </div>
                   <div>
                     <p className="font-medium text-sm text-ink">Email</p>

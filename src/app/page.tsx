@@ -94,7 +94,7 @@ export default function HomePage() {
                 <span className="gradient-text">with the crew.</span>
               </h1>
 
-              <p className="mt-6 text-lg sm:text-xl text-ink-muted max-w-lg leading-relaxed">
+              <p className="mt-6 text-lg sm:text-xl text-ink-body max-w-lg leading-relaxed">
                 Stop the WhatsApp chaos. Sabię brings everyone together to plan, vote and book. Trips that actually happen.
               </p>
 
@@ -154,7 +154,7 @@ export default function HomePage() {
             {FEATURES.map((f) => (
               <div key={f.title} className="reveal group p-6 rounded-2xl border border-line hover:border-secondary/20 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 cursor-default">
                 <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${f.color} flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300`}>
-                  <f.icon size={22} className="text-secondary" />
+                  <f.icon size={22} className="text-primary" />
                 </div>
                 <h3 className="font-bold text-ink mb-1.5">{f.title}</h3>
                 <p className="text-sm text-text-muted leading-relaxed">{f.desc}</p>
@@ -210,7 +210,7 @@ export default function HomePage() {
               <div key={item.step} className="reveal relative text-center p-8 rounded-2xl border border-line group hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
                 <span aria-hidden="true" className="absolute top-4 right-4 text-6xl font-black text-primary/10 leading-none select-none">{item.step}</span>
                 <div className="w-16 h-16 rounded-2xl bg-primary/15 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 group-hover:bg-primary/15 transition-all duration-300">
-                  <item.icon size={28} className="text-secondary" />
+                  <item.icon size={28} className="text-primary" />
                 </div>
                 <h3 className="font-bold text-lg text-ink mb-2">{item.title}</h3>
                 <p className="text-sm text-text-muted leading-relaxed">{item.desc}</p>
@@ -283,20 +283,20 @@ export default function HomePage() {
             <div className="absolute bottom-0 left-0 w-[200px] h-[200px] bg-purple-500/10 rounded-full blur-[80px]" />
 
             <div className="relative z-10">
-              <div className="inline-flex items-center gap-2 glass text-ink-muted text-xs font-medium px-4 py-2 rounded-full mb-6">
+              <div className="inline-flex items-center gap-2 bg-white/15 border border-white/25 text-white text-xs font-medium px-4 py-2 rounded-full mb-6">
                 <Smartphone size={14} /> Live on the App Store · iOS
               </div>
-              <h2 className="text-3xl sm:text-5xl font-extrabold text-ink mb-4">
+              <h2 className="text-3xl sm:text-5xl font-extrabold text-white mb-4">
                 Download Sabię today.
               </h2>
-              <p className="text-ink-muted text-lg max-w-md mx-auto mb-10">
+              <p className="text-white/85 text-lg max-w-md mx-auto mb-10">
                 Get the iPhone app from the App Store and start planning with your crew. Android coming next.
               </p>
               <div className="flex flex-wrap justify-center gap-4">
                 <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" className="btn-shine inline-flex items-center gap-2.5 bg-white text-primary font-bold px-8 py-4 rounded-full hover:scale-[1.02] hover:shadow-xl transition-all">
                   <Smartphone size={18} /> Download on App Store
                 </a>
-                <Link href="/explore" className="inline-flex items-center gap-2.5 glass text-ink font-bold px-8 py-4 rounded-full hover:bg-surface-sunken transition-all">
+                <Link href="/explore" className="inline-flex items-center gap-2.5 bg-white/15 border border-white/25 text-white font-bold px-8 py-4 rounded-full hover:bg-white/25 transition-all">
                   Browse Listings <ArrowRight size={18} />
                 </Link>
               </div>
