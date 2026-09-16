@@ -1,5 +1,6 @@
-import { collection, getDocs, doc, getDoc, query, limit } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc, query, limit, where, orderBy, startAt, endAt, documentId } from "firebase/firestore";
 import { db } from "./firebase";
+import { makeSlug, slugCandidates, looksLikeSlug } from "./slug";
 
 export type ListingRole = "Landlord" | "Host" | "HospitalityManager" | "ExperienceProviders" | "EventOrganizer" | "FoodBeverageManager";
 
@@ -30,7 +31,7 @@ export interface Listing {
   location?: string | { address?: string; city?: string; name?: string };
   coordinates?: { latitude: number; longitude: number };
   rating?: number;
-  subCategory?: { id: string; name: string };
+  subCategory?: string | { id: string; name: string };
   amenities?: string[];
   selectedAmenities?: string[];
   userId?: string;
@@ -41,6 +42,22 @@ export interface Listing {
   category?: string;
   viewsCount?: number;
   views?: number;
+  // The human link. Written by admin when a listing is published; absent on
+  // every listing created before slugs existed, which listingSlug() covers.
+  slug?: string;
+  // Already on every ad document and already normalised the way a slug wants
+  // it: "abuja", "port-harcourt". Preferred over digging into location.
+  citySlug?: string;
+  areaSlug?: string;
+  listingName?: string;
+  // The real shape of subCategory in Firestore is a STRING key
+  // ("adventure_outdoor") with the human label in its own field. The object
+  // form below it is what this file used to assume, and assuming it is why
+  // the type pill and the Type row on the listing page never rendered.
+  subCategoryLabel?: string;
+  country?: string;
+  packages?: { name?: string; price?: number }[];
+  services?: { name?: string; price?: number }[];
 }
 
 // Founder-only dev listings should never surface on the public
@@ -71,10 +88,47 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
   INR: '₹', CNY: '¥',
 };
 
-function symbolFor(currency?: string): string {
-  if (!currency) return '£'; // Sabię defaults to GBP for the platform
-  const code = currency.toUpperCase();
-  return CURRENCY_SYMBOLS[code] || code + ' ';
+function symbolFor(listing: Listing): string {
+  const code = listing.currency?.toUpperCase();
+  if (code) return CURRENCY_SYMBOLS[code] || code + ' ';
+  // No currency on the document. The platform default is GBP, but a listing
+  // in Nigeria priced in pounds is simply a wrong number on the page, and
+  // every listing we have today is Nigerian. Trust the country first.
+  if ((listing.country || '').toLowerCase().includes('nigeria')) return '₦';
+  return '£';
+}
+
+/** The human label for the listing type. Firestore stores subCategory as a
+    string key with the label beside it; the object form is older data. */
+export function getListingType(listing: Listing): string {
+  if (listing.subCategoryLabel) return listing.subCategoryLabel;
+  const sub = listing.subCategory;
+  if (!sub) return "";
+  if (typeof sub === "string") {
+    // "adventure_outdoor" reads as a database key. Make it a phrase.
+    return sub.replace(/[_-]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  }
+  return sub.name || "";
+}
+
+/** The city, preferring the already-normalised citySlug the ad document
+    carries, so the website and admin build the same slug from the same word. */
+export function getListingCity(listing: Listing): string {
+  if (listing.citySlug) return listing.citySlug;
+  if (typeof listing.location === "object" && listing.location?.city) return listing.location.city;
+  return "";
+}
+
+/**
+ * The slug this listing should be linked by.
+ *
+ * Falls back to computing one when the document has no `slug` field. Every
+ * listing predates slugs, and a link that only works after a backfill has run
+ * is a link that does not work. The computed value is the plain-name candidate,
+ * which is what the backfill will write for anything without a name collision.
+ */
+export function listingSlug(listing: Listing): string {
+  return listing.slug || makeSlug(listing.businessName || listing.listingName || listing.title || "");
 }
 
 export function getListingImage(listing: Listing): string | null {
@@ -92,7 +146,7 @@ export function getListingPrice(listing: Listing): string {
   // the source-of-truth price the traveller will be charged. Locale
   // conversion (~₦16,600) is a future add — for now, honest currency
   // beats a wrong symbol.
-  const sym = symbolFor(listing.currency);
+  const sym = symbolFor(listing);
   const nice = price.toLocaleString('en-US');
   const unit = listing.pricingUnit || "";
   if (unit.includes("night")) return `${sym}${nice}/night`;
@@ -149,6 +203,113 @@ export async function getListingById(id: string): Promise<Listing | null> {
     } catch {}
   }
   return null;
+}
+
+/** Every ad document, across all six role collections. Small enough to do
+    (thirty-odd listings) and only reached on the fallback paths below. */
+async function getAllListings(): Promise<Listing[]> {
+  const all: Listing[] = [];
+  await Promise.all(
+    ROLE_COLLECTIONS.map(async (role) => {
+      try {
+        const snap = await getDocs(collection(db, "ads", role, "documents"));
+        snap.forEach((d) => all.push({ id: d.id, ...d.data(), role } as Listing));
+      } catch {}
+    })
+  );
+  return all;
+}
+
+/** Find a listing by its stored `slug` field. */
+export async function getListingBySlug(slug: string): Promise<Listing | null> {
+  for (const role of ROLE_COLLECTIONS) {
+    try {
+      const ref = collection(db, "ads", role, "documents");
+      const snap = await getDocs(query(ref, where("slug", "==", slug), limit(1)));
+      if (!snap.empty) {
+        const d = snap.docs[0];
+        return { id: d.id, ...d.data(), role } as Listing;
+      }
+    } catch {}
+  }
+  return null;
+}
+
+/**
+ * Find a listing whose document id STARTS WITH this.
+ *
+ * This is what /listing/ARH actually is. There has never been a short-code
+ * field anywhere in the platform; Arrows Den's document id is
+ * ARHiIBWZVpKyhuzO8dqk, and "ARH" is the front of it, from a link that got
+ * truncated somewhere between the address bar and the person reading it.
+ * Rather than tell the founder his link was never real, resolve the prefix.
+ *
+ * Ambiguity returns nothing rather than guessing: sending someone to the wrong
+ * business is worse than sending them to a page that says it cannot find it.
+ */
+export async function getListingByIdPrefix(prefix: string): Promise<Listing | null> {
+  const hits: Listing[] = [];
+  await Promise.all(
+    ROLE_COLLECTIONS.map(async (role) => {
+      try {
+        const ref = collection(db, "ads", role, "documents");
+        // \uf8ff is the last character Firestore will sort, so startAt/endAt
+        // over the document id is a prefix scan.
+        const snap = await getDocs(
+          query(ref, orderBy(documentId()), startAt(prefix), endAt(prefix + "\uf8ff"), limit(2))
+        );
+        snap.forEach((d) => hits.push({ id: d.id, ...d.data(), role } as Listing));
+      } catch {}
+    })
+  );
+  return hits.length === 1 ? hits[0] : null;
+}
+
+export interface ResolvedListing {
+  listing: Listing;
+  /** The slug this listing should live at. */
+  slug: string;
+  /** Was the URL already the canonical one, or should we redirect? */
+  canonical: boolean;
+}
+
+/**
+ * Turn whatever is in /listing/[id] into a listing and the URL it belongs at.
+ *
+ * Four things can arrive here and all four have to work, because all four are
+ * already in the wild: a slug, a Firebase document id, a truncated document id,
+ * and a slug shaped like an older guess at one ("central-park-abuja" when the
+ * listing settled on "central-park"). Only the first is canonical; the rest
+ * resolve and then redirect, so a link an operator printed keeps working while
+ * the address bar quietly corrects itself.
+ */
+export async function resolveListing(param: string): Promise<ResolvedListing | null> {
+  const value = decodeURIComponent(String(param || "")).trim();
+  if (!value) return null;
+
+  const found = async (listing: Listing | null, wasCanonical = false) =>
+    listing ? { listing, slug: listingSlug(listing), canonical: wasCanonical } : null;
+
+  if (looksLikeSlug(value)) {
+    const stored = await getListingBySlug(value);
+    if (stored) return found(stored, true);
+
+    // Nothing has this slug stored. Either the backfill has not run yet, or
+    // this is a candidate the listing did not end up keeping. Recompute every
+    // listing's candidates and see whose it is. This path disappears on its own
+    // once slugs are written: the indexed query above answers first.
+    const all = await getAllListings();
+    const match = all.find((l) =>
+      slugCandidates(l.businessName || l.listingName || l.title || "", getListingCity(l)).includes(value)
+    );
+    if (match) return found(match, listingSlug(match) === value);
+    return null;
+  }
+
+  const byId = await getListingById(value);
+  if (byId) return found(byId);
+
+  return found(await getListingByIdPrefix(value));
 }
 
 // Fetch listings by category

@@ -1,13 +1,19 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { MapPin, Star, ChevronLeft, ChevronRight, Share2, Heart, Wifi, Car, Coffee, Waves, Shield, ArrowRight, Download, Check, Globe, Clock, Users } from "lucide-react";
-import { getListingById, getListingPrice, getListingLocation, getCategoryLabel, getFeaturedListings, Listing } from "@/lib/listings";
+import { MapPin, Star, ChevronLeft, ChevronRight, Share2, Link2, Heart, Wifi, Car, Coffee, Waves, Shield, ArrowRight, Download, Check, Globe, Clock, Users } from "lucide-react";
+import { resolveListing, getListingPrice, getListingLocation, getListingType, getCategoryLabel, getFeaturedListings, Listing } from "@/lib/listings";
 import ListingCard from "@/components/ListingCard";
 import { useReveal } from "@/lib/useReveal";
+
+// One place for the store link. The site carried two different App Store ids
+// (id6504672498 here and on the download banner, id6752625262 on the home page)
+// and at most one of them can be right; naming the constant is what makes the
+// next person fix it once rather than notice it never.
+const APP_STORE_URL = "https://apps.apple.com/app/sabie/id6504672498";
 
 const AMENITY_ICONS: Record<string, typeof Wifi> = {
   wifi: Wifi, parking: Car, pool: Waves, coffee: Coffee, security: Shield,
@@ -16,6 +22,7 @@ const AMENITY_ICONS: Record<string, typeof Wifi> = {
 
 export default function ListingDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const id = params.id as string;
   const [listing, setListing] = useState<Listing | null>(null);
   const [loading, setLoading] = useState(true);
@@ -23,6 +30,8 @@ export default function ListingDetailPage() {
   const [liked, setLiked] = useState(false);
   const [similarListings, setSimilarListings] = useState<Listing[]>([]);
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [slug, setSlug] = useState("");
+  const [copied, setCopied] = useState(false);
   const revealRef = useReveal();
 
   useEffect(() => {
@@ -30,17 +39,21 @@ export default function ListingDetailPage() {
     setLoading(true);
     setCurrentImage(0);
     setImageLoaded(false);
-    getListingById(id)
-      .then((data) => {
-        setListing(data);
-        // Fetch similar
-        if (data) {
-          getFeaturedListings(4).then(setSimilarListings).catch(() => {});
-        }
+    resolveListing(id)
+      .then((resolved) => {
+        setListing(resolved?.listing ?? null);
+        if (!resolved) return;
+        setSlug(resolved.slug);
+        // The link worked, but it was not the one we want people to keep. Swap
+        // the address bar for the readable slug without adding a history entry,
+        // so Back still goes where the visitor came from. replace(), never
+        // push(), or a truncated link becomes a Back button that does nothing.
+        if (!resolved.canonical) router.replace(`/listing/${resolved.slug}`, { scroll: false });
+        getFeaturedListings(4).then(setSimilarListings).catch(() => {});
       })
       .catch(() => setListing(null))
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, router]);
 
   if (loading) {
     return (
@@ -86,6 +99,41 @@ export default function ListingDetailPage() {
   const location = getListingLocation(listing);
   const category = getCategoryLabel(listing.role);
   const amenities = listing.selectedAmenities || listing.amenities || [];
+  const type = getListingType(listing);
+  // getListingPrice already appends the unit for the units it knows, so the
+  // page rendered "₦2,250/person" with "per person" directly underneath it.
+  // Only say it once, and only when the price line has not said it already.
+  const priceUnit =
+    listing.pricingUnit && !price.includes("/")
+      ? `per ${listing.pricingUnit.replace("per_", "").replace(/_/g, " ")}`
+      : "";
+  const bookingLink = slug ? `https://www.sabieapp.com/listing/${slug}` : "";
+
+  const bookingBlock = (
+    <>
+      <div className="text-3xl font-extrabold text-primary mb-1">{price}</div>
+      <div className={priceUnit ? "" : "mb-6"} />
+      {priceUnit && <p className="text-sm text-text-muted mb-6">{priceUnit}</p>}
+      <a
+        href={APP_STORE_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="btn-shine w-full flex items-center justify-center gap-2.5 bg-primary hover:bg-primary-dark text-white font-bold py-4 rounded-xl transition-all hover:shadow-lg hover:shadow-primary/20"
+      >
+        Book <ArrowRight size={18} />
+      </a>
+      <p className="text-[11px] text-text-muted text-center mt-3">Book and manage your trip in the Sabię app</p>
+    </>
+  );
+
+  const copyLink = async () => {
+    if (!bookingLink) return;
+    try {
+      await navigator.clipboard.writeText(bookingLink);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {}
+  };
 
   return (
     <div ref={revealRef} className="min-h-screen bg-surface">
@@ -156,8 +204,13 @@ export default function ListingDetailPage() {
                 >
                   <Heart size={18} fill={liked ? "white" : "none"} />
                 </button>
-                <button className="w-10 h-10 rounded-full glass flex items-center justify-center text-ink hover:bg-line-strong transition-all">
-                  <Share2 size={18} />
+                <button
+                  onClick={copyLink}
+                  aria-label={copied ? "Link copied" : "Copy link to this listing"}
+                  className="h-10 rounded-full glass flex items-center justify-center gap-1.5 text-ink hover:bg-line-strong transition-all px-3"
+                >
+                  {copied ? <Check size={18} /> : <Share2 size={18} />}
+                  {copied && <span className="text-xs font-semibold">Copied</span>}
                 </button>
               </div>
             </div>
@@ -185,17 +238,29 @@ export default function ListingDetailPage() {
         </div>
       </div>
 
+      {/* THE FIRST SCREEN, on a phone. Name, city and the hero are in the
+          overlay above; this is the price and the one thing we want a visitor
+          to do, put where they land rather than a scroll and a half down the
+          page in a sidebar that only exists on a desktop. Hidden at lg, where
+          the sticky sidebar card carries it instead, so there is never more
+          than one Book button on screen. */}
+      <div className="lg:hidden max-w-6xl mx-auto px-4 sm:px-6 pt-6">
+        <div className="bg-card rounded-2xl border border-line p-6 shadow-lg shadow-black/5">
+          {bookingBlock}
+        </div>
+      </div>
+
       {/* Content */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="grid lg:grid-cols-3 gap-10">
           {/* Main */}
           <div className="lg:col-span-2 space-y-10">
             {/* Quick info pills */}
-            {(listing.subCategory?.name || location) && (
+            {(type || location) && (
               <div className="flex flex-wrap gap-2 reveal">
-                {listing.subCategory?.name && (
+                {type && (
                   <span className="inline-flex items-center gap-1.5 bg-primary/10 text-primary text-xs font-semibold px-3.5 py-2 rounded-xl">
-                    <Globe size={12} /> {listing.subCategory.name}
+                    <Globe size={12} /> {type}
                   </span>
                 )}
                 {location && (
@@ -238,28 +303,17 @@ export default function ListingDetailPage() {
           {/* Sidebar — Booking Card */}
           <div className="lg:col-span-1">
             <div className="sticky top-24 bg-card rounded-2xl border border-line p-7 shadow-xl shadow-black/5 ">
-              <div className="text-3xl font-extrabold text-primary mb-1">{price}</div>
-              <p className="text-sm text-text-muted mb-7">per {listing.pricingUnit?.replace("per_", "").replace(/_/g, " ") || "night"}</p>
-
-              {/* Book on app */}
-              <a
-                href="https://apps.apple.com/app/sabie/id6504672498"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-shine w-full flex items-center justify-center gap-2.5 bg-primary hover:bg-primary-dark text-white font-bold py-4 rounded-xl transition-all hover:shadow-lg hover:shadow-primary/20"
-              >
-                <Download size={18} /> Book on App
-              </a>
-              <p className="text-[11px] text-text-muted text-center mt-3">Download Sabię to book and manage your trip</p>
-
-              <div className="my-6 border-t border-line" />
+              <div className="hidden lg:block">
+                {bookingBlock}
+                <div className="my-6 border-t border-line" />
+              </div>
 
               {/* Quick info */}
               <div className="space-y-4 text-sm">
-                {listing.subCategory?.name && (
+                {type && (
                   <div className="flex justify-between">
                     <span className="text-text-muted">Type</span>
-                    <span className="font-semibold text-ink">{listing.subCategory.name}</span>
+                    <span className="font-semibold text-ink text-right max-w-[60%]">{type}</span>
                   </div>
                 )}
                 {location && (
