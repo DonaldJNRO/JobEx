@@ -129,13 +129,30 @@ function ExploreContent() {
             </div>
           </div>
 
-          {/* Category pills */}
-          <div className="flex justify-center gap-2 mt-8 overflow-x-auto scrollbar-hide pb-1 animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
+          {/* Category pills.
+              justify-center on an overflowing flex row centres the overflow,
+              which clips BOTH ends and leaves no way to scroll back to the
+              start. At 390px that pushed "All" off the left edge entirely, so
+              the filter that clears the others could not be reached on a
+              phone, and "Food & Drink" was sliced on the right with nothing to
+              say the row scrolled. Start-aligned while it overflows, centred
+              once there is room for the whole row; the negative margin lets it
+              bleed to the screen edge while the padding keeps a gutter, which
+              is what makes a half-visible chip read as "there is more".
+              snap-x so a flick lands on a chip rather than between two, with
+              scroll-pl-4 because scroll-snap-align: start snaps to the
+              SCROLLPORT edge and ignores padding: without it the row silently
+              scrolled itself 14px on load and ate the gutter it had just been
+              given. */}
+          <div
+            className="flex justify-start sm:justify-center gap-2 mt-8 overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-pl-4 -mx-4 px-4 sm:mx-0 sm:px-0 sm:scroll-pl-0 pb-1 animate-fade-in-up"
+            style={{ animationDelay: "0.3s" }}
+          >
             {CATEGORIES.map((c) => (
               <button
                 key={c.id}
                 onClick={() => setCategory(c.id)}
-                className={`px-6 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-all duration-300 ${
+                className={`snap-start shrink-0 px-6 py-2.5 rounded-full text-small font-semibold whitespace-nowrap transition-all duration-300 ${
                   category === c.id
                     ? "bg-secondary text-neutral-dark shadow-lg shadow-secondary/25 scale-105"
                     // These pills sit on the purple hero, not on the page, so

@@ -15,7 +15,7 @@ import BookingFields from "@/components/BookingFields";
 const STATUS_TONE: Record<string, { label: string; className: string }> = {
   confirmed_paid: { label: "Confirmed", className: "bg-emerald-600/10 text-emerald-700" },
   confirmed: { label: "Confirmed", className: "bg-emerald-600/10 text-emerald-700" },
-  pending: { label: "Awaiting the operator", className: "bg-amber-500/12 text-amber-700" },
+  pending: { label: "Awaiting operator", className: "bg-amber-500/12 text-amber-700" },
   declined: { label: "Declined", className: "bg-red-500/10 text-red-700" },
   cancelled: { label: "Cancelled", className: "bg-line-strong text-text-muted" },
   refunded: { label: "Refunded", className: "bg-line-strong text-text-muted" },
@@ -111,8 +111,15 @@ export default function BookingsPage() {
                       </div>
                     )}
                     <div className="min-w-0 flex-1">
+                      {/* whitespace-nowrap because a pill stops being a pill
+                          the moment its label wraps: the text spills out of the
+                          rounded background and the chip reads as broken. The
+                          first attempt added max-w-full and truncate as well,
+                          which collapsed every label to "C.." and "A.." — the
+                          labels are short by design, so nowrap is the whole
+                          fix and truncation only had something to break. */}
                       <span
-                        className={`inline-block rounded-full px-2.5 py-1 text-[11px] font-semibold ${
+                        className={`inline-block whitespace-nowrap rounded-full px-2.5 py-1 text-caption font-semibold ${
                           tone?.className || "bg-line-strong text-text-muted"
                         }`}
                       >

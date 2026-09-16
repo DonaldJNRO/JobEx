@@ -174,7 +174,7 @@ export default function ListingDetailPage() {
       {/* Image Gallery */}
       <div className="relative bg-neutral-dark">
         <div className="max-w-6xl mx-auto">
-          <div className="relative aspect-[2.2/1] sm:aspect-[2.5/1] overflow-hidden sm:rounded-b-3xl">
+          <div className="relative aspect-[4/3] sm:aspect-[2.5/1] overflow-hidden sm:rounded-b-3xl">
             {images.length > 0 ? (
               <Image
                 src={images[currentImage]}
@@ -195,17 +195,23 @@ export default function ListingDetailPage() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20" />
 
             {/* Nav arrows */}
+            {/* Desktop only. At phone width these sat at top-1/2 of a short
+                hero, which put a chevron on top of the back button and across
+                the first letter of the business name. A gallery on a phone is
+                worked with the dots below, which are a real target now. */}
             {images.length > 1 && (
               <>
                 <button
                   onClick={() => { setCurrentImage((i) => (i - 1 + images.length) % images.length); setImageLoaded(false); }}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full glass flex items-center justify-center text-ink hover:bg-line-strong transition-all"
+                  aria-label="Previous photo"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full glass hidden sm:flex items-center justify-center text-ink hover:bg-line-strong transition-all"
                 >
                   <ChevronLeft size={20} />
                 </button>
                 <button
                   onClick={() => { setCurrentImage((i) => (i + 1) % images.length); setImageLoaded(false); }}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full glass flex items-center justify-center text-ink hover:bg-line-strong transition-all"
+                  aria-label="Next photo"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full glass hidden sm:flex items-center justify-center text-ink hover:bg-line-strong transition-all"
                 >
                   <ChevronRight size={20} />
                 </button>
@@ -214,15 +220,21 @@ export default function ListingDetailPage() {
 
             {/* Image dots */}
             {images.length > 1 && (
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
+              <div className="absolute bottom-4 right-4 sm:left-1/2 sm:right-auto sm:-translate-x-1/2 flex items-center gap-1 rounded-full bg-black/40 px-2 py-1.5 backdrop-blur-sm">
                 {images.slice(0, 8).map((_, i) => (
                   <button
                     key={i}
                     onClick={() => { setCurrentImage(i); setImageLoaded(false); }}
-                    className={`h-1.5 rounded-full transition-all duration-300 ${i === currentImage ? "bg-white w-6" : "bg-white/40 w-1.5 hover:bg-white/60"}`}
-                  />
+                    aria-label={`Photo ${i + 1} of ${images.length}`}
+                    aria-current={i === currentImage}
+                    className="group/dot p-1.5"
+                  >
+                    <span
+                      className={`block h-1.5 rounded-full transition-all duration-300 ${i === currentImage ? "bg-white w-5" : "bg-white/50 w-1.5 group-hover/dot:bg-white/80"}`}
+                    />
+                  </button>
                 ))}
-                {images.length > 8 && <span className="text-ink-faint text-[10px] ml-1">+{images.length - 8}</span>}
+                {images.length > 8 && <span className="text-white/70 text-[10px] pr-1">+{images.length - 8}</span>}
               </div>
             )}
 

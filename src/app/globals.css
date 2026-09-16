@@ -43,8 +43,17 @@
      picking a number, and changing the rhythm is one edit rather than a search.
      Tailwind v4 turns each of these into utilities, so --spacing-section gives
      py-section, mt-section, gap-section and the rest. */
+  /* NAMES MATTER HERE, and one of them cost a live bug. Tailwind v4 turns every
+     --spacing-* token into a value for EVERY spacing utility, and `inline-*` is
+     one of them (inline-size). So `--spacing-block` generated
+     `.inline-block { inline-size: 1.5rem }`, which lands after Tailwind's own
+     `.inline-block { display: inline-block }` at equal specificity and wins.
+     Every inline-block on the site silently became a 24px-wide box. It was
+     found on the bookings page, where a status pill collapsed to "C..".
+     So: never name a spacing token after a CSS keyword a utility can take.
+     `stack` replaces `block` for that reason. */
   --spacing-gutter: 1rem;    /* page side padding, phone */
-  --spacing-block: 1.5rem;   /* between blocks inside one section */
+  --spacing-stack: 1.5rem;   /* between blocks inside one section */
   --spacing-section: 3.5rem; /* between major sections, and page top and tail */
   --spacing-page: 5rem;      /* the big one: a hero or a legal page's breathing room */
 

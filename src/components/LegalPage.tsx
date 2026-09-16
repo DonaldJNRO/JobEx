@@ -27,7 +27,7 @@ export default function LegalPage({
   return (
     <div className="min-h-screen bg-surface">
       <div className="mx-auto max-w-2xl px-4 py-page sm:px-6">
-        <header className="mb-section border-b border-line pb-block">
+        <header className="mb-section border-b border-line pb-stack">
           <h1 className="text-display font-semibold tracking-tight text-ink">{title}</h1>
           <p className="mt-2 text-small text-ink-faint">Last updated {updated}</p>
         </header>
@@ -40,7 +40,7 @@ export default function LegalPage({
         <div
           className="
             text-ink-body leading-[1.75]
-            [&>h2]:mt-block [&>h2]:mb-2.5 [&>h2]:text-heading [&>h2]:font-semibold [&>h2]:text-ink
+            [&>h2]:mt-stack [&>h2]:mb-2.5 [&>h2]:text-heading [&>h2]:font-semibold [&>h2]:text-ink
             [&>h2]:scroll-mt-24
             [&>p]:mb-4
             [&>p:last-child]:mb-0
