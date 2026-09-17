@@ -8,7 +8,7 @@
 //
 // Run: node --experimental-strip-types src/lib/listing-place.test.mjs
 
-import { listingPlace, citiesOf, inCity, parentCity } from './listing-place.ts'
+import { listingPlace, citiesOf, inCity, parentCity, areaIndexFrom } from './listing-place.ts'
 
 let fails = 0
 const is = (got, want, label) => {
@@ -136,6 +136,39 @@ is(inCity({}, 'lagos', KNOWN), false, 'a listing with no city is not silently in
 // The collection's spelling wins, so one city is named one way.
 deep(citiesOf([{ location: { city: 'LAGOS' } }], KNOWN).map((c) => c.name), ['Lagos'],
   "the collection's spelling wins over however a listing stored it")
+
+// ── learning the areas when `cities` cannot be read ──────────────────────
+//
+// firestore.rules lets only a SIGNED-IN account read `cities`, and most people
+// arrive at sabieapp.com signed out, so on the page where this matters the
+// list comes back empty. A listing stored properly is evidence in its own
+// right: citySlug "lagos" with areaSlug "ikeja" says where Ikeja is.
+
+const mixed = [
+  { citySlug: 'lagos', areaSlug: 'ikeja', location: { city: 'Lagos', area: 'Ikeja' } },
+  { citySlug: 'lagos', location: { city: 'Lagos' } },
+  // The badly stored one: its AREA is in the city field.
+  { citySlug: 'ikeja', location: { city: 'Ikeja' } },
+]
+
+deep(areaIndexFrom(mixed), { ikeja: 'lagos' }, 'a well-stored listing teaches where Ikeja is')
+is(parentCity('ikeja', [], areaIndexFrom(mixed)), 'lagos', 'and folds the badly stored one, with no cities list')
+deep(citiesOf(mixed).map((c) => `${c.name}:${c.count}`), ['Lagos:3'],
+  'so signed out, the filter still offers Lagos once')
+is(inCity({ citySlug: 'ikeja' }, 'lagos', [], areaIndexFrom(mixed)), true,
+  'and picking Lagos keeps the Ikeja listing')
+
+// It must never learn that a place contains itself, or the listing being
+// corrected would teach that Ikeja is a city.
+deep(areaIndexFrom([{ citySlug: 'ikeja', areaSlug: 'ikeja' }]), {},
+  'a listing never teaches that a place is inside itself')
+deep(areaIndexFrom([{ citySlug: 'lagos' }, { areaSlug: 'ikeja' }, {}]), {},
+  'and nothing is learned from half a pair')
+
+// The collection still wins when it IS readable: it is the real source, and
+// what is learned is only ever a stand-in for it.
+is(parentCity('ikeja', KNOWN, { ikeja: 'abuja' }), 'lagos',
+  'the cities collection beats anything inferred')
 
 console.log(fails ? `\n${fails} FAILED` : '\nALL PASSED')
 process.exit(fails ? 1 : 0)

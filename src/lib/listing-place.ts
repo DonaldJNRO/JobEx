@@ -154,7 +154,7 @@ export interface KnownCity {
  * city we have never heard of is far more likely to be a real new city than a
  * mistake.
  */
-export function parentCity(slug: string, known: KnownCity[]): string {
+export function parentCity(slug: string, known: KnownCity[], learned: AreaIndex = {}): string {
   if (!slug) return "";
   if (known.some((c) => placeKey(c.id) === slug || placeKey(c.name) === slug)) return slug;
   for (const c of known) {
@@ -162,10 +162,41 @@ export function parentCity(slug: string, known: KnownCity[]): string {
       if (placeKey(area) === slug) return placeKey(c.id) || placeKey(c.name);
     }
   }
-  return slug;
+  return learned[slug] || slug;
+}
+
+/** area slug to city slug. */
+export type AreaIndex = Record<string, string>;
+
+/**
+ * Learn which areas belong to which city FROM THE LISTINGS THEMSELVES.
+ *
+ * The `cities` collection is the proper source, and firestore.rules only lets
+ * a signed-in account read it. Most people arrive at sabieapp.com signed out,
+ * so on the page where this matters most the list comes back empty and nothing
+ * folds. That is a rules change and a deploy away; this works now.
+ *
+ * A listing that records citySlug "lagos" and areaSlug "ikeja" is itself
+ * evidence that Ikeja is in Lagos. Any listing stored properly teaches us how
+ * to read one stored badly. Still no hardcoded table, and nothing invented:
+ * every pair comes from a document.
+ *
+ * It only ever learns from a listing that has BOTH, and never that a place is
+ * inside itself, so a listing filed under Ikeja cannot teach that Ikeja is a
+ * city. That listing is the thing being corrected.
+ */
+export function areaIndexFrom(listings: PlaceSource[]): AreaIndex {
+  const index: AreaIndex = {};
+  for (const l of listings) {
+    const { citySlug, areaSlug } = listingPlace(l);
+    if (!citySlug || !areaSlug || citySlug === areaSlug) continue;
+    index[areaSlug] = citySlug;
+  }
+  return index;
 }
 
 export function citiesOf(listings: PlaceSource[], known: KnownCity[] = []): CityOption[] {
+  const learned = areaIndexFrom(listings);
   const label = new Map<string, string>();
   for (const c of known) {
     const key = placeKey(c.id) || placeKey(c.name);
@@ -178,7 +209,7 @@ export function citiesOf(listings: PlaceSource[], known: KnownCity[] = []): City
     // No key means nothing to filter on. Listings with no recorded city are
     // still SHOWN, under Everywhere; they just cannot be narrowed to.
     if (!place.citySlug) continue;
-    const slug = parentCity(place.citySlug, known);
+    const slug = parentCity(place.citySlug, known, learned);
     const hit = seen.get(slug);
     if (hit) hit.count++;
     else seen.set(slug, {
@@ -194,7 +225,12 @@ export function citiesOf(listings: PlaceSource[], known: KnownCity[] = []): City
 
 /** Does this listing belong under the given city filter? Folds the same way
  *  citiesOf does, or a listing recorded in Ikeja disappears under Lagos. */
-export function inCity(listing: PlaceSource, slug: string, known: KnownCity[] = []): boolean {
+export function inCity(
+  listing: PlaceSource,
+  slug: string,
+  known: KnownCity[] = [],
+  learned: AreaIndex = {},
+): boolean {
   if (!slug || slug === "all") return true;
-  return parentCity(listingPlace(listing).citySlug, known) === slug;
+  return parentCity(listingPlace(listing).citySlug, known, learned) === slug;
 }

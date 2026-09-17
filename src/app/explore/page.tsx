@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useMemo, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Search, X, MapPin, Sparkles, ChevronDown } from "lucide-react";
 import ListingCard from "@/components/ListingCard";
-import { getListingsByCategory, getFeaturedListings, listingPlace, citiesOf, inCity, getKnownCities, Listing, type KnownCity } from "@/lib/listings";
+import { getListingsByCategory, getFeaturedListings, listingPlace, citiesOf, inCity, areaIndexFrom, getKnownCities, Listing, type KnownCity } from "@/lib/listings";
 import { useReveal } from "@/lib/useReveal";
 
 const CATEGORIES = [
@@ -114,6 +114,8 @@ function ExploreContent() {
    * selected that has no events in it.
    */
   const cities = useMemo(() => citiesOf(listings, knownCities), [listings, knownCities]);
+  // The same evidence citiesOf uses, so the options and the filtering agree.
+  const areaIndex = useMemo(() => areaIndexFrom(listings), [listings]);
 
   // A city that vanished with the category must not keep filtering invisibly.
   useEffect(() => {
@@ -126,7 +128,7 @@ function ExploreContent() {
       const place = listingPlace(l);
       // Folded the same way the options are, or a listing that recorded Ikeja
       // vanishes the moment somebody picks Lagos.
-      if (!inCity(l, city, knownCities)) return false;
+      if (!inCity(l, city, knownCities, areaIndex)) return false;
       if (!q) return true;
       const name = (l.businessName || l.title || "").toLowerCase();
       const desc = (l.description || "").toLowerCase();
@@ -136,7 +138,7 @@ function ExploreContent() {
       const where = [place.label, place.city, place.area].join(" ").toLowerCase();
       return name.includes(q) || where.includes(q) || desc.includes(q);
     });
-  }, [listings, searchQuery, city, knownCities]);
+  }, [listings, searchQuery, city, knownCities, areaIndex]);
 
   return (
     <div ref={revealRef} className="min-h-screen bg-surface">

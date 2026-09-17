@@ -3,8 +3,8 @@ import { db } from "./firebase";
 import { makeSlug, slugCandidates, looksLikeSlug, slugForListing } from "./slug";
 import { listingPlace, type KnownCity } from "./listing-place";
 
-export { listingPlace, citiesOf, inCity, parentCity } from "./listing-place";
-export type { ListingPlace, CityOption, KnownCity } from "./listing-place";
+export { listingPlace, citiesOf, inCity, parentCity, areaIndexFrom } from "./listing-place";
+export type { ListingPlace, CityOption, KnownCity, AreaIndex } from "./listing-place";
 
 export type ListingRole = "Landlord" | "Host" | "HospitalityManager" | "ExperienceProviders" | "EventOrganizer" | "FoodBeverageManager";
 
