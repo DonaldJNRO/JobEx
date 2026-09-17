@@ -43,10 +43,33 @@ is(titles.includes('Experiences in Jos'), false, 'one listing never gets a headi
 
 // A listing too thin for its own row must still be REACHABLE. An operator
 // paying us to be invisible is worse than an untidy row.
+// With 13 listings the New row already carries both thin ones, so there is
+// nothing left over and no catch-all row is needed.
 const everywhere = rows.find((r) => r.key === 'everywhere')
-is(Boolean(everywhere), true, 'the thin ones get a row together')
-is(everywhere.items.some((l) => l.id === 'jos-1'), true, 'the single Jos listing is still on the page')
-is(everywhere.items.some((l) => l.id === 'bamako-1'), true, 'and so is Bamako')
+is(Boolean(everywhere), false, 'nothing is left over, so no catch-all row appears')
+const newRow = rows.find((r) => r.key === 'new')
+is(newRow.items.some((l) => l.id === 'jos-1'), true, 'the single Jos listing is still on the page')
+is(newRow.items.some((l) => l.id === 'bamako-1'), true, 'and so is Bamako')
+
+// A LONE CARD UNDER A HEADING is the defect this guards. With more than twelve
+// listings the New row cannot hold everything, and one straggler must not get
+// a title and an empty row beside it.
+const wide = [
+  ...Array.from({ length: 14 }, (_, i) => make(`lag-${i}`, 'Host', 'Lagos', 500 + i)),
+  make('kano-1', 'Host', 'Kano', 1),
+]
+const wideRows = rowsFrom(wide)
+is(wideRows.find((r) => r.key === 'everywhere'), undefined, 'one straggler never gets a row of its own')
+is(wideRows.find((r) => r.key === 'new').items.some((l) => l.id === 'kano-1'), true,
+  'it joins the New row instead, so it is still reachable')
+
+// Three or more IS enough for the catch-all to stand on its own.
+const three = [
+  ...Array.from({ length: 12 }, (_, i) => make(`lag-${i}`, 'Host', 'Lagos', 500 + i)),
+  make('k1', 'Host', 'Kano', 3), make('k2', 'Host', 'Kaduna', 2), make('k3', 'Host', 'Enugu', 1),
+]
+is(rowsFrom(three).find((r) => r.key === 'everywhere')?.items.length, 3,
+  'three leftovers do get their own row')
 
 // Busiest first, so the strongest row is the first real one after New.
 const real = rows.filter((r) => r.key !== 'new' && r.key !== 'everywhere')
@@ -61,8 +84,8 @@ is(rowsFrom(many, 1).filter((r) => r.key !== 'new' && r.key !== 'everywhere').le
 
 // A listing with no city cannot be grouped, and must not vanish.
 const noCity = rowsFrom([...Array.from({ length: 3 }, (_, i) => make(`l${i}`, 'Host', 'Lagos')), { id: 'x', role: 'Host' }])
-is(noCity.find((r) => r.key === 'everywhere')?.items.some((l) => l.id === 'x'), true,
-  'a listing with no recorded city still appears')
+is(noCity.some((r) => r.items.some((l) => l.id === 'x')), true,
+  'a listing with no recorded city still appears somewhere')
 
 console.log(fails ? `\n${fails} FAILED` : '\nALL PASSED')
 process.exit(fails ? 1 : 0)

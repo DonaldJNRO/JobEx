@@ -1,5 +1,29 @@
 "use client";
 
+/**
+ * One place, on a card that is not a card.
+ *
+ * IT LOST ITS BOX. This was `rounded-2xl bg-card border border-line`: a bordered
+ * panel with the photograph inside it. A grid of outlined boxes is the visual
+ * language of an admin table, and it is most of what made the listings read as
+ * a directory rather than somewhere you would spend money. Airbnb's cards have
+ * no border and no background at all. The photograph is the card; the words sit
+ * under it on the page. Space does the separating, not lines.
+ *
+ * THE PRICE WAS PRINTED TWICE. Once as a gold-on-black chip that faded in over
+ * the image on hover, and again underneath. On a phone there is no hover, so
+ * half of that was invisible to most people and noise to the rest.
+ *
+ * THE CATEGORY MOVED OFF THE PHOTOGRAPH. Every single card carried a dark
+ * translucent "Experiences" pill over the top left corner. A badge that appears
+ * on everything tells you nothing and costs you the corner of every image. The
+ * word still appears, quietly, beside the location, which is where the rest of
+ * the facts about the place already are.
+ *
+ * MOTION GOT QUIETER. The image zoomed 10% and a black gradient washed over it.
+ * A 3% lift reads as responsive; 10% reads as a slideshow.
+ */
+
 import Image from "next/image";
 import Link from "next/link";
 import { MapPin, Star } from "lucide-react";
@@ -14,73 +38,50 @@ export default function ListingCard({ listing, index = 0 }: { listing: Listing; 
 
   return (
     <Link
-      // The slug, not the document id. Every card on the site linked by id,
-      // so the readable URL only ever appeared after a redirect fired, and the
-      // address a visitor could copy out of their bar was whatever they landed
-      // on first. Link to the address we want people to have.
+      // The slug, not the document id, so the address a visitor can copy out of
+      // their bar is the one we want them to have.
       href={`/listing/${listingSlug(listing)}`}
-      className="group block card-hover rounded-2xl overflow-hidden bg-card border border-line"
+      className="group block"
       style={{ animationDelay: `${index * 0.06}s` }}
     >
-      {/* Image */}
-      <div className="relative aspect-[4/3] overflow-hidden bg-surface">
+      <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-surface-sunken">
         {image ? (
           <Image
             src={image}
             alt={name}
             fill
-            className="object-cover transition-transform duration-700 ease-out group-hover:scale-110"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+            sizes="(max-width: 640px) 75vw, (max-width: 1024px) 45vw, 25vw"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-text-muted/30">
-            <MapPin size={32} />
+          <div className="w-full h-full flex items-center justify-center text-ink-faint/40">
+            <MapPin size={28} />
           </div>
         )}
 
-        {/* Gradient overlay on hover */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-        {/* Category pill */}
-        <div className="absolute top-3 left-3 bg-black/60 backdrop-blur-md text-[11px] font-semibold px-2.5 py-1 rounded-full text-white shadow-sm">
-          {category}
-        </div>
-
-        {/* Featured badge */}
+        {/* The one badge worth keeping, because it is RARE. A label that appears
+            on every card is decoration; one that appears on a few is a signal. */}
         {listing.isPromoted && (
-          <div className="absolute top-3 right-3 bg-secondary text-neutral-dark text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
+          <span className="absolute top-3 left-3 bg-card/95 backdrop-blur-sm text-ink text-[11px] font-semibold px-2.5 py-1 rounded-full shadow-sm">
             Featured
-          </div>
-        )}
-
-        {/* Price on hover */}
-        <div className="absolute bottom-3 left-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-          <span className="bg-black/80 backdrop-blur-md text-sm font-bold text-secondary px-3 py-1.5 rounded-lg shadow-md">
-            {price}
           </span>
-        </div>
+        )}
       </div>
 
-      {/* Info */}
-      <div className="p-3.5">
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="font-semibold text-[13px] text-ink leading-snug line-clamp-1 group-hover:text-primary transition-colors">
-            {name}
-          </h3>
+      <div className="pt-3">
+        <div className="flex items-baseline justify-between gap-3">
+          <h3 className="font-semibold text-[15px] text-ink leading-snug truncate">{name}</h3>
           {listing.rating && (
-            <div className="flex items-center gap-0.5 shrink-0 bg-secondary/10 px-1.5 py-0.5 rounded">
-              <Star size={10} className="fill-secondary text-secondary" />
-              <span className="text-[11px] font-bold text-ink">{listing.rating}</span>
-            </div>
+            <span className="shrink-0 inline-flex items-center gap-1 text-[13px] text-ink-muted">
+              <Star size={12} className="fill-ink text-ink" />
+              {listing.rating}
+            </span>
           )}
         </div>
-        {location && (
-          <p className="text-[11px] text-text-muted mt-1 flex items-center gap-1">
-            <MapPin size={10} className="shrink-0" />
-            <span className="truncate">{location}</span>
-          </p>
-        )}
-        <p className="text-sm font-bold text-ink mt-2">{price}</p>
+        <p className="mt-1 text-[13px] text-ink-muted truncate">
+          {[location, category].filter(Boolean).join(" · ")}
+        </p>
+        <p className="mt-1.5 text-[15px] font-semibold text-ink">{price}</p>
       </div>
     </Link>
   );

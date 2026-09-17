@@ -58,9 +58,12 @@ export function rowsFrom(listings: RowSource[], max = 6): HomeRow[] {
   const byNew = [...listings].sort(
     (a, b) => (b.createdAt?.seconds ?? 0) - (a.createdAt?.seconds ?? 0),
   );
-  if (byNew.length >= MIN_ROW) {
-    rows.push({ key: "new", title: "New on Sabię", items: byNew.slice(0, 12) });
-  }
+  const newest = byNew.slice(0, 12);
+  // Below the minimum there is no New row, so nothing it would have held can
+  // be counted as already shown. Marking them used anyway was a bug: with two
+  // listings in total the page came out with no rows at all.
+  const hasNewRow = newest.length >= MIN_ROW;
+  if (hasNewRow) rows.push({ key: "new", title: "New on Sabię", items: newest });
 
   // City and category together, which is how somebody actually thinks: not
   // "stays", not "Lagos", but "somewhere to stay in Lagos".
@@ -88,12 +91,22 @@ export function rowsFrom(listings: RowSource[], max = 6): HomeRow[] {
     for (const l of g.items) if (l.id) used.add(l.id);
   }
 
-  // Whatever no row claimed. Without this a listing in a city with only one or
-  // two others would never appear on the home page at all, which is a real
+  // Whatever no row claimed, INCLUDING the New row. A listing in a city with
+  // only one or two others must still appear somewhere, or it is a real
   // operator paying us to be invisible.
+  if (hasNewRow) for (const l of newest) if (l.id) used.add(l.id);
   const rest = listings.filter((l) => l.id && !used.has(l.id));
-  if (rest.length) {
+
+  if (rest.length >= MIN_ROW) {
     rows.push({ key: "everywhere", title: "Everywhere else on Sabię", items: rest.slice(0, 12) });
+  } else if (rest.length) {
+    // One or two leftovers do not get a heading of their own: a lone card
+    // under a title reads as a broken row, which is the same rule the themed
+    // rows follow. They join the New row instead, where they are visible and
+    // the row does not look like it failed to load.
+    const first = rows.find((r) => r.key === "new");
+    if (first) first.items = [...first.items, ...rest].slice(0, 14);
+    else rows.push({ key: "everywhere", title: "On Sabię", items: rest });
   }
 
   return rows;

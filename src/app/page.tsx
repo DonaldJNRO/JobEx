@@ -101,21 +101,26 @@ export default function HomePage() {
       {/* One line saying what this is, and then out of the way. It replaces a
           92vh hero whose height was set by the viewport rather than by having
           anything that tall to say. */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-5">
-        <h1 className="text-2xl sm:text-3xl text-ink">Places worth the trip</h1>
-        <p className="mt-1.5 text-sm text-ink-muted">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-14 pb-6">
+        <h1 className="text-[28px] sm:text-4xl text-ink leading-tight">Places worth the trip</h1>
+        <p className="mt-2.5 text-[15px] sm:text-base text-ink-muted max-w-md leading-relaxed">
           Stays, experiences and places to eat, from the people who run them.
         </p>
       </div>
 
       {/* Same pills as explore, and they go to explore. The home page shows
-          what is here; explore is where you narrow it down. */}
-      <div className="flex justify-start sm:justify-center gap-2 overflow-x-auto scrollbar-hide snap-x scroll-pl-4 px-4 sm:px-6 lg:px-8 pb-6">
+          what is here; explore is where you narrow it down.
+
+          FILLED, NOT OUTLINED. Once the cards lost their borders these were the
+          only drawn edges above the fold, and a row of outlined pills over a
+          page of borderless photographs looks like two designs meeting. A
+          filled pill still reads as tappable without drawing a line to say so. */}
+      <div className="flex justify-start sm:justify-center gap-2 overflow-x-auto scrollbar-hide snap-x scroll-pl-4 px-4 sm:px-6 lg:px-8 pb-10">
         {CATEGORIES.map((c) => (
           <Link
             key={c.id}
             href={c.id === "all" ? "/explore" : `/explore?category=${c.id}`}
-            className="snap-start shrink-0 px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap bg-card border border-line text-ink-muted hover:text-ink hover:border-line-strong transition-colors"
+            className="snap-start shrink-0 px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap bg-surface-sunken text-ink-muted hover:bg-line/40 hover:text-ink transition-colors"
           >
             {c.label}
           </Link>
@@ -125,11 +130,11 @@ export default function HomePage() {
       {loading ? (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="h-6 w-40 rounded-lg bg-surface-sunken animate-pulse mb-4" />
-          <div className="flex gap-4 overflow-hidden">
+          <div className="flex gap-5 sm:gap-6 overflow-hidden">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="shrink-0 w-[70%] sm:w-[45%] lg:w-[23%] rounded-2xl overflow-hidden bg-card border border-line animate-pulse">
-                <div className="aspect-[4/3] bg-surface-sunken" />
-                <div className="p-4 space-y-2.5">
+              <div key={i} className="shrink-0 w-[70%] sm:w-[45%] lg:w-[23%] animate-pulse">
+                <div className="aspect-[4/3] rounded-2xl bg-surface-sunken" />
+                <div className="pt-3 space-y-2">
                   <div className="h-4 w-3/4 rounded-lg bg-surface-sunken" />
                   <div className="h-3 w-1/2 rounded-lg bg-surface-sunken" />
                 </div>

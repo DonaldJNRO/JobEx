@@ -19,10 +19,10 @@ import type { Listing } from "@/lib/listings";
 export default function ListingRow({ title, items }: { title: string; items: Listing[] }) {
   if (!items.length) return null;
   return (
-    <section className="mb-10">
-      <h2 className="text-xl sm:text-2xl text-ink mb-4 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">{title}</h2>
+    <section className="mb-14 sm:mb-16">
+      <h2 className="text-xl sm:text-2xl text-ink mb-5 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">{title}</h2>
       <div className="max-w-7xl mx-auto">
-        <div className="flex gap-4 overflow-x-auto scrollbar-hide snap-x scroll-pl-4 px-4 sm:px-6 lg:px-8 pb-2">
+        <div className="flex gap-5 sm:gap-6 overflow-x-auto scrollbar-hide snap-x scroll-pl-4 px-4 sm:px-6 lg:px-8 pb-2">
           {items.map((l, i) => (
             <div key={l.id} className="snap-start shrink-0 w-[70%] sm:w-[45%] lg:w-[23%]">
               <ListingCard listing={l} index={i} />
