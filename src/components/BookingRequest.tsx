@@ -15,7 +15,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import { X, Check, Loader2, AlertTriangle } from "lucide-react";
+import { X, Check, Loader2, AlertTriangle, ChevronDown } from "lucide-react";
 import { sendBookingRequest, BookingError } from "@/lib/book";
 import { offersOf, type Offer } from "@/lib/shop-window";
 import { buildDisplayPrice, guestCurrency, formatPriceWithCurrency } from "@/lib/display-price";
@@ -191,18 +191,34 @@ export default function BookingRequest({
             {offers.length > 1 ? (
               <label className="block mb-4">
                 <span className="block text-sm font-semibold text-ink mb-1.5">What are you booking?</span>
-                <select
-                  ref={firstField as React.RefObject<HTMLSelectElement>}
-                  value={offer}
-                  onChange={(e) => setOffer(e.target.value)}
-                  className="w-full h-12 px-3 rounded-2xl bg-card border border-line text-ink"
-                >
-                  {offers.map((o) => (
-                    <option key={o.name} value={o.name}>
-                      {o.name}{typeof o.price === "number" ? ` · ${formatPriceWithCurrency(o.price, listing.currency || "NGN")}` : ""}
-                    </option>
-                  ))}
-                </select>
+                {/* OUR CHEVRON, not the browser's. A native select draws its
+                    own arrow in a different place, at a different size and in a
+                    different grey on every OS, hard against the right edge and
+                    ignoring the radius. It is the one control on a form that
+                    refuses to match the others. appearance-none removes it, the
+                    padding makes room, and pointer-events-none keeps the whole
+                    field tappable rather than leaving a dead 16px where the
+                    icon sits. Same treatment as the explore filter, the admin
+                    filter bar, and Scout. */}
+                <div className="relative">
+                  <select
+                    ref={firstField as React.RefObject<HTMLSelectElement>}
+                    value={offer}
+                    onChange={(e) => setOffer(e.target.value)}
+                    className="w-full h-12 pl-3 pr-11 rounded-2xl bg-card border border-line text-ink appearance-none focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-colors"
+                  >
+                    {offers.map((o) => (
+                      <option key={o.name} value={o.name}>
+                        {o.name}{typeof o.price === "number" ? ` · ${formatPriceWithCurrency(o.price, listing.currency || "NGN")}` : ""}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown
+                    size={18}
+                    aria-hidden="true"
+                    className="absolute right-3.5 top-1/2 -translate-y-1/2 text-ink-faint pointer-events-none"
+                  />
+                </div>
               </label>
             ) : offers.length === 1 ? (
               <div className="mb-4 rounded-2xl bg-surface-sunken border border-line px-4 py-3">
@@ -222,7 +238,7 @@ export default function BookingRequest({
                   min={todayLocal()}
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="w-full h-12 px-3 rounded-2xl bg-card border border-line text-ink"
+                  className="w-full h-12 px-3 rounded-2xl bg-card border border-line text-ink focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-colors"
                 />
               </label>
               <label className="block">
@@ -234,7 +250,7 @@ export default function BookingRequest({
                   required
                   value={guests}
                   onChange={(e) => setGuests(Number(e.target.value))}
-                  className="w-full h-12 px-3 rounded-2xl bg-card border border-line text-ink"
+                  className="w-full h-12 px-3 rounded-2xl bg-card border border-line text-ink focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-colors"
                 />
               </label>
             </div>
@@ -250,7 +266,7 @@ export default function BookingRequest({
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full h-12 px-3 rounded-2xl bg-card border border-line text-ink"
+                className="w-full h-12 px-3 rounded-2xl bg-card border border-line text-ink focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-colors"
               />
             </label>
 
@@ -263,7 +279,7 @@ export default function BookingRequest({
                 placeholder="So they can reply"
                 value={contact}
                 onChange={(e) => setContact(e.target.value)}
-                className="w-full h-12 px-3 rounded-2xl bg-card border border-line text-ink placeholder:text-ink-faint"
+                className="w-full h-12 px-3 rounded-2xl bg-card border border-line text-ink placeholder:text-ink-faint focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-colors"
               />
             </label>
 
@@ -273,7 +289,7 @@ export default function BookingRequest({
                 rows={2}
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
-                className="w-full px-3 py-2.5 rounded-2xl bg-card border border-line text-ink resize-none"
+                className="w-full px-3 py-2.5 rounded-2xl bg-card border border-line text-ink resize-none focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-colors"
               />
             </label>
 
