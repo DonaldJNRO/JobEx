@@ -34,7 +34,10 @@
   /* Supplied by next/font in layout.tsx, which self-hosts and preloads the
      files. The fallback stack is next/font's own, so this is only the name. */
   --font-sans: var(--font-sans-local), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-display: var(--font-display-local), Georgia, "Times New Roman", serif;
+  /* Parkinsans, the guideline's face. The fallback is a SANS now: this slot
+     held a serif, and a serif fallback meant a flash of the wrong kind of
+     type before the real one arrived, on exactly the words most looked at. */
+  --font-display: var(--font-display-local), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 
   /* A SPACING SCALE, named by ROLE rather than by size.
      Vertical rhythm was decided per page: py-12 here, py-16 there, py-20 on

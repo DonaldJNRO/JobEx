@@ -140,16 +140,31 @@ function ExploreContent() {
 
   return (
     <div ref={revealRef} className="min-h-screen bg-surface">
-      {/* Hero header */}
-      <div className="relative bg-gradient-to-br from-primary via-primary-dark to-neutral-dark overflow-hidden">
-        <div className="absolute inset-0">
-          <div className="absolute top-[-50%] left-[-20%] w-[500px] h-[500px] bg-secondary/10 rounded-full blur-[100px] animate-blob" />
-          <div className="absolute bottom-[-30%] right-[-10%] w-[400px] h-[400px] bg-purple-500/15 rounded-full blur-[80px] animate-blob" style={{ animationDelay: "3s" }} />
-        </div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-20 relative z-10">
-          <div className="text-center mb-10 animate-fade-in-up">
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-white mb-3">Explore Listings</h1>
-            <p className="text-white/85 max-w-md mx-auto">Find your perfect stay, experience, or event anywhere in the world</p>
+      {/* Hero header.
+          THE RATIO, NOT THE PALETTE. This was a full-bleed saturated purple
+          gradient over the top third of the page with a bright gold pill on
+          it, and the colours were never wrong: #44366D and #FFD369 are the
+          brand. The proportions were. Count the guideline's own fills and it
+          leads with the off-white 27 times, gold 22, charcoal 21, and the deep
+          purple 8. Purple is an accent there. Using it as the field inverted
+          the brand's own ratio, which is why the page read as "yellow and
+          purple" rather than as Sabię.
+
+          So the field is the off-white, the words are charcoal, and the two
+          brand colours do the job they are for: purple marks where you are,
+          gold marks the thing to press. One meaning per colour, kept.
+
+          The two blurred blobs went with it. They existed to give a dark
+          gradient some depth; on a near-white ground they are smudges, and
+          they were animating forever on every visit for nothing. */}
+      <div className="relative bg-surface-sunken border-b border-line">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-10">
+          <div className="text-center mb-8 animate-fade-in-up">
+            <h1 className="text-3xl sm:text-4xl text-ink mb-3">Explore Listings</h1>
+            {/* Was "anywhere in the world", over a catalogue that is Nigeria
+                plus a little London. Same class of thing as the hint that said
+                three when six was allowed: a sentence the page cannot keep. */}
+            <p className="text-ink-muted max-w-md mx-auto">Stays, experiences and places to eat, from the people who run them</p>
           </div>
 
           {/* Search bar */}
@@ -170,7 +185,7 @@ function ExploreContent() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onFocus={() => setSearchFocused(true)}
                 onBlur={() => setSearchFocused(false)}
-                className="w-full pl-13 pr-12 py-4 rounded-2xl glass text-ink placeholder:text-ink-faint text-sm focus:outline-none focus:ring-2 focus:ring-secondary/40 transition-all"
+                className="w-full pl-13 pr-12 py-4 rounded-2xl bg-card border border-line text-ink placeholder:text-ink-faint text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-all"
               />
               {searchQuery && (
                 <button
@@ -207,14 +222,17 @@ function ExploreContent() {
               <button
                 key={c.id}
                 onClick={() => setCategory(c.id)}
-                className={`snap-start shrink-0 px-6 py-2.5 rounded-full text-small font-semibold whitespace-nowrap transition-all duration-300 ${
+                // Purple for the selected one, not gold. The pill says WHERE
+                // YOU ARE, and gold is spoken for: it is the colour of the
+                // thing to press, on the Sign up button and on a Book button.
+                // One meaning per colour is what stops a palette becoming
+                // decoration. Purple on white also holds its edge against its
+                // neighbours in a way a pale gold does not, and state is the
+                // one thing that must never be ambiguous.
+                className={`snap-start shrink-0 px-6 py-2.5 rounded-full text-small font-semibold whitespace-nowrap transition-colors duration-200 ${
                   category === c.id
-                    ? "bg-secondary text-neutral-dark shadow-lg shadow-secondary/25 scale-105"
-                    // These pills sit on the purple hero, not on the page, so
-                    // `glass` (a frosted WHITE panel) with page-ink text put
-                    // grey on purple at about 2:1. On brand colour they get
-                    // brand-colour treatment.
-                    : "bg-white/15 border border-white/25 text-white hover:bg-white/25"
+                    ? "bg-primary text-white"
+                    : "bg-card border border-line text-ink-muted hover:text-ink hover:border-line-strong"
                 }`}
               >
                 {c.label}
