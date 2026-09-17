@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
-import { Parkinsans } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
@@ -27,38 +26,19 @@ const instrumentSans = localFont({
   fallback: ["-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
 });
 
-/**
- * Parkinsans, because the brand guideline says so.
- *
- * This slot held Fraunces, a serif, which is why every page title on the site
- * was set in a face that appears nowhere in the guideline and shares nothing
- * with the wordmark. The wordmark is a geometric sans with a bee drawn into
- * the bowl of its b; a Georgia-ish serif underneath it is two brands on one
- * page.
- *
- * DISPLAY ONLY, and Instrument Sans keeps the body. Parkinsans has a lot of
- * personality in its lowercase, which is exactly what you want at 36px on a
- * page title and exactly what tires a reader at 14px down a column of copy.
- * One face doing both jobs would mean losing one of them. That is also the
- * rule Scout already follows: a display face earns about three lines a screen
- * and nowhere else.
- *
- * LATIN-EXT IS NOT OPTIONAL. "Sabię" needs U+0119, which is not in the latin
- * subset, and a missing glyph means the name renders as a fallback box or in
- * another typeface entirely. The one rule that never moves is that Sabię is
- * spelled with the ogonek, so the subset that contains it ships.
- *
- * next/font/google, not a <link>. It downloads at BUILD time and self-hosts
- * the result, so there is still no third-party request on the critical path,
- * which was the whole objection to the Google Fonts stylesheet this site used
- * to carry.
- */
-const parkinsans = Parkinsans({
-  subsets: ["latin", "latin-ext"],
-  weight: ["500", "600", "700"],
+// Page titles and money only. A display face earns its place on about three
+// lines a screen and nowhere else, which is the rule Scout already follows.
+//
+// Parkinsans went in here on 17 Sep, because the brand guideline names it, and
+// came straight back out at the founder's call. Recorded rather than quietly
+// reverted: the guideline and the code disagree on the display face, and
+// somebody reading the guideline later will expect to find Parkinsans.
+const fraunces = localFont({
+  src: "../fonts/fraunces.woff2",
+  weight: "500 700",
   display: "swap",
   variable: "--font-display-local",
-  fallback: ["-apple-system", "BlinkMacSystemFont", "Segoe UI", "sans-serif"],
+  fallback: ["Georgia", "Times New Roman", "serif"],
 });
 
 export const metadata: Metadata = {
@@ -76,7 +56,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${instrumentSans.variable} ${parkinsans.variable}`}>
+    <html lang="en" className={`${instrumentSans.variable} ${fraunces.variable}`}>
       <head>
         <link rel="icon" href="/images/favicon.ico" />
         <link rel="apple-touch-icon" href="/images/apple-touch-icon.png" />
