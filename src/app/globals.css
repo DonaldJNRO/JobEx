@@ -31,6 +31,15 @@
   --color-ink-faint: #6e6e77;
   --color-line: rgba(28, 28, 34, 0.10);
   --color-line-strong: rgba(28, 28, 34, 0.16);
+
+  /* FAILURE, and only failure. The site had no token for it, so the first
+     thing that needed to say "this did not work" would have hardcoded a red.
+     One treatment, so a booking that failed to send never looks like a
+     different kind of trouble to anything else that fails. Same three values
+     Scout uses, for the same reason. */
+  --color-alarm-bg: #fef2f2;
+  --color-alarm-line: rgba(185, 28, 28, 0.25);
+  --color-alarm-ink: #991b1b;
   /* Supplied by next/font in layout.tsx, which self-hosts and preloads the
      files. The fallback stack is next/font's own, so this is only the name. */
   --font-sans: var(--font-sans-local), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;

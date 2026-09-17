@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "check:tokens": "node scripts/token-collision-check.mjs",
-    "test": "node --experimental-strip-types src/lib/slug.test.mjs && node --experimental-strip-types src/lib/booking-shape.test.mjs && node --experimental-strip-types src/lib/listing-place.test.mjs"
+    "test": "node --experimental-strip-types src/lib/slug.test.mjs && node --experimental-strip-types src/lib/booking-shape.test.mjs && node --experimental-strip-types src/lib/listing-place.test.mjs && node --experimental-strip-types src/lib/booking-request.test.mjs"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.2.2",
