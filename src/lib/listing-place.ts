@@ -128,16 +128,73 @@ export interface CityOption {
   count: number;
 }
 
-export function citiesOf(listings: PlaceSource[]): CityOption[] {
+/**
+ * A city as the shared `cities` collection records it, which is the same
+ * source Scout's picker and admin read. Only the two fields this needs.
+ */
+export interface KnownCity {
+  /** Document id: "lagos", "port-harcourt". */
+  id: string;
+  name: string;
+  /** The neighbourhoods inside it. "Ikeja" is one of these, not a city. */
+  areas?: string[];
+}
+
+/**
+ * Fold a place key onto its parent city.
+ *
+ * IKEJA IS IN LAGOS. It appeared in the filter as a city of its own, beside
+ * Lagos, because a listing recorded its area in the city field. Offering both
+ * splits one place in two and invites a traveller to pick the smaller half.
+ *
+ * Resolved against the shared `cities` collection rather than a list of
+ * exceptions kept here: Ikeja is not special, it is simply an area, and a
+ * hardcoded alias would be wrong again the first time a rep records Lekki or
+ * Rayfield the same way. Unknown keys are left exactly as they are, because a
+ * city we have never heard of is far more likely to be a real new city than a
+ * mistake.
+ */
+export function parentCity(slug: string, known: KnownCity[]): string {
+  if (!slug) return "";
+  if (known.some((c) => placeKey(c.id) === slug || placeKey(c.name) === slug)) return slug;
+  for (const c of known) {
+    for (const area of c.areas ?? []) {
+      if (placeKey(area) === slug) return placeKey(c.id) || placeKey(c.name);
+    }
+  }
+  return slug;
+}
+
+export function citiesOf(listings: PlaceSource[], known: KnownCity[] = []): CityOption[] {
+  const label = new Map<string, string>();
+  for (const c of known) {
+    const key = placeKey(c.id) || placeKey(c.name);
+    if (key) label.set(key, c.name || unslug(key));
+  }
+
   const seen = new Map<string, CityOption>();
   for (const l of listings) {
-    const { citySlug, city } = listingPlace(l);
+    const place = listingPlace(l);
     // No key means nothing to filter on. Listings with no recorded city are
     // still SHOWN, under Everywhere; they just cannot be narrowed to.
-    if (!citySlug) continue;
-    const hit = seen.get(citySlug);
+    if (!place.citySlug) continue;
+    const slug = parentCity(place.citySlug, known);
+    const hit = seen.get(slug);
     if (hit) hit.count++;
-    else seen.set(citySlug, { slug: citySlug, name: city || citySlug, count: 1 });
+    else seen.set(slug, {
+      slug,
+      // The collection's spelling wins, so one city is named one way however
+      // any single listing happened to store it.
+      name: label.get(slug) || (slug === place.citySlug ? place.city || slug : unslug(slug)),
+      count: 1,
+    });
   }
   return [...seen.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+}
+
+/** Does this listing belong under the given city filter? Folds the same way
+ *  citiesOf does, or a listing recorded in Ikeja disappears under Lagos. */
+export function inCity(listing: PlaceSource, slug: string, known: KnownCity[] = []): boolean {
+  if (!slug || slug === "all") return true;
+  return parentCity(listingPlace(listing).citySlug, known) === slug;
 }

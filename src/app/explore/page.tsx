@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useMemo, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Search, X, MapPin, Sparkles, ChevronDown } from "lucide-react";
 import ListingCard from "@/components/ListingCard";
-import { getListingsByCategory, getFeaturedListings, listingPlace, citiesOf, Listing } from "@/lib/listings";
+import { getListingsByCategory, getFeaturedListings, listingPlace, citiesOf, inCity, getKnownCities, Listing, type KnownCity } from "@/lib/listings";
 import { useReveal } from "@/lib/useReveal";
 
 const CATEGORIES = [
@@ -54,6 +54,7 @@ function ExploreContent() {
   const [category, setCategory] = useState(initialCategory);
   const [city, setCity] = useState(initialCity);
   const [listings, setListings] = useState<Listing[]>([]);
+  const [knownCities, setKnownCities] = useState<KnownCity[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
@@ -75,6 +76,12 @@ function ExploreContent() {
   useEffect(() => {
     fetchListings(category);
   }, [category, fetchListings]);
+
+  // Fetched once, never blocking: with no list the filter simply does not fold
+  // areas onto their cities, which is how it behaved before this existed.
+  useEffect(() => {
+    void getKnownCities().then(setKnownCities);
+  }, []);
 
   /**
    * Put the filters back in the address bar.
@@ -106,7 +113,7 @@ function ExploreContent() {
    * Recomputed per category, so switching to Events does not leave a city
    * selected that has no events in it.
    */
-  const cities = useMemo(() => citiesOf(listings), [listings]);
+  const cities = useMemo(() => citiesOf(listings, knownCities), [listings, knownCities]);
 
   // A city that vanished with the category must not keep filtering invisibly.
   useEffect(() => {
@@ -117,7 +124,9 @@ function ExploreContent() {
     const q = searchQuery.trim().toLowerCase();
     return listings.filter((l) => {
       const place = listingPlace(l);
-      if (city !== "all" && place.citySlug !== city) return false;
+      // Folded the same way the options are, or a listing that recorded Ikeja
+      // vanishes the moment somebody picks Lagos.
+      if (!inCity(l, city, knownCities)) return false;
       if (!q) return true;
       const name = (l.businessName || l.title || "").toLowerCase();
       const desc = (l.description || "").toLowerCase();
@@ -127,7 +136,7 @@ function ExploreContent() {
       const where = [place.label, place.city, place.area].join(" ").toLowerCase();
       return name.includes(q) || where.includes(q) || desc.includes(q);
     });
-  }, [listings, searchQuery, city]);
+  }, [listings, searchQuery, city, knownCities]);
 
   return (
     <div ref={revealRef} className="min-h-screen bg-surface">

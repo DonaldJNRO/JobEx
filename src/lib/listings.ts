@@ -1,10 +1,10 @@
 import { collection, getDocs, doc, getDoc, query, limit, where, orderBy, startAt, endAt, documentId } from "firebase/firestore";
 import { db } from "./firebase";
 import { makeSlug, slugCandidates, looksLikeSlug, slugForListing } from "./slug";
-import { listingPlace } from "./listing-place";
+import { listingPlace, type KnownCity } from "./listing-place";
 
-export { listingPlace, citiesOf } from "./listing-place";
-export type { ListingPlace, CityOption } from "./listing-place";
+export { listingPlace, citiesOf, inCity, parentCity } from "./listing-place";
+export type { ListingPlace, CityOption, KnownCity } from "./listing-place";
 
 export type ListingRole = "Landlord" | "Host" | "HospitalityManager" | "ExperienceProviders" | "EventOrganizer" | "FoodBeverageManager";
 
@@ -372,4 +372,29 @@ export async function getListingsByCategory(category: string, count: number = 20
   );
 
   return all.filter(isPublicListing).slice(0, count);
+}
+
+/**
+ * The shared `cities` collection, the same source Scout's area picker and
+ * admin read. The website had never read it, which is why an area recorded in
+ * a city field had nothing to be checked against and showed up as its own city.
+ *
+ * Failure is not an error here. With no list the filter behaves exactly as it
+ * did before: it offers whatever the listings say, unfolded. Worth having, not
+ * worth blocking a page for.
+ */
+export async function getKnownCities(): Promise<KnownCity[]> {
+  try {
+    const snap = await getDocs(collection(db, "cities"));
+    return snap.docs.map((d) => {
+      const data = d.data() as { name?: string; areas?: unknown };
+      return {
+        id: d.id,
+        name: data.name || d.id,
+        areas: Array.isArray(data.areas) ? (data.areas as string[]) : [],
+      };
+    });
+  } catch {
+    return [];
+  }
 }

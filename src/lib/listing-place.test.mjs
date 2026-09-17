@@ -8,7 +8,7 @@
 //
 // Run: node --experimental-strip-types src/lib/listing-place.test.mjs
 
-import { listingPlace, citiesOf } from './listing-place.ts'
+import { listingPlace, citiesOf, inCity, parentCity } from './listing-place.ts'
 
 let fails = 0
 const is = (got, want, label) => {
@@ -97,6 +97,45 @@ deep(citiesOf([{ location: 'Rayfield, Jos' }, {}]).length, 0,
 // Ties break by name, so the order does not wobble between loads.
 deep(citiesOf([{ citySlug: 'lagos' }, { citySlug: 'abuja' }]).map((c) => c.slug), ['abuja', 'lagos'],
   'equal counts sort by name, so the list is stable')
+
+// ── an area is not a city ───────────────────────────────────────────────
+
+// As the shared `cities` collection holds it.
+const KNOWN = [
+  { id: 'lagos', name: 'Lagos', areas: ['Ikeja', 'Lekki', 'Victoria Island'] },
+  { id: 'jos', name: 'Jos', areas: ['Rayfield', 'Kabong'] },
+  { id: 'bamako', name: 'Bamako', areas: [] },
+]
+
+is(parentCity('ikeja', KNOWN), 'lagos', 'Ikeja folds onto Lagos')
+is(parentCity('lekki', KNOWN), 'lagos', 'and so does every other Lagos area')
+is(parentCity('lagos', KNOWN), 'lagos', 'a real city stays itself')
+is(parentCity('bamako', KNOWN), 'bamako', 'including one with no areas listed')
+// A city nobody has added yet is far more likely to be real than a mistake, so
+// it is left alone rather than swallowed.
+is(parentCity('kaduna', KNOWN), 'kaduna', 'an unknown place is left exactly as it is')
+is(parentCity('ikeja', []), 'ikeja', 'with no list, nothing is folded and nothing breaks')
+
+const split = [
+  { citySlug: 'lagos', location: { city: 'Lagos' } },
+  { citySlug: 'ikeja', location: { city: 'Ikeja' } },
+  { citySlug: 'jos', location: { city: 'Jos' } },
+]
+deep(citiesOf(split, KNOWN).map((c) => `${c.name}:${c.count}`), ['Lagos:2', 'Jos:1'],
+  'so the filter offers Lagos once, counting the Ikeja listing in it')
+deep(citiesOf(split).map((c) => `${c.name}:${c.count}`), ['Ikeja:1', 'Jos:1', 'Lagos:1'],
+  'and without the list it splits, which is the bug this fixes')
+
+// The options and the filtering must fold the SAME way, or picking Lagos hides
+// the very listing that put Lagos in the list.
+is(inCity({ citySlug: 'ikeja' }, 'lagos', KNOWN), true, 'picking Lagos keeps the Ikeja listing')
+is(inCity({ citySlug: 'jos' }, 'lagos', KNOWN), false, 'and still excludes Jos')
+is(inCity({ citySlug: 'ikeja' }, 'all', KNOWN), true, 'Everywhere keeps everything')
+is(inCity({}, 'lagos', KNOWN), false, 'a listing with no city is not silently in one')
+
+// The collection's spelling wins, so one city is named one way.
+deep(citiesOf([{ location: { city: 'LAGOS' } }], KNOWN).map((c) => c.name), ['Lagos'],
+  "the collection's spelling wins over however a listing stored it")
 
 console.log(fails ? `\n${fails} FAILED` : '\nALL PASSED')
 process.exit(fails ? 1 : 0)
