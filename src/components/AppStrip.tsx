@@ -56,7 +56,15 @@ export default function AppStrip() {
       >
         <X size={16} />
       </button>
-      <Image src="/images/apple-touch-icon.png" alt="" width={32} height={32} className="w-8 h-8 rounded-lg shrink-0" />
+      {/* The bee mark on charcoal, which is the app's own icon. It was
+          apple-touch-icon.png, the site's home-screen icon, borrowed because
+          it happened to be square. Two different marks were being asked to do
+          one job. This is its own asset so changing one never silently changes
+          the other.
+
+          alt is empty on purpose: the line beside it already says "Get the
+          app", and naming the icon too makes a screen reader say it twice. */}
+      <Image src="/images/sabie-app-icon.png" alt="" width={32} height={32} className="w-8 h-8 rounded-lg shrink-0" />
       <div className="min-w-0 flex-1">
         <p className="text-sm font-semibold text-ink leading-tight">Get the app</p>
         <p className="text-xs text-ink-muted leading-tight truncate">Plan the whole trip with your crew</p>
