@@ -11,36 +11,43 @@
  * Dismissal is remembered per browser. localStorage can throw in a private
  * window or with site data blocked, so every read and write is wrapped and the
  * strip simply shows again rather than taking the page down with it.
+ *
+ * IT IS ALWAYS IN THE MARKUP, AND CSS HIDES IT. It used to start hidden and
+ * turn itself on in an effect, which meant a returning visitor got the page
+ * drawn, then a 57px strip inserted at the top, then everything below it
+ * shoved down. That jump is what "it glitches a bit when it loads" was. The
+ * check now happens in a blocking script in <head> (see layout.tsx), which
+ * sets data-appstrip="off" on <html> before the first paint, and globals.css
+ * hides the strip on that attribute. Nothing moves, in either case.
+ *
+ * State still exists, but only for the dismiss press itself: the person is
+ * looking at the page then, so a strip disappearing under their thumb is the
+ * thing they asked for rather than a jump they did not.
  */
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { X } from "lucide-react";
 import Image from "next/image";
-import { APP_STORE_URL } from "@/lib/app-links";
-
-const KEY = "sabie.appstrip.dismissed";
+import { APP_STORE_URL, APP_STRIP_KEY } from "@/lib/app-links";
 
 export default function AppStrip() {
-  // Starts hidden and appears after the check, so a returning visitor who
-  // dismissed it never sees it flash on every page load.
-  const [show, setShow] = useState(false);
-
-  useEffect(() => {
-    try {
-      if (!localStorage.getItem(KEY)) setShow(true);
-    } catch {
-      setShow(true);
-    }
-  }, []);
+  const [show, setShow] = useState(true);
 
   if (!show) return null;
 
   const dismiss = () => {
     setShow(false);
-    try { localStorage.setItem(KEY, "1"); } catch { /* nothing to do, and nothing broken */ }
+    try {
+      localStorage.setItem(APP_STRIP_KEY, "1");
+    } catch {
+      /* nothing to do, and nothing broken */
+    }
+    // So the very next page load hides it before paint, without waiting for
+    // the head script to run again on a client-side navigation.
+    document.documentElement.dataset.appstrip = "off";
   };
 
   return (
-    <div className="flex items-center gap-3 px-4 py-2.5 bg-surface-sunken border-b border-line">
+    <div data-app-strip className="flex items-center gap-3 px-4 py-2.5 bg-surface-sunken border-b border-line">
       <button
         type="button"
         onClick={dismiss}

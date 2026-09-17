@@ -137,19 +137,30 @@ export default function HomePage() {
       </div>
 
       {loading ? (
+        // THREE ROWS, NOT ONE. The listings are fetched in the browser, so the
+        // first paint is always this. A single skeleton row meant the page
+        // stood at one row tall and then grew to six the moment the data
+        // landed, shoving the story and the testimonials down the screen. That
+        // jump is the other half of "it glitches a bit when it loads". Three is
+        // the honest middle: close to what usually arrives, and never a promise
+        // of rows that do not exist, because it carries no headings.
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="h-6 w-40 rounded-lg bg-surface-sunken animate-pulse mb-4" />
-          <div className="flex gap-5 sm:gap-6 overflow-hidden">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="shrink-0 w-[70%] sm:w-[45%] lg:w-[23%] animate-pulse">
-                <div className="aspect-[4/3] rounded-2xl bg-surface-sunken" />
-                <div className="pt-3 space-y-2">
-                  <div className="h-4 w-3/4 rounded-lg bg-surface-sunken" />
-                  <div className="h-3 w-1/2 rounded-lg bg-surface-sunken" />
-                </div>
+          {Array.from({ length: 3 }).map((_, row) => (
+            <div key={row} className="mb-14 sm:mb-16">
+              <div className="h-6 w-40 rounded-lg bg-surface-sunken animate-pulse mb-5" />
+              <div className="flex gap-5 sm:gap-6 overflow-hidden">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="shrink-0 w-[70%] sm:w-[45%] lg:w-[23%] animate-pulse">
+                    <div className="aspect-[4/3] rounded-2xl bg-surface-sunken" />
+                    <div className="pt-3 space-y-2">
+                      <div className="h-4 w-3/4 rounded-lg bg-surface-sunken" />
+                      <div className="h-3 w-1/2 rounded-lg bg-surface-sunken" />
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       ) : rows.length ? (
         rows.map((r) => <ListingRow key={r.key} title={r.title} href={r.href} items={r.items} />)

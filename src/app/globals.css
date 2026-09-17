@@ -260,3 +260,8 @@ html.reveal-ready .reveal.visible { opacity: 1; transform: translateY(0); }
 /* Hide scrollbar */
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 .scrollbar-hide::-webkit-scrollbar { display: none; }
+
+/* The app strip, hidden before the first paint for somebody who dismissed it.
+   The strip is always rendered, so the page never changes height after it
+   draws; the blocking script in layout.tsx sets the attribute this reads. */
+html[data-appstrip="off"] [data-app-strip] { display: none; }

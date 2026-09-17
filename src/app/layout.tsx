@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { APP_STRIP_KEY } from "@/lib/app-links";
 
 /**
  * The same two faces Scout, admin and Studio render.
@@ -60,6 +61,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <link rel="icon" href="/images/favicon.ico" />
         <link rel="apple-touch-icon" href="/images/apple-touch-icon.png" />
+        {/* NO LAYOUT SHIFT ON LOAD. The app strip used to start hidden and
+            appear in an effect, which pushed the whole page down a beat after
+            it drew. So the strip is always in the markup, and this runs before
+            the first paint to hide it for somebody who has already dismissed
+            it. Blocking on purpose: it is one localStorage read, and the whole
+            point is that it finishes before anything is painted. Wrapped
+            because localStorage throws in a private window, in which case the
+            strip simply shows. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(localStorage.getItem(${JSON.stringify(APP_STRIP_KEY)}))document.documentElement.dataset.appstrip='off'}catch(e){}`,
+          }}
+        />
       </head>
       <body className="min-h-screen bg-surface text-ink-body antialiased">
         <AuthProvider>

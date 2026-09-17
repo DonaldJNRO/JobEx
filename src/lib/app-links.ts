@@ -14,3 +14,14 @@
  * the app that actually ships rather than the id somebody pasted once.
  */
 export const APP_STORE_URL = "https://apps.apple.com/gb/app/sabie/id6752625262";
+
+/**
+ * Where the app strip's dismissal is remembered.
+ *
+ * It lives here rather than inside the component because two places read it:
+ * the component, and a blocking inline script in <head> that hides the strip
+ * before the first paint. Before that script existed the strip started hidden
+ * and appeared in an effect, which pushed the entire home page down a moment
+ * after it drew. That is the load glitch.
+ */
+export const APP_STRIP_KEY = "sabie.appstrip.dismissed";
