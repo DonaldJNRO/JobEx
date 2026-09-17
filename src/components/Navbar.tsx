@@ -98,7 +98,11 @@ export default function Navbar() {
                 <Link href="/auth/login" className="text-sm font-medium text-ink-muted hover:text-ink px-4 py-2 transition-colors">
                   Log in
                 </Link>
-                <Link href="/auth/signup" className="text-sm font-semibold bg-secondary hover:bg-secondary-dark text-[#0f0f13] px-5 py-2.5 rounded-full transition-colors">
+                {/* PURPLE, because purple is the action. This was gold, and
+                    the button it leads to on the signup page was purple: the
+                    same act, two colours, one tap apart. Gold is the bee's
+                    colour and it stays an accent. */}
+                <Link href="/auth/signup" className="text-sm font-semibold bg-primary hover:bg-primary-dark text-white px-5 py-2.5 rounded-full transition-colors">
                   Sign up
                 </Link>
               </>
@@ -142,7 +146,7 @@ export default function Navbar() {
           ) : (
             <>
               <Link href="/auth/login" className="block text-sm font-medium py-2.5 px-3 text-ink-muted" onClick={() => setMobileOpen(false)}>Log in</Link>
-              <Link href="/auth/signup" className="block text-sm font-semibold bg-secondary text-[#0f0f13] text-center py-3 rounded-full mt-2" onClick={() => setMobileOpen(false)}>Sign up</Link>
+              <Link href="/auth/signup" className="block text-sm font-semibold bg-primary hover:bg-primary-dark text-white text-center py-3 rounded-full mt-2" onClick={() => setMobileOpen(false)}>Sign up</Link>
             </>
           )}
         </div>

@@ -4,6 +4,21 @@
   --color-primary: #44366d;
   --color-primary-light: #5a4a8a;
   --color-primary-dark: #352a56;
+  /* PURPLE IS THE ACTION. GOLD IS NOT.
+     Every filled button, every selected state and every focus ring is
+     primary. Secondary is the bee's gold and it stays an accent: a star, a
+     highlight, artwork. It is never the fill of something you press.
+
+     This is written down because it had already drifted. Sign up was gold in
+     the header and purple on the page it led to, so the same act wore two
+     colours one tap apart, and a gold "Sign up" sat directly above a purple
+     selected pill in the same menu. Fourteen buttons were purple and four
+     were gold, which is not a second colour with a job, it is an accident
+     with a pattern. One city filter also had a gold focus ring against
+     thirteen purple ones.
+
+     Gold needs #0f0f13 text to be readable, which is the other tell: a colour
+     that cannot carry white text is a highlight, not a button. */
   --color-secondary: #FFD369;
   --color-secondary-dark: #e6be5e;
   --color-neutral-light: #f8f7f4;

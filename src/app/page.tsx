@@ -204,7 +204,7 @@ export default function HomePage() {
             </p>
             <Link
               href="/explore"
-              className="mt-7 inline-flex items-center gap-2.5 bg-secondary hover:bg-secondary-dark text-neutral-dark font-bold px-7 py-3.5 rounded-full transition-colors"
+              className="mt-7 inline-flex items-center gap-2.5 bg-primary hover:bg-primary-dark text-white font-bold px-7 py-3.5 rounded-full transition-colors"
             >
               Start with somewhere to go <ArrowRight size={17} />
             </Link>

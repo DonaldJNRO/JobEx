@@ -276,7 +276,7 @@ function ExploreContent() {
                 aria-label="Filter by city"
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
-                className="appearance-none bg-card border border-line rounded-xl h-11 pl-9 pr-9 text-sm font-medium text-ink focus:outline-none focus:ring-2 focus:ring-secondary/40 transition-all"
+                className="appearance-none bg-card border border-line rounded-xl h-11 pl-9 pr-9 text-sm font-medium text-ink focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
               >
                 <option value="all">Everywhere</option>
                 {cities.map((c) => (
