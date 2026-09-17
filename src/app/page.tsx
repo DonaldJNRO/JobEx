@@ -1,25 +1,51 @@
 "use client";
 
+/**
+ * The home page is the listings now.
+ *
+ * WHAT CHANGED AND WHY. This was a marketing site: a full-height hero selling
+ * an iOS app, then features, then how it works, then an App Store CTA, with the
+ * actual listings on a page almost nobody visited. Sabię is a two-sided
+ * marketplace, so the listings ARE the product, and a page that describes the
+ * product instead of showing it is a brochure for a shop you are standing in.
+ *
+ * ROWS, NOT A GRID. Twenty-eight listings in one grid reads as "everything we
+ * have". The same twenty-eight in named rows reads as chosen, and a row running
+ * off the right edge implies more without claiming it. Airbnb cannot show its
+ * whole catalogue and so leads with search; we can, so we lead with the things.
+ * Search starts beating a scroll somewhere past a hundred listings, and Scout
+ * will get us there, but not this month.
+ *
+ * THE STORY DID NOT DIE, IT MOVED. "Plan the trip back home, with the crew" is
+ * the sharpest thing Sabię says and the only line that separates it from a
+ * directory. It sits below the listings, where somebody who has already scrolled
+ * past real places is the right person to hear it. The App Store is one
+ * dismissible strip at the top and a link in the footer, instead of the three
+ * separate asks it used to be.
+ */
+
 import Image from "next/image";
-import { APP_STORE_URL } from "@/lib/app-links";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { Users, Sparkles, Wallet, MessageCircle, ArrowRight, ChevronRight, Globe, Shield, Zap, Star, Smartphone } from "lucide-react";
-import ListingCard from "@/components/ListingCard";
-import { getFeaturedListings, Listing } from "@/lib/listings";
+import { useEffect, useMemo, useState } from "react";
+import { ArrowRight, Sparkles, MapPin } from "lucide-react";
+import AppStrip from "@/components/AppStrip";
+import ListingRow from "@/components/ListingRow";
+import { getFeaturedListings, listingPlace, Listing } from "@/lib/listings";
+import { rowsFrom } from "@/lib/home-rows";
 import { useReveal } from "@/lib/useReveal";
 
-const FEATURES = [
-  { icon: Users, title: "Group Planning", desc: "Real-time collaboration with your whole crew", color: "from-blue-500/20 to-purple-500/20" },
-  { icon: Sparkles, title: "AI Recommendations", desc: "Bie finds places personalized to your vibe", color: "from-amber-500/20 to-orange-500/20" },
-  { icon: Wallet, title: "Split Expenses", desc: "Built-in cost splitting, no more IOUs", color: "from-green-500/20 to-emerald-500/20" },
-  { icon: MessageCircle, title: "Trip Chat", desc: "Everything in one place, not 10 group chats", color: "from-pink-500/20 to-rose-500/20" },
+const CATEGORIES = [
+  { id: "all", label: "All" },
+  { id: "stays", label: "Stays" },
+  { id: "experiences", label: "Experiences" },
+  { id: "events", label: "Events" },
+  { id: "food", label: "Food & Drink" },
 ];
 
-// Real beta-user testimonials, tightened from raw transcripts. Ordered
-// diaspora-first per the wedge (Tolu London-via-Lagos → Maureen Birmingham-
-// via-Lagos → Seb London). `photo` is optional — falls back to an initial
-// avatar (used for Maureen until we have her pic).
+// Real beta-user testimonials, tightened from raw transcripts. `photo` is
+// optional and falls back to an initial avatar. Their dashes stay: these are
+// quotes from real people, and editing somebody's words to fit a style guide
+// is worse than the style miss.
 const TESTIMONIALS: { name: string; role: string; text: string; avatar: string; photo?: string }[] = [
   {
     name: "Tolu O.",
@@ -43,260 +69,160 @@ const TESTIMONIALS: { name: string; role: string; text: string; avatar: string; 
   },
 ];
 
-const MOCKUPS = [
-  { src: "/images/app-mockup-1.png", alt: "Sabię Home, Explore and Following" },
-  { src: "/images/app-mockup-2.png", alt: "Sabię Search, Map, Ask Bie, Spin Together" },
-  { src: "/images/app-mockup-3.png", alt: "Sabię Country, at-a-glance country info" },
-  { src: "/images/app-mockup-4.png", alt: "Sabię Inbox, chat with friends and Bie AI" },
-  { src: "/images/app-mockup-5.png", alt: "Sabię Moments, capture the trip" },
-  { src: "/images/app-mockup-6.png", alt: "Sabię Shortcuts, @ to jump anywhere" },
-  { src: "/images/app-mockup-7.png", alt: "Sabię Sidebar, everything in one place" },
-];
-
 export default function HomePage() {
   const [listings, setListings] = useState<Listing[]>([]);
-  const [mockupIndex, setMockupIndex] = useState(0);
+  const [loading, setLoading] = useState(true);
   const revealRef = useReveal();
 
   useEffect(() => {
-    getFeaturedListings(8).then(setListings).catch(() => {});
+    getFeaturedListings(40)
+      .then(setListings)
+      .catch(() => setListings([]))
+      .finally(() => setLoading(false));
   }, []);
 
-  useEffect(() => {
-    const timer = setInterval(() => setMockupIndex((i) => (i + 1) % MOCKUPS.length), 3500);
-    return () => clearInterval(timer);
-  }, []);
+  // The place is resolved here, so home-rows.ts imports nothing and stays
+  // loadable by plain node for its test.
+  const rows = useMemo(() => {
+    const placed = listings.map((l) => {
+      const place = listingPlace(l);
+      return { ...l, city: place.city, citySlug: place.citySlug };
+    });
+    return rowsFrom(placed).map((r) => ({
+      ...r,
+      items: r.items as unknown as Listing[],
+    }));
+  }, [listings]);
 
   return (
-    <div ref={revealRef}>
-      {/* ── Hero ── */}
-      <section className="relative overflow-hidden min-h-[92vh] flex items-center bg-surface-sunken">
-        {/* Animated gradient blobs */}
-        <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-primary/30 rounded-full blur-[120px] animate-blob" />
-        <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] bg-secondary/20 rounded-full blur-[120px] animate-blob" style={{ animationDelay: "2s" }} />
-        <div className="absolute top-[30%] right-[20%] w-[300px] h-[300px] bg-purple-500/15 rounded-full blur-[100px] animate-blob" style={{ animationDelay: "4s" }} />
+    <div ref={revealRef} className="min-h-screen bg-surface">
+      <AppStrip />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 relative z-10 w-full">
-          <div className="grid lg:grid-cols-2 gap-16 items-center">
-            {/* Left */}
-            <div className="stagger-children">
-              <div className="inline-flex items-center gap-2.5 glass text-ink-body text-xs font-medium px-4 py-2 rounded-full mb-8">
-                <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-                Live on the App Store · iOS
-              </div>
+      {/* One line saying what this is, and then out of the way. It replaces a
+          92vh hero whose height was set by the viewport rather than by having
+          anything that tall to say. */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-5">
+        <h1 className="text-2xl sm:text-3xl text-ink">Places worth the trip</h1>
+        <p className="mt-1.5 text-sm text-ink-muted">
+          Stays, experiences and places to eat, from the people who run them.
+        </p>
+      </div>
 
-              <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold text-ink leading-[1.05] tracking-tight">
-                Plan the trip back home,<br />
-                <span className="gradient-text">with the crew.</span>
-              </h1>
+      {/* Same pills as explore, and they go to explore. The home page shows
+          what is here; explore is where you narrow it down. */}
+      <div className="flex justify-start sm:justify-center gap-2 overflow-x-auto scrollbar-hide snap-x scroll-pl-4 px-4 sm:px-6 lg:px-8 pb-6">
+        {CATEGORIES.map((c) => (
+          <Link
+            key={c.id}
+            href={c.id === "all" ? "/explore" : `/explore?category=${c.id}`}
+            className="snap-start shrink-0 px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap bg-card border border-line text-ink-muted hover:text-ink hover:border-line-strong transition-colors"
+          >
+            {c.label}
+          </Link>
+        ))}
+      </div>
 
-              <p className="mt-6 text-lg sm:text-xl text-ink-body max-w-lg leading-relaxed">
-                Stop the WhatsApp chaos. Sabię brings everyone together to plan, vote and book. Trips that actually happen.
-              </p>
-
-              <div className="mt-10 flex flex-wrap gap-4">
-                <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" className="btn-shine inline-flex items-center gap-2.5 bg-secondary hover:bg-secondary-dark text-neutral-dark font-bold px-8 py-4 rounded-full transition-all hover:scale-[1.02] hover:shadow-lg hover:shadow-secondary/25">
-                  <Smartphone size={18} /> Download on App Store
-                </a>
-                <Link href="/explore" className="inline-flex items-center gap-2.5 glass text-ink font-semibold px-8 py-4 rounded-full hover:bg-surface-sunken transition-all">
-                  Browse Listings <ArrowRight size={18} />
-                </Link>
-              </div>
-
-              {/* Android coming-soon note — replaces the old waitlist
-                  block. Keeps the visual weight under the CTAs and
-                  tells Android visitors not to bounce. */}
-              <p className="mt-6 text-xs text-ink-faint">
-                Android coming next. iPhone or iPad for now.
-              </p>
-
-            </div>
-
-            {/* Right — Phone */}
-            <div className="hidden lg:flex justify-center relative">
-              <div className="relative w-[290px] h-[600px] animate-float">
-                {/* Phone frame */}
-                <div className="absolute inset-0 rounded-[3rem] bg-gradient-to-b from-gray-800 to-gray-900 shadow-2xl shadow-black/60 overflow-hidden border-[6px] border-gray-700/50">
-                  <Image
-                    src={MOCKUPS[mockupIndex].src}
-                    alt={MOCKUPS[mockupIndex].alt}
-                    fill
-                    className="object-cover transition-all duration-700 ease-out"
-                    priority
-                  />
-                </div>
-                {/* Glow behind phone */}
-                <div className="absolute -inset-8 bg-primary/20 rounded-full blur-[60px] -z-10" />
-              </div>
-              {/* Dots */}
-              <div className="absolute bottom-[-20px] flex gap-2">
-                {MOCKUPS.map((_, i) => (
-                  <button key={i} onClick={() => setMockupIndex(i)} className={`h-2 rounded-full transition-all duration-300 ${i === mockupIndex ? "bg-secondary w-8" : "bg-line-strong w-2 hover:bg-white/40"}`} />
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Features ── */}
-      <section className="py-24 bg-card border-b border-line">
+      {loading ? (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
-            <p className="text-xs font-bold text-primary uppercase tracking-[0.2em] mb-3">Why Sabię</p>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-ink">Everything you need for group trips</h2>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 stagger-children">
-            {FEATURES.map((f) => (
-              <div key={f.title} className="reveal group p-6 rounded-2xl border border-line hover:border-secondary/20 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 cursor-default">
-                <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${f.color} flex items-center justify-center mb-5 group-hover:scale-110 transition-transform duration-300`}>
-                  <f.icon size={22} className="text-primary" />
+          <div className="h-6 w-40 rounded-lg bg-surface-sunken animate-pulse mb-4" />
+          <div className="flex gap-4 overflow-hidden">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="shrink-0 w-[70%] sm:w-[45%] lg:w-[23%] rounded-2xl overflow-hidden bg-card border border-line animate-pulse">
+                <div className="aspect-[4/3] bg-surface-sunken" />
+                <div className="p-4 space-y-2.5">
+                  <div className="h-4 w-3/4 rounded-lg bg-surface-sunken" />
+                  <div className="h-3 w-1/2 rounded-lg bg-surface-sunken" />
                 </div>
-                <h3 className="font-bold text-ink mb-1.5">{f.title}</h3>
-                <p className="text-sm text-text-muted leading-relaxed">{f.desc}</p>
               </div>
             ))}
           </div>
         </div>
-      </section>
-
-      {/* ── Featured Listings ── */}
-      {listings.length > 0 && (
-        <section className="py-24 bg-surface">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-end justify-between mb-12">
-              <div>
-                <p className="text-xs font-bold text-primary uppercase tracking-[0.2em] mb-3">Explore</p>
-                <h2 className="text-3xl sm:text-4xl font-extrabold text-ink">Discover Amazing Places</h2>
-                <p className="text-text-muted mt-2 max-w-md">Handpicked stays, experiences, and events from around the world</p>
-              </div>
-              <Link href="/explore" className="hidden sm:flex items-center gap-1.5 text-sm font-bold text-primary hover:underline underline-offset-4 transition-all">
-                View all <ChevronRight size={16} />
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 stagger-children">
-              {listings.map((listing, i) => (
-                <div key={listing.id} className="reveal">
-                  <ListingCard listing={listing} index={i} />
-                </div>
-              ))}
-            </div>
-            <div className="sm:hidden text-center mt-10 reveal">
-              <Link href="/explore" className="inline-flex items-center gap-1.5 text-sm font-bold text-primary">
-                View all listings <ChevronRight size={16} />
-              </Link>
-            </div>
+      ) : rows.length ? (
+        rows.map((r) => <ListingRow key={r.key} title={r.title} items={r.items} />)
+      ) : (
+        // Nothing to show is a thing to say plainly, not a thing to hide behind
+        // an empty row with a heading over it.
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-5">
+            <MapPin size={26} className="text-primary/50" />
           </div>
-        </section>
+          <h2 className="text-xl text-ink mb-2">Nothing here yet</h2>
+          <p className="text-sm text-ink-muted max-w-sm mx-auto">
+            We are adding places every week. Try again shortly.
+          </p>
+        </div>
       )}
 
-      {/* ── How It Works ── */}
-      <section className="py-24 bg-card">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <p className="text-xs font-bold text-primary uppercase tracking-[0.2em] mb-3">How It Works</p>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-ink">Three steps to your next adventure</h2>
-          </div>
-          <div className="grid md:grid-cols-3 gap-8 stagger-children">
-            {[
-              { step: "01", icon: Globe, title: "Browse & Discover", desc: "Explore verified stays, experiences, and events. Filter by destination, price, and vibe." },
-              { step: "02", icon: Users, title: "Plan Together", desc: "Invite your crew, vote on options, and build your itinerary with AI assistance." },
-              { step: "03", icon: Zap, title: "Book & Go", desc: "Book directly, split expenses, and get real-time updates. Your trip is sorted." },
-            ].map((item) => (
-              <div key={item.step} className="reveal relative text-center p-8 rounded-2xl border border-line group hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
-                <span aria-hidden="true" className="absolute top-4 right-4 text-6xl font-black text-primary/10 leading-none select-none">{item.step}</span>
-                <div className="w-16 h-16 rounded-2xl bg-primary/15 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 group-hover:bg-primary/15 transition-all duration-300">
-                  <item.icon size={28} className="text-primary" />
-                </div>
-                <h3 className="font-bold text-lg text-ink mb-2">{item.title}</h3>
-                <p className="text-sm text-text-muted leading-relaxed">{item.desc}</p>
-              </div>
-            ))}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
+        <Link href="/explore" className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline underline-offset-4">
+          See everything <ArrowRight size={16} />
+        </Link>
+      </div>
+
+      {/* ── The crew story, below the listings rather than instead of them ── */}
+      <section className="mt-6 bg-surface-sunken border-y border-line">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20">
+          <div className="max-w-2xl">
+            <p className="inline-flex items-center gap-2 text-xs font-bold text-primary uppercase tracking-[0.18em] mb-4">
+              <Sparkles size={13} /> Going with people
+            </p>
+            <h2 className="text-3xl sm:text-4xl text-ink leading-tight">
+              Plan the trip back home, with the crew.
+            </h2>
+            <p className="mt-4 text-base sm:text-lg text-ink-body leading-relaxed">
+              Booking one place is the easy part. Sabię is where the whole group plans it:
+              vote on where to go, split what it costs, and keep it in one place instead of
+              six group chats.
+            </p>
+            <Link
+              href="/explore"
+              className="mt-7 inline-flex items-center gap-2.5 bg-secondary hover:bg-secondary-dark text-neutral-dark font-bold px-7 py-3.5 rounded-full transition-colors"
+            >
+              Start with somewhere to go <ArrowRight size={17} />
+            </Link>
           </div>
         </div>
       </section>
 
       {/* ── Testimonials ── */}
-      <section className="py-24 bg-surface">
+      <section className="py-16 sm:py-20 bg-surface">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
-            <p className="text-xs font-bold text-primary uppercase tracking-[0.2em] mb-3">Testimonials</p>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-ink">Loved by travellers</h2>
-          </div>
-          <div className="grid md:grid-cols-3 gap-6 stagger-children">
+          <h2 className="text-2xl sm:text-3xl text-ink mb-8">What people say</h2>
+          <div className="grid md:grid-cols-3 gap-5 stagger-children">
             {TESTIMONIALS.map((t) => (
-              <div key={t.name} className="reveal bg-card p-7 rounded-2xl border border-line hover:shadow-lg transition-shadow duration-300">
-                <div className="flex gap-1 mb-4">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={14} className="fill-secondary text-secondary" />
-                  ))}
-                </div>
-                <p className="text-sm text-ink-body leading-relaxed mb-5">&ldquo;{t.text}&rdquo;</p>
-                <div className="flex items-center gap-3">
-                  {/* Real photo if we have it, initial-circle fallback otherwise.
-                      Maureen has no photo yet — falls back cleanly to "M". */}
+              <figure key={t.name} className="reveal bg-card p-6 rounded-2xl border border-line">
+                {/* The five identical gold stars are gone. Three perfect ratings
+                    in a row read as manufactured even when every word is true,
+                    and the words are the convincing part. */}
+                <blockquote className="text-sm text-ink-body leading-relaxed mb-5">
+                  &ldquo;{t.text}&rdquo;
+                </blockquote>
+                <figcaption className="flex items-center gap-3">
                   {t.photo ? (
-                    <Image
-                      src={t.photo}
-                      alt={t.name}
-                      width={40}
-                      height={40}
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
+                    <Image src={t.photo} alt="" width={40} height={40} className="w-10 h-10 rounded-full object-cover" />
                   ) : (
-                    <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center text-sm font-bold text-primary">
+                    <span className="w-10 h-10 rounded-full bg-primary/10 text-primary font-bold flex items-center justify-center text-sm">
                       {t.avatar}
-                    </div>
+                    </span>
                   )}
-                  <div>
-                    <p className="text-sm font-semibold text-ink">{t.name}</p>
-                    <p className="text-xs text-text-muted">{t.role}</p>
-                  </div>
-                </div>
-              </div>
+                  <span className="min-w-0">
+                    <span className="block text-sm font-semibold text-ink truncate">{t.name}</span>
+                    <span className="block text-xs text-ink-muted truncate">{t.role}</span>
+                  </span>
+                </figcaption>
+              </figure>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ── Backed By ── */}
-      <section className="py-14 bg-card border-y border-line">
+      {/* ── Backed by ── */}
+      <section className="py-12 bg-card border-t border-line">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 reveal">
-          <p className="text-center text-[10px] font-bold text-text-muted uppercase tracking-[0.3em] mb-8">Backed by</p>
-          <div className="flex items-center justify-center gap-16 opacity-40 hover:opacity-60 transition-opacity duration-500">
-            <Image src="/images/barclays-eagle-labs-logo.svg" alt="Barclays Eagle Labs" width={150} height={40} />
-            <Image src="/images/fv-partner-new24.svg" alt="Foundervine" width={110} height={40} />
-          </div>
-        </div>
-      </section>
-
-      {/* ── App Download CTA ── */}
-      <section className="py-24 bg-surface">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 reveal">
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-primary-dark to-neutral-dark p-12 sm:p-16 text-center">
-            {/* Background decoration */}
-            <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-secondary/10 rounded-full blur-[100px]" />
-            <div className="absolute bottom-0 left-0 w-[200px] h-[200px] bg-purple-500/10 rounded-full blur-[80px]" />
-
-            <div className="relative z-10">
-              <div className="inline-flex items-center gap-2 bg-white/15 border border-white/25 text-white text-xs font-medium px-4 py-2 rounded-full mb-6">
-                <Smartphone size={14} /> Live on the App Store · iOS
-              </div>
-              <h2 className="text-3xl sm:text-5xl font-extrabold text-white mb-4">
-                Download Sabię today.
-              </h2>
-              <p className="text-white/85 text-lg max-w-md mx-auto mb-10">
-                Get the iPhone app from the App Store and start planning with your crew. Android coming next.
-              </p>
-              <div className="flex flex-wrap justify-center gap-4">
-                <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer" className="btn-shine inline-flex items-center gap-2.5 bg-white text-primary font-bold px-8 py-4 rounded-full hover:scale-[1.02] hover:shadow-xl transition-all">
-                  <Smartphone size={18} /> Download on App Store
-                </a>
-                <Link href="/explore" className="inline-flex items-center gap-2.5 bg-white/15 border border-white/25 text-white font-bold px-8 py-4 rounded-full hover:bg-white/25 transition-all">
-                  Browse Listings <ArrowRight size={18} />
-                </Link>
-              </div>
-            </div>
+          <p className="text-center text-[10px] font-bold text-ink-faint uppercase tracking-[0.3em] mb-7">Backed by</p>
+          <div className="flex items-center justify-center gap-12 sm:gap-16 opacity-50">
+            <Image src="/images/barclays-eagle-labs-logo.svg" alt="Barclays Eagle Labs" width={140} height={36} />
+            <Image src="/images/fv-partner-new24.svg" alt="Foundervine" width={104} height={36} />
           </div>
         </div>
       </section>
