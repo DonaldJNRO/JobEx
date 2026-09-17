@@ -2,14 +2,14 @@ import { collection, getDocs, doc, getDoc, query, limit, where, orderBy, startAt
 import { db } from "./firebase";
 import { makeSlug, slugCandidates, looksLikeSlug, slugForListing } from "./slug";
 import { listingPlace, type KnownCity } from "./listing-place";
-import { CATEGORY_ROLES, categoryLabelOfRole, type ListingRole } from "./categories";
+import { CATEGORY_ROLES, categoryOf, categoryLabelOf, type ListingRole } from "./categories";
 
 export { listingPlace, citiesOf, inCity, parentCity, areaIndexFrom } from "./listing-place";
 export type { ListingPlace, CityOption, KnownCity, AreaIndex } from "./listing-place";
 
 // The one role-to-category table. Re-exported so everything that already
 // imports from listings.ts keeps working, the same arrangement as listing-place.
-export { CATEGORY_ROLES, CATEGORY_LABELS, categoryOfRole, categoryLabelOfRole } from "./categories";
+export { CATEGORY_ROLES, CATEGORY_LABELS, CATEGORY_IDS, categoryOf, categoryLabelOf, subCategoryKey } from "./categories";
 export type { ListingRole } from "./categories";
 
 
@@ -188,13 +188,13 @@ export function getListingLocation(listing: Listing): string {
 
 /**
  * The words on a card. This used to be its own table, and it read
- * HospitalityManager as "Hotels & Restaurants" while the filter of that name
- * did not exist, so a card said one thing and every filter said another. It
- * now answers from CATEGORY_ROLES like everything else, and falls back to the
- * raw role rather than inventing a label for something unrecognised.
+ * HospitalityManager as "Hotels & Restaurants", a category no filter on the
+ * site has, so a card said one thing and every filter said another. It now
+ * answers from categories.ts like everything else, and falls back to the raw
+ * role rather than inventing a label for something unrecognised.
  */
 export function getCategoryLabel(role: string): string {
-  return categoryLabelOfRole(role) || role;
+  return categoryLabelOf(role) || role;
 }
 
 // Fetch featured listings from all collections
@@ -346,7 +346,12 @@ export async function resolveListing(param: string): Promise<ResolvedListing | n
 
 // Fetch listings by category
 export async function getListingsByCategory(category: string, count: number = 20): Promise<Listing[]> {
+  // The collections a category can be found in, which is not the same as what
+  // it is made of: a Host listing marked event_rental is an Event. So the
+  // query reads the roles that COULD hold it and categoryOf() decides each
+  // listing, rather than the collection deciding for it.
   const roles = CATEGORY_ROLES[category] || ROLE_COLLECTIONS;
+  const wanted = CATEGORY_ROLES[category] ? category : "";
   const all: Listing[] = [];
 
   await Promise.all(
@@ -367,7 +372,10 @@ export async function getListingsByCategory(category: string, count: number = 20
     })
   );
 
-  return all.filter(isPublicListing).slice(0, count);
+  return all
+    .filter(isPublicListing)
+    .filter((l) => !wanted || categoryOf(l.role, l.subCategory) === wanted)
+    .slice(0, count);
 }
 
 /**

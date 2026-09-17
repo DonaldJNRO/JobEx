@@ -8,7 +8,7 @@
 // Run: node --experimental-strip-types src/lib/home-rows.test.mjs
 
 import { rowsFrom } from './home-rows.ts'
-import { categoryOfRole, categoryLabelOfRole } from './categories.ts'
+import { categoryOf, categoryLabelOf } from './categories.ts'
 
 let fails = 0
 const is = (got, want, label) => {
@@ -22,14 +22,14 @@ const deep = (got, want, label) => is(JSON.stringify(got), JSON.stringify(want),
 // carry both. The table is imported rather than copied: a fixture that keeps
 // its own idea of which category a role is in would let exactly the drift this
 // change removes come back, silently and with a green suite.
-const make = (id, role, city, seconds = 0) => ({
+const make = (id, role, city, seconds = 0, sub = null) => ({
   id,
   role,
   createdAt: { seconds },
   city,
   citySlug: city.toLowerCase(),
-  category: categoryOfRole(role),
-  categoryLabel: categoryLabelOfRole(role),
+  category: categoryOf(role, sub),
+  categoryLabel: categoryLabelOf(role, sub),
 })
 
 const many = [
@@ -95,13 +95,33 @@ const foodAbuja = rows.find((r) => r.title === 'Food & Drink in Abuja')
 is(foodAbuja.href, '/explore?category=food&city=abuja', 'and so does the next one, ampersand and all')
 is(rows.find((r) => r.key === 'new').href, undefined, 'New has no single filter, so it gets no link')
 
-// A HOTEL IS FOOD & DRINK HERE. Not because that is obvious, but because the
-// mobile app's BUSINESS_TYPE_MAP says so, and a row heading that disagrees with
-// the app about what a business IS sends people to an empty filter.
+// A HOTEL IS A STAY. Studio's roleConfig.ts, the screen an operator signs up
+// through, has hospitality_manager as category "stay" and describes it as
+// "Hotels, resorts, lodges & boutique stays". An earlier pass had these under
+// Food & Drink, on the strength of a map that decides how to PRICE a business
+// rather than what it is.
 const hotels = rowsFrom(Array.from({ length: 3 }, (_, i) => make(`h${i}`, 'HospitalityManager', 'Lagos', i)))
-is(hotels.some((r) => r.title === 'Stays in Lagos'), false, 'hotels are never headed Stays')
-is(hotels.some((r) => r.href === '/explore?category=food&city=lagos'), true,
-  'they are headed Food & Drink, which is the filter that actually returns them')
+is(hotels.some((r) => r.title === 'Stays in Lagos'), true, 'hotels are headed Stays')
+is(hotels.some((r) => r.href === '/explore?category=stays&city=lagos'), true,
+  'and the heading leads to the filter that returns them')
+
+// A LANDLORD IS A STAY TOO. Studio calls it "rental", a fifth category the
+// website does not have. Folding it into Stays is deliberate: the alternative
+// is a real listing that no filter on the site can reach.
+const rentals = rowsFrom(Array.from({ length: 3 }, (_, i) => make(`r${i}`, 'Landlord', 'Abuja', i)))
+is(rentals.some((r) => r.title === 'Stays in Abuja'), true, 'a long-term rental is reachable under Stays')
+
+// AND A HOST LISTING CAN BE AN EVENT. subCategory event_rental reclassifies it,
+// which is categoryFromRole() in Studio and a product decision made there.
+const venues = rowsFrom(Array.from({ length: 3 }, (_, i) => make(`v${i}`, 'Host', 'Lagos', i, 'event_rental')))
+is(venues.some((r) => r.title === 'Events in Lagos'), true, 'an event rental is an Event, not a Stay')
+is(venues.some((r) => r.title === 'Stays in Lagos'), false, 'and it is not in both')
+
+// The older docs store subCategory as { id, name } rather than a string, and
+// the two have to mean the same thing.
+const objVenues = rowsFrom(Array.from({ length: 3 }, (_, i) =>
+  make(`o${i}`, 'Host', 'Jos', i, { id: 'event_rental', name: 'Event rental' })))
+is(objVenues.some((r) => r.title === 'Events in Jos'), true, 'the object shape of subCategory reads the same')
 
 // A role nobody recognises has no filter behind it, so it gets no heading, but
 // it must still reach the page.

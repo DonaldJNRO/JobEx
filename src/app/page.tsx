@@ -30,16 +30,15 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, Sparkles, MapPin } from "lucide-react";
 import AppStrip from "@/components/AppStrip";
 import ListingRow from "@/components/ListingRow";
-import { getFeaturedListings, listingPlace, categoryOfRole, categoryLabelOfRole, Listing } from "@/lib/listings";
+import { getFeaturedListings, listingPlace, categoryOf, categoryLabelOf, CATEGORY_IDS, CATEGORY_LABELS, Listing } from "@/lib/listings";
 import { rowsFrom } from "@/lib/home-rows";
 import { useReveal } from "@/lib/useReveal";
 
+// Built from the one table, not typed out again. A pill whose id no filter
+// recognises is the same failure as a row heading that leads nowhere.
 const CATEGORIES = [
   { id: "all", label: "All" },
-  { id: "stays", label: "Stays" },
-  { id: "experiences", label: "Experiences" },
-  { id: "events", label: "Events" },
-  { id: "food", label: "Food & Drink" },
+  ...CATEGORY_IDS.map((id) => ({ id, label: CATEGORY_LABELS[id] })),
 ];
 
 // Real beta-user testimonials, tightened from raw transcripts. `photo` is
@@ -93,8 +92,8 @@ export default function HomePage() {
         // Resolved here for the same reason the place is: home-rows.ts imports
         // nothing, so plain node can load it for its test. It also means the
         // row heading and the filter it links to read the one table.
-        category: categoryOfRole(l.role),
-        categoryLabel: categoryLabelOfRole(l.role),
+        category: categoryOf(l.role, l.subCategory),
+        categoryLabel: categoryLabelOf(l.role, l.subCategory),
       };
     });
     return rowsFrom(placed).map((r) => ({

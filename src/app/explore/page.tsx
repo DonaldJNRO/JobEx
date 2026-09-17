@@ -4,15 +4,20 @@ import { useEffect, useState, useCallback, useMemo, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Search, X, MapPin, Sparkles, ChevronDown } from "lucide-react";
 import ListingCard from "@/components/ListingCard";
-import { getListingsByCategory, getFeaturedListings, listingPlace, citiesOf, inCity, areaIndexFrom, getKnownCities, Listing, type KnownCity } from "@/lib/listings";
+import { getListingsByCategory, getFeaturedListings, listingPlace, citiesOf, inCity, areaIndexFrom, getKnownCities, CATEGORY_IDS, CATEGORY_LABELS, Listing, type KnownCity } from "@/lib/listings";
 import { useReveal } from "@/lib/useReveal";
+
+// Built from the one table in categories.ts, not typed out again. A pill whose
+// id no filter recognises is the same failure as a row heading leading nowhere.
+const CATEGORY_ICONS: Record<string, typeof Sparkles> = { stays: MapPin };
 
 const CATEGORIES = [
   { id: "all", label: "All", icon: Sparkles },
-  { id: "stays", label: "Stays", icon: MapPin },
-  { id: "experiences", label: "Experiences", icon: Sparkles },
-  { id: "events", label: "Events", icon: Sparkles },
-  { id: "food", label: "Food & Drink", icon: Sparkles },
+  ...CATEGORY_IDS.map((id) => ({
+    id,
+    label: CATEGORY_LABELS[id],
+    icon: CATEGORY_ICONS[id] ?? Sparkles,
+  })),
 ];
 
 export default function ExplorePage() {
