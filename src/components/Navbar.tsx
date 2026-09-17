@@ -23,16 +23,32 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          {/* THE WORDMARK ALREADY CONTAINS THE BEE. It is one or the other,
-              never both, and this was both: the bee mark and the word side by
-              side, in the header of every page. Dropping the mark also drops a
-              69KB JPEG from every page load, which was being rendered at 32px
-              and rounded off because a JPEG cannot hold transparency and the
-              square corners showed otherwise. */}
+          {/* THE WORDMARK ALREADY CONTAINS THE BEE, in the bowl of the b. It is
+              one or the other, never both, and this used to be both: the bee
+              mark and the word side by side, in the header of every page.
+
+              It was then set as TEXT, which was right while there was no asset
+              to use, and wrong the moment there was. A wordmark is drawn, not
+              typed: the b's bowl carries the bee and no font will ever produce
+              it. So this is the artwork.
+
+              Black on TRANSPARENT, not on white. The bar is bg-surface/80 with
+              a backdrop blur, so a white plate behind the mark would sit as a
+              hard patch over whatever is scrolling under it. That is the same
+              mistake the old 69KB JPEG made, which could not hold transparency
+              and showed its square corners.
+
+              alt is empty on purpose. The link already carries the accessible
+              name, and repeating it makes a screen reader say Sabię twice. */}
           <Link href="/" className="flex items-center h-11 -ml-1 px-1" aria-label="Sabię, home">
-            <span className="font-display text-xl font-semibold text-ink tracking-tight">
-              Sabię
-            </span>
+            <Image
+              src="/images/sabie-wordmark.png"
+              alt=""
+              width={157}
+              height={84}
+              priority
+              className="h-10 w-auto"
+            />
           </Link>
 
           {/* Desktop Nav */}

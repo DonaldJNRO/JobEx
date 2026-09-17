@@ -9,12 +9,18 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           {/* Brand */}
           <div className="md:col-span-1">
-            {/* Same rule as the header: the wordmark, not the wordmark
-                beside the bee. */}
+            {/* Same rule and same artwork as the header: the wordmark, which
+                already contains the bee, and never the wordmark beside it.
+                Here the mark is not inside a link, so it carries its own
+                name. */}
             <div className="mb-4">
-              <span className="font-display text-xl font-semibold text-ink tracking-tight">
-                Sabię
-              </span>
+              <Image
+                src="/images/sabie-wordmark.png"
+                alt="Sabię"
+                width={157}
+                height={84}
+                className="h-8 w-auto"
+              />
             </div>
             <p className="text-sm leading-relaxed">
               Plan trips with friends. AI-powered recommendations, built-in budget splitting, and vibes that match your crew.
