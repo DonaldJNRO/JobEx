@@ -3,7 +3,12 @@
 // The failure to avoid is a heading over an almost empty row. "Stays in Jos"
 // above one card does not read as a small catalogue, it reads as a broken
 // site, and it is the same mistake as offering a city filter for a city with
-// nothing in it.
+// nothing in it. The catch-all is the one exception, and it is deliberate:
+// see the note beside it in home-rows.ts.
+//
+// There is no "New on Sabię" row any more. The tests that used to lean on it
+// to keep thin listings reachable now lean on the catch-all instead, which is
+// the whole point of the change: nothing may go missing.
 //
 // Run: node --experimental-strip-types src/lib/home-rows.test.mjs
 
@@ -42,8 +47,7 @@ const many = [
 ]
 
 const rows = rowsFrom(many)
-is(rows[0].title, 'New on Sabię', 'the newest things lead')
-is(rows[0].items[0].id, 'jos-1', 'and newest really means newest')
+is(rows.some((r) => r.title.includes('New on')), false, 'there is no New row')
 
 const titles = rows.map((r) => r.title)
 is(titles.includes('Stays in Lagos'), true, 'a city and category with enough in it gets a row')
@@ -53,37 +57,37 @@ is(titles.includes('Experiences in Jos'), false, 'one listing never gets a headi
 
 // A listing too thin for its own row must still be REACHABLE. An operator
 // paying us to be invisible is worse than an untidy row.
-// With 13 listings the New row already carries both thin ones, so there is
-// nothing left over and no catch-all row is needed.
 const everywhere = rows.find((r) => r.key === 'everywhere')
-is(Boolean(everywhere), false, 'nothing is left over, so no catch-all row appears')
-const newRow = rows.find((r) => r.key === 'new')
-is(newRow.items.some((l) => l.id === 'jos-1'), true, 'the single Jos listing is still on the page')
-is(newRow.items.some((l) => l.id === 'bamako-1'), true, 'and so is Bamako')
+is(Boolean(everywhere), true, 'the stragglers get the catch-all row')
+is(everywhere.items.some((l) => l.id === 'jos-1'), true, 'the single Jos listing is still on the page')
+is(everywhere.items.some((l) => l.id === 'bamako-1'), true, 'and so is Bamako')
+is(everywhere.href, undefined, 'the catch-all names no filter, so it links to none')
+is(rows[rows.length - 1].key, 'everywhere', 'and it comes last, under the rows that were chosen')
 
-// A LONE CARD UNDER A HEADING is the defect this guards. With more than twelve
-// listings the New row cannot hold everything, and one straggler must not get
-// a title and an empty row beside it.
+// ONE STRAGGLER STILL APPEARS. It used to join the New row; with that gone
+// the catch-all takes it, one card and all. Thin, but never missing.
 const wide = [
   ...Array.from({ length: 14 }, (_, i) => make(`lag-${i}`, 'Host', 'Lagos', 500 + i)),
   make('kano-1', 'Host', 'Kano', 1),
 ]
 const wideRows = rowsFrom(wide)
-is(wideRows.find((r) => r.key === 'everywhere'), undefined, 'one straggler never gets a row of its own')
-is(wideRows.find((r) => r.key === 'new').items.some((l) => l.id === 'kano-1'), true,
-  'it joins the New row instead, so it is still reachable')
+is(wideRows.find((r) => r.key === 'everywhere')?.items.length, 1,
+  'a single straggler gets the catch-all rather than disappearing')
+is(wideRows.find((r) => r.key === 'everywhere').items[0].id, 'kano-1', 'and it is the right one')
 
-// Three or more IS enough for the catch-all to stand on its own.
+// Three or more, the same row, no special case.
 const three = [
   ...Array.from({ length: 12 }, (_, i) => make(`lag-${i}`, 'Host', 'Lagos', 500 + i)),
   make('k1', 'Host', 'Kano', 3), make('k2', 'Host', 'Kaduna', 2), make('k3', 'Host', 'Enugu', 1),
 ]
-is(rowsFrom(three).find((r) => r.key === 'everywhere')?.items.length, 3,
-  'three leftovers do get their own row')
+const threeRows = rowsFrom(three)
+is(threeRows.find((r) => r.key === 'everywhere')?.items.length, 3, 'three leftovers, same row')
+is(threeRows.find((r) => r.key === 'everywhere').items[0].id, 'k1', 'newest first inside it')
 
-// Busiest first, so the strongest row is the first real one after New.
-const real = rows.filter((r) => r.key !== 'new' && r.key !== 'everywhere')
-is(real[0].title, 'Stays in Lagos', 'the fullest row comes first')
+// Busiest first, so the strongest row leads the page now that New does not.
+const real = rows.filter((r) => r.key !== 'everywhere')
+is(real[0].title, 'Stays in Lagos', 'the fullest row leads')
+is(rows[0].title, 'Stays in Lagos', 'and it is genuinely the top of the page')
 
 // THE HEADING LEADS WHERE IT SAYS. A row called "Stays in Lagos" whose link
 // asks the filter for something else is the bug that started this: hotels were
@@ -93,7 +97,7 @@ const staysLagos = rows.find((r) => r.title === 'Stays in Lagos')
 is(staysLagos.href, '/explore?category=stays&city=lagos', 'the row links to its own filter')
 const foodAbuja = rows.find((r) => r.title === 'Food & Drink in Abuja')
 is(foodAbuja.href, '/explore?category=food&city=abuja', 'and so does the next one, ampersand and all')
-is(rows.find((r) => r.key === 'new').href, undefined, 'New has no single filter, so it gets no link')
+is(rows.find((r) => r.key === 'everywhere').href, undefined, 'the catch-all names no filter, so it gets no link')
 
 // A HOTEL IS A STAY. Studio's roleConfig.ts, the screen an operator signs up
 // through, has hospitality_manager as category "stay" and describes it as
@@ -132,10 +136,10 @@ is(oddRows.some((r) => r.items.some((l) => l.id === 'weird')), true, 'and it sti
 
 // ── what it refuses to do ───────────────────────────────────────────────
 deep(rowsFrom([]), [], 'an empty catalogue offers no rows at all, not empty ones')
-is(rowsFrom([make('a', 'Host', 'Lagos'), make('b', 'Host', 'Lagos')]).length, 1,
-  'two listings is one row of leftovers, not a heading over a pair')
-is(rowsFrom(many, 1).filter((r) => r.key !== 'new' && r.key !== 'everywhere').length, 1,
-  'the row cap is respected')
+const pair = rowsFrom([make('a', 'Host', 'Lagos'), make('b', 'Host', 'Lagos')])
+is(pair.length, 1, 'two listings is one row, not a heading over a pair')
+is(pair[0].title, 'On Sabię', 'with nothing above it, it is not "everywhere ELSE"')
+is(rowsFrom(many, 1).filter((r) => r.key !== 'everywhere').length, 1, 'the row cap is respected')
 
 // A listing with no city cannot be grouped, and must not vanish.
 const noCity = rowsFrom([...Array.from({ length: 3 }, (_, i) => make(`l${i}`, 'Host', 'Lagos')), { id: 'x', role: 'Host' }])
