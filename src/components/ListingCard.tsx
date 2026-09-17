@@ -27,11 +27,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { MapPin, Star } from "lucide-react";
-import { Listing, getListingImage, getListingPrice, getListingLocation, getCategoryLabel, listingSlug } from "@/lib/listings";
+import { Listing, getListingImage, getListingPriceParts, getListingLocation, getCategoryLabel, listingSlug } from "@/lib/listings";
 
 export default function ListingCard({ listing, index = 0 }: { listing: Listing; index?: number }) {
   const image = getListingImage(listing);
-  const price = getListingPrice(listing);
+  const { amount, unit } = getListingPriceParts(listing);
   const location = getListingLocation(listing);
   const name = listing.businessName || listing.title || "Listing";
   const category = getCategoryLabel(listing.role);
@@ -69,19 +69,42 @@ export default function ListingCard({ listing, index = 0 }: { listing: Listing; 
       </div>
 
       <div className="pt-3">
-        <div className="flex items-baseline justify-between gap-3">
-          <h3 className="font-semibold text-[15px] text-ink leading-snug truncate">{name}</h3>
+        {/* THE NAME GETS THE WHOLE WIDTH. The rating used to sit on this line,
+            so a card with one truncated and a card without did not, and the
+            most important line on the card was cut short for a reason that had
+            nothing to do with the business. "The Grove Apar…" was the tell.
+            The rating moved down to the meta line, where it is the same kind
+            of thing as the place: a fact about the listing, not its title. */}
+        <h3 className="font-semibold text-[15px] text-ink leading-snug truncate">{name}</h3>
+
+        <div className="mt-1 flex items-baseline justify-between gap-3 text-[13px] text-ink-muted">
+          <span className="truncate">{[location, category].filter(Boolean).join(" · ")}</span>
           {listing.rating && (
-            <span className="shrink-0 inline-flex items-center gap-1 text-[13px] text-ink-muted">
+            <span className="shrink-0 inline-flex items-center gap-1">
               <Star size={12} className="fill-ink text-ink" />
               {listing.rating}
             </span>
           )}
         </div>
-        <p className="mt-1 text-[13px] text-ink-muted truncate">
-          {[location, category].filter(Boolean).join(" · ")}
+
+        {/* A NUMBER WITH NO UNIT IS NOT A PRICE. A 500 gate fee and a 120,000
+            apartment were set identically, in the same bold, with nothing to
+            say which was a night and which was one person walking through a
+            gate. The amount keeps the weight; the unit sits beside it in the
+            muted colour, so the eye reads the number first and still learns
+            what it buys. */}
+        <p className="mt-1.5 text-[15px] leading-snug">
+          {amount ? (
+            <>
+              <span className="font-semibold text-ink">{amount}</span>
+              {unit && <span className="ml-1.5 text-[13px] text-ink-muted">{unit}</span>}
+            </>
+          ) : (
+            // Not a price, so not set as one. It used to read "Contact host",
+            // in price weight, in Airbnb's word rather than ours.
+            <span className="text-[13px] text-ink-muted">Price on request</span>
+          )}
         </p>
-        <p className="mt-1.5 text-[15px] font-semibold text-ink">{price}</p>
       </div>
     </Link>
   );

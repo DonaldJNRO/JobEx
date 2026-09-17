@@ -117,13 +117,17 @@ export default function HomePage() {
       </div>
 
       {/* Same pills as explore, and they go to explore. The home page shows
-          what is here; explore is where you narrow it down.
+          what is here; explore is where you narrow it down. Same scrolling
+          behaviour too: snap-mandatory so a flick lands on a chip rather than
+          between two, and scroll-pl-4 because scroll-snap-align: start snaps
+          to the SCROLLPORT edge and ignores padding. Explore worked this out
+          first and there is no reason for two answers to one problem.
 
           FILLED, NOT OUTLINED. Once the cards lost their borders these were the
           only drawn edges above the fold, and a row of outlined pills over a
           page of borderless photographs looks like two designs meeting. A
           filled pill still reads as tappable without drawing a line to say so. */}
-      <div className="flex justify-start sm:justify-center gap-2 overflow-x-auto scrollbar-hide snap-x scroll-pl-4 px-4 sm:px-6 lg:px-8 pb-10">
+      <div className="flex justify-start sm:justify-center gap-2 overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-pl-4 px-4 sm:px-6 lg:px-8 sm:scroll-pl-0 pb-10">
         {CATEGORIES.map((c) => (
           <Link
             key={c.id}

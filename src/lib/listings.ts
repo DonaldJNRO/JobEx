@@ -164,20 +164,48 @@ export function getListingImage(listing: Listing): string | null {
   return listing.coverImage || null;
 }
 
-export function getListingPrice(listing: Listing): string {
+/**
+ * A price split into its parts, so a card can typeset them at different
+ * weights instead of running them together in one bold string.
+ *
+ * THE UNIT IS THE POINT. A gate fee of 500 and an apartment at 120,000 were
+ * rendering identically, same size, same weight, nothing to say one was a
+ * night and the other a person walking through a gate. A number with no unit
+ * beside it is not a price, it is a number.
+ *
+ * It reads pricingUnit first and falls back to customPrice.model, because
+ * Studio writes one and older docs carry the other, and a listing that has
+ * neither says nothing rather than guessing at "per night".
+ */
+export function getListingPriceParts(listing: Listing): {
+  amount: string | null;
+  unit: string;
+} {
   const price = listing.customPrice?.price;
-  if (!price) return "Contact host";
-  // Use the operator's actual currency, not a hardcoded $. This is
-  // the source-of-truth price the traveller will be charged. Locale
-  // conversion (~₦16,600) is a future add — for now, honest currency
-  // beats a wrong symbol.
-  const sym = symbolFor(listing);
-  const nice = price.toLocaleString('en-US');
-  const unit = listing.pricingUnit || "";
-  if (unit.includes("night")) return `${sym}${nice}/night`;
-  if (unit.includes("person")) return `${sym}${nice}/person`;
-  if (unit.includes("ticket")) return `${sym}${nice}/ticket`;
-  return `${sym}${nice}`;
+  // Not a price, and it must not be typeset as one.
+  if (!price) return { amount: null, unit: "" };
+
+  // The operator's actual currency, not a hardcoded $. This is the
+  // source-of-truth price the traveller will be charged. Locale conversion
+  // (~₦16,600) is a future add; honest currency beats a wrong symbol.
+  const amount = `${symbolFor(listing)}${price.toLocaleString("en-US")}`;
+  const raw = `${listing.pricingUnit || ""} ${listing.customPrice?.model || ""}`.toLowerCase();
+  if (raw.includes("night")) return { amount, unit: "per night" };
+  if (raw.includes("person") || raw.includes("guest")) return { amount, unit: "per person" };
+  if (raw.includes("ticket")) return { amount, unit: "per ticket" };
+  if (raw.includes("hour")) return { amount, unit: "per hour" };
+  if (raw.includes("day")) return { amount, unit: "per day" };
+  return { amount, unit: "" };
+}
+
+/** The one-line version, for callers that want a string. */
+export function getListingPrice(listing: Listing): string {
+  const { amount, unit } = getListingPriceParts(listing);
+  // "Contact host" was wrong twice over: host is Airbnb's word and Sabię's is
+  // operator, and it sat in the price slot at price weight, so it read as a
+  // price. This says what it is.
+  if (!amount) return "Price on request";
+  return unit ? `${amount} ${unit}` : amount;
 }
 
 /** The one line a card shows. Kept as its own name because that is what every

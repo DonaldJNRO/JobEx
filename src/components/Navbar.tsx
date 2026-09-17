@@ -19,7 +19,15 @@ export default function Navbar() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-surface/80 backdrop-blur-xl border-b border-line">
+    /* SOLID. It was bg-surface/80 with a blur, and over a scrolling row of
+       photographs the bar went muddy grey with the card text still legible
+       through it: you could read "Rayfield Resort" behind the wordmark. 95%
+       was better and still ghosted. A header you can read the page through is
+       not glass, it is a mistake, and glass done properly costs a repaint on
+       every scroll frame for an effect nobody asked for. The blur goes with
+       it, because a blur behind an opaque layer renders nothing and costs
+       the same. */
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-surface border-b border-line">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -32,11 +40,10 @@ export default function Navbar() {
               typed: the b's bowl carries the bee and no font will ever produce
               it. So this is the artwork.
 
-              Black on TRANSPARENT, not on white. The bar is bg-surface/80 with
-              a backdrop blur, so a white plate behind the mark would sit as a
-              hard patch over whatever is scrolling under it. That is the same
-              mistake the old 69KB JPEG made, which could not hold transparency
-              and showed its square corners.
+              Black on TRANSPARENT, not on white. The mark sits straight on the
+              bar and takes its colour, so there is no plate with its own edges
+              to line up. That is the same mistake the old 69KB JPEG made,
+              which could not hold transparency and showed its square corners.
 
               alt is empty on purpose. The link already carries the accessible
               name, and repeating it makes a screen reader say Sabię twice. */}
