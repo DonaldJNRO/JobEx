@@ -23,6 +23,18 @@ export interface RowSource {
   role?: string;
   city?: string;
   citySlug?: string;
+  /**
+   * THE CATEGORY IS HANDED IN, NOT DECIDED HERE. This file used to keep its
+   * own role-to-category table, which drifted from the one the explore filter
+   * queries with: the home page headed a row of hotels "Stays in Lagos" and
+   * the Stays filter, asking for Landlord and Host only, came back empty. A
+   * heading that leads somewhere empty is worse than no heading.
+   *
+   * There is now one table, in listings.ts, and the caller reads it. `category`
+   * is the id the filter uses, `categoryLabel` is the words a person reads.
+   */
+  category?: string;
+  categoryLabel?: string;
   createdAt?: { seconds: number };
 }
 
@@ -30,17 +42,10 @@ export interface HomeRow {
   key: string;
   title: string;
   items: RowSource[];
+  /** Where the heading goes, when the row is a real filter. The New row and
+   *  the catch-all have no single filter that means them, so they have none. */
+  href?: string;
 }
-
-/** The four category groupings, in the words the site already uses. */
-const CATEGORY_OF: Record<string, string> = {
-  Landlord: "Stays",
-  Host: "Stays",
-  HospitalityManager: "Stays",
-  ExperienceProviders: "Experiences",
-  EventOrganizer: "Events",
-  FoodBeverageManager: "Food & Drink",
-};
 
 /**
  * A row needs enough in it to look deliberate. Two cards under a heading looks
@@ -67,14 +72,24 @@ export function rowsFrom(listings: RowSource[], max = 6): HomeRow[] {
 
   // City and category together, which is how somebody actually thinks: not
   // "stays", not "Lagos", but "somewhere to stay in Lagos".
-  const groups = new Map<string, { title: string; items: RowSource[]; city: string }>();
+  const groups = new Map<string, { title: string; items: RowSource[]; href: string }>();
   for (const l of listings) {
-    const category = CATEGORY_OF[l.role ?? ""] ?? "";
-    if (!l.city || !category) continue;
-    const key = `${l.citySlug || l.city}:${category}`;
+    const label = l.categoryLabel ?? "";
+    // Both halves or neither: an unknown role has no filter to link to, so it
+    // gets no row rather than a heading pointing at an empty category.
+    if (!l.city || !label || !l.category) continue;
+    const citySlug = l.citySlug || l.city;
+    const key = `${citySlug}:${label}`;
     const hit = groups.get(key);
     if (hit) hit.items.push(l);
-    else groups.set(key, { title: `${category} in ${l.city}`, items: [l], city: l.city });
+    else
+      groups.set(key, {
+        title: `${label} in ${l.city}`,
+        items: [l],
+        // The heading and the link it leads to are built from the same two
+        // values, so the row can only ever point at itself.
+        href: `/explore?category=${encodeURIComponent(l.category)}&city=${encodeURIComponent(citySlug)}`,
+      });
   }
 
   const ranked = [...groups.entries()]
@@ -87,7 +102,7 @@ export function rowsFrom(listings: RowSource[], max = 6): HomeRow[] {
   for (const [key, g] of ranked) {
     if (themed >= max) break;
     themed++;
-    rows.push({ key, title: g.title, items: g.items.slice(0, 12) });
+    rows.push({ key, title: g.title, items: g.items.slice(0, 12), href: g.href });
     for (const l of g.items) if (l.id) used.add(l.id);
   }
 

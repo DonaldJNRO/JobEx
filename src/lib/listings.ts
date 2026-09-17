@@ -2,24 +2,20 @@ import { collection, getDocs, doc, getDoc, query, limit, where, orderBy, startAt
 import { db } from "./firebase";
 import { makeSlug, slugCandidates, looksLikeSlug, slugForListing } from "./slug";
 import { listingPlace, type KnownCity } from "./listing-place";
+import { CATEGORY_ROLES, categoryLabelOfRole, type ListingRole } from "./categories";
 
 export { listingPlace, citiesOf, inCity, parentCity, areaIndexFrom } from "./listing-place";
 export type { ListingPlace, CityOption, KnownCity, AreaIndex } from "./listing-place";
 
-export type ListingRole = "Landlord" | "Host" | "HospitalityManager" | "ExperienceProviders" | "EventOrganizer" | "FoodBeverageManager";
+// The one role-to-category table. Re-exported so everything that already
+// imports from listings.ts keeps working, the same arrangement as listing-place.
+export { CATEGORY_ROLES, CATEGORY_LABELS, categoryOfRole, categoryLabelOfRole } from "./categories";
+export type { ListingRole } from "./categories";
+
 
 const ROLE_COLLECTIONS: ListingRole[] = [
   "Landlord", "Host", "HospitalityManager", "ExperienceProviders", "EventOrganizer", "FoodBeverageManager",
 ];
-
-const ROLE_LABELS: Record<ListingRole, string> = {
-  Landlord: "Stays",
-  Host: "Stays",
-  HospitalityManager: "Hotels & Restaurants",
-  ExperienceProviders: "Experiences",
-  EventOrganizer: "Events",
-  FoodBeverageManager: "Food & Drink",
-};
 
 export interface Listing {
   id: string;
@@ -190,8 +186,15 @@ export function getListingLocation(listing: Listing): string {
   return listingPlace(listing).label;
 }
 
+/**
+ * The words on a card. This used to be its own table, and it read
+ * HospitalityManager as "Hotels & Restaurants" while the filter of that name
+ * did not exist, so a card said one thing and every filter said another. It
+ * now answers from CATEGORY_ROLES like everything else, and falls back to the
+ * raw role rather than inventing a label for something unrecognised.
+ */
 export function getCategoryLabel(role: string): string {
-  return ROLE_LABELS[role as ListingRole] || role;
+  return categoryLabelOfRole(role) || role;
 }
 
 // Fetch featured listings from all collections
@@ -343,14 +346,7 @@ export async function resolveListing(param: string): Promise<ResolvedListing | n
 
 // Fetch listings by category
 export async function getListingsByCategory(category: string, count: number = 20): Promise<Listing[]> {
-  const roleMap: Record<string, ListingRole[]> = {
-    stays: ["Landlord", "Host"],
-    experiences: ["ExperienceProviders"],
-    events: ["EventOrganizer"],
-    food: ["HospitalityManager", "FoodBeverageManager"],
-  };
-
-  const roles = roleMap[category] || ROLE_COLLECTIONS;
+  const roles = CATEGORY_ROLES[category] || ROLE_COLLECTIONS;
   const all: Listing[] = [];
 
   await Promise.all(

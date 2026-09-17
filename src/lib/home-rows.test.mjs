@@ -8,6 +8,7 @@
 // Run: node --experimental-strip-types src/lib/home-rows.test.mjs
 
 import { rowsFrom } from './home-rows.ts'
+import { categoryOfRole, categoryLabelOfRole } from './categories.ts'
 
 let fails = 0
 const is = (got, want, label) => {
@@ -17,9 +18,18 @@ const is = (got, want, label) => {
 }
 const deep = (got, want, label) => is(JSON.stringify(got), JSON.stringify(want), label)
 
-// The page resolves the place before calling, so the fixtures carry it too.
+// The page resolves the place AND the category before calling, so the fixtures
+// carry both. The table is imported rather than copied: a fixture that keeps
+// its own idea of which category a role is in would let exactly the drift this
+// change removes come back, silently and with a green suite.
 const make = (id, role, city, seconds = 0) => ({
-  id, role, createdAt: { seconds }, city, citySlug: city.toLowerCase(),
+  id,
+  role,
+  createdAt: { seconds },
+  city,
+  citySlug: city.toLowerCase(),
+  category: categoryOfRole(role),
+  categoryLabel: categoryLabelOfRole(role),
 })
 
 const many = [
@@ -74,6 +84,31 @@ is(rowsFrom(three).find((r) => r.key === 'everywhere')?.items.length, 3,
 // Busiest first, so the strongest row is the first real one after New.
 const real = rows.filter((r) => r.key !== 'new' && r.key !== 'everywhere')
 is(real[0].title, 'Stays in Lagos', 'the fullest row comes first')
+
+// THE HEADING LEADS WHERE IT SAYS. A row called "Stays in Lagos" whose link
+// asks the filter for something else is the bug that started this: hotels were
+// headed Stays, the Stays filter queried Landlord and Host, and the tap landed
+// on an empty page.
+const staysLagos = rows.find((r) => r.title === 'Stays in Lagos')
+is(staysLagos.href, '/explore?category=stays&city=lagos', 'the row links to its own filter')
+const foodAbuja = rows.find((r) => r.title === 'Food & Drink in Abuja')
+is(foodAbuja.href, '/explore?category=food&city=abuja', 'and so does the next one, ampersand and all')
+is(rows.find((r) => r.key === 'new').href, undefined, 'New has no single filter, so it gets no link')
+
+// A HOTEL IS FOOD & DRINK HERE. Not because that is obvious, but because the
+// mobile app's BUSINESS_TYPE_MAP says so, and a row heading that disagrees with
+// the app about what a business IS sends people to an empty filter.
+const hotels = rowsFrom(Array.from({ length: 3 }, (_, i) => make(`h${i}`, 'HospitalityManager', 'Lagos', i)))
+is(hotels.some((r) => r.title === 'Stays in Lagos'), false, 'hotels are never headed Stays')
+is(hotels.some((r) => r.href === '/explore?category=food&city=lagos'), true,
+  'they are headed Food & Drink, which is the filter that actually returns them')
+
+// A role nobody recognises has no filter behind it, so it gets no heading, but
+// it must still reach the page.
+const odd = [...Array.from({ length: 3 }, (_, i) => make(`l${i}`, 'Host', 'Lagos', 9)), make('weird', 'Astronaut', 'Lagos', 1)]
+const oddRows = rowsFrom(odd)
+is(oddRows.every((r) => !r.title.includes('Astronaut')), true, 'an unknown role never invents a heading')
+is(oddRows.some((r) => r.items.some((l) => l.id === 'weird')), true, 'and it still appears somewhere')
 
 // ── what it refuses to do ───────────────────────────────────────────────
 deep(rowsFrom([]), [], 'an empty catalogue offers no rows at all, not empty ones')

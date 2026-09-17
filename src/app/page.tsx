@@ -30,7 +30,7 @@ import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, Sparkles, MapPin } from "lucide-react";
 import AppStrip from "@/components/AppStrip";
 import ListingRow from "@/components/ListingRow";
-import { getFeaturedListings, listingPlace, Listing } from "@/lib/listings";
+import { getFeaturedListings, listingPlace, categoryOfRole, categoryLabelOfRole, Listing } from "@/lib/listings";
 import { rowsFrom } from "@/lib/home-rows";
 import { useReveal } from "@/lib/useReveal";
 
@@ -86,7 +86,16 @@ export default function HomePage() {
   const rows = useMemo(() => {
     const placed = listings.map((l) => {
       const place = listingPlace(l);
-      return { ...l, city: place.city, citySlug: place.citySlug };
+      return {
+        ...l,
+        city: place.city,
+        citySlug: place.citySlug,
+        // Resolved here for the same reason the place is: home-rows.ts imports
+        // nothing, so plain node can load it for its test. It also means the
+        // row heading and the filter it links to read the one table.
+        category: categoryOfRole(l.role),
+        categoryLabel: categoryLabelOfRole(l.role),
+      };
     });
     return rowsFrom(placed).map((r) => ({
       ...r,
@@ -143,7 +152,7 @@ export default function HomePage() {
           </div>
         </div>
       ) : rows.length ? (
-        rows.map((r) => <ListingRow key={r.key} title={r.title} items={r.items} />)
+        rows.map((r) => <ListingRow key={r.key} title={r.title} href={r.href} items={r.items} />)
       ) : (
         // Nothing to show is a thing to say plainly, not a thing to hide behind
         // an empty row with a heading over it.
