@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState, useCallback, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
-import { Search, X, MapPin, Sparkles } from "lucide-react";
+import { useEffect, useState, useCallback, useMemo, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Search, X, MapPin, Sparkles, ChevronDown } from "lucide-react";
 import ListingCard from "@/components/ListingCard";
-import { getListingsByCategory, getFeaturedListings, Listing } from "@/lib/listings";
+import { getListingsByCategory, getFeaturedListings, listingPlace, citiesOf, Listing } from "@/lib/listings";
 import { useReveal } from "@/lib/useReveal";
 
 const CATEGORIES = [
@@ -47,9 +47,12 @@ function ExploreLoading() {
 function ExploreContent() {
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get("category") || "all";
+  const initialCity = searchParams.get("city") || "all";
+  const router = useRouter();
   const revealRef = useReveal();
 
   const [category, setCategory] = useState(initialCategory);
+  const [city, setCity] = useState(initialCity);
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -73,15 +76,58 @@ function ExploreContent() {
     fetchListings(category);
   }, [category, fetchListings]);
 
-  const filtered = searchQuery.trim()
-    ? listings.filter((l) => {
-        const q = searchQuery.toLowerCase();
-        const name = (l.businessName || l.title || "").toLowerCase();
-        const loc = typeof l.location === "string" ? l.location.toLowerCase() : "";
-        const desc = (l.description || "").toLowerCase();
-        return name.includes(q) || loc.includes(q) || desc.includes(q);
-      })
-    : listings;
+  /**
+   * Put the filters back in the address bar.
+   *
+   * `category` was already READ from the URL and never written to it, so a
+   * link into a category worked while a link OUT of one did not: a person who
+   * filtered to Jos could not send anyone what they were looking at. Sharing a
+   * filtered view is the whole reason this is a query string and not state.
+   *
+   * replace, not push, so the back button leaves the page rather than walking
+   * back through every filter tap. Defaults are omitted so a plain /explore
+   * stays a plain /explore.
+   */
+  useEffect(() => {
+    const params = new URLSearchParams();
+    if (category !== "all") params.set("category", category);
+    if (city !== "all") params.set("city", city);
+    const qs = params.toString();
+    router.replace(qs ? `/explore?${qs}` : "/explore", { scroll: false });
+  }, [category, city, router]);
+
+  /**
+   * The cities on offer are the cities that are HERE, counted from the
+   * listings themselves. A hardcoded list, or one read from the `cities`
+   * collection, would offer a city with nothing in it, and an option that
+   * always returns "No listings found" is worse than no option: it reads as a
+   * broken site rather than an empty one.
+   *
+   * Recomputed per category, so switching to Events does not leave a city
+   * selected that has no events in it.
+   */
+  const cities = useMemo(() => citiesOf(listings), [listings]);
+
+  // A city that vanished with the category must not keep filtering invisibly.
+  useEffect(() => {
+    if (city !== "all" && !loading && !cities.some((c) => c.slug === city)) setCity("all");
+  }, [cities, city, loading]);
+
+  const filtered = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    return listings.filter((l) => {
+      const place = listingPlace(l);
+      if (city !== "all" && place.citySlug !== city) return false;
+      if (!q) return true;
+      const name = (l.businessName || l.title || "").toLowerCase();
+      const desc = (l.description || "").toLowerCase();
+      // Searching location used to read `location` only when it was a STRING,
+      // so a listing Studio created could not be found by typing its city.
+      // Every part of the place is searchable now, in both stored shapes.
+      const where = [place.label, place.city, place.area].join(" ").toLowerCase();
+      return name.includes(q) || where.includes(q) || desc.includes(q);
+    });
+  }, [listings, searchQuery, city]);
 
   return (
     <div ref={revealRef} className="min-h-screen bg-surface">
@@ -182,6 +228,30 @@ function ExploreContent() {
               <span><strong className="text-ink">{filtered.length}</strong> listing{filtered.length !== 1 ? "s" : ""} found</span>
             )}
           </p>
+
+          {/* A native <select>, deliberately. It is a SECOND filter and must
+              not compete with the category pills on the hero, the list grows
+              as cities do, and the platform picker beats anything we would
+              build for a thumb. It gets our own chevron because the browser's
+              differs on every OS. Hidden entirely until there is a real choice
+              to make: one city is not a filter. */}
+          {cities.length > 1 && (
+            <div className="relative shrink-0">
+              <MapPin size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint pointer-events-none" aria-hidden="true" />
+              <select
+                aria-label="Filter by city"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                className="appearance-none bg-card border border-line rounded-xl h-11 pl-9 pr-9 text-sm font-medium text-ink focus:outline-none focus:ring-2 focus:ring-secondary/40 transition-all"
+              >
+                <option value="all">Everywhere</option>
+                {cities.map((c) => (
+                  <option key={c.slug} value={c.slug}>{c.name} ({c.count})</option>
+                ))}
+              </select>
+              <ChevronDown size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-faint pointer-events-none" aria-hidden="true" />
+            </div>
+          )}
         </div>
 
         {loading ? (
@@ -203,8 +273,12 @@ function ExploreContent() {
               <Search size={32} className="text-primary/40" />
             </div>
             <h3 className="text-xl font-bold text-ink mb-2">No listings found</h3>
-            <p className="text-sm text-text-muted max-w-sm mx-auto">Try a different search term or browse another category</p>
-            <button onClick={() => { setSearchQuery(""); setCategory("all"); }} className="mt-6 text-sm font-semibold text-primary hover:underline underline-offset-4">
+            <p className="text-sm text-text-muted max-w-sm mx-auto">
+              {city !== "all"
+                ? "Nothing here in that city yet. Try everywhere, or another category."
+                : "Try a different search term or browse another category"}
+            </p>
+            <button onClick={() => { setSearchQuery(""); setCategory("all"); setCity("all"); }} className="mt-6 text-sm font-semibold text-primary hover:underline underline-offset-4">
               Clear filters
             </button>
           </div>

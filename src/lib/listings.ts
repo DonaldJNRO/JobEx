@@ -1,6 +1,10 @@
 import { collection, getDocs, doc, getDoc, query, limit, where, orderBy, startAt, endAt, documentId } from "firebase/firestore";
 import { db } from "./firebase";
 import { makeSlug, slugCandidates, looksLikeSlug, slugForListing } from "./slug";
+import { listingPlace } from "./listing-place";
+
+export { listingPlace, citiesOf } from "./listing-place";
+export type { ListingPlace, CityOption } from "./listing-place";
 
 export type ListingRole = "Landlord" | "Host" | "HospitalityManager" | "ExperienceProviders" | "EventOrganizer" | "FoodBeverageManager";
 
@@ -28,7 +32,33 @@ export interface Listing {
   customPrice?: { price: number; model?: string };
   pricingUnit?: string;
   currency?: string;
-  location?: string | { address?: string; city?: string; name?: string };
+  /**
+   * TWO SHAPES, AND BOTH ARE REAL. Older documents store a single string,
+   * "Rayfield, Jos, Plateau". Anything created through Studio's LocationInput
+   * stores the object, and stores MORE of it than this type used to admit:
+   * the fields below are LocationData in sabie-studio/src/components/
+   * LocationInput.tsx, field for field.
+   *
+   * Understating a stored shape is not a harmless omission here. The same
+   * mistake on `subCategory`, recorded a few lines down, emptied the type pill
+   * and the Type row on every listing page, and nothing looked broken while it
+   * did. Read this through listingPlace() rather than reaching in.
+   */
+  location?:
+    | string
+    | {
+        address?: string;
+        city?: string;
+        area?: string;
+        areaSlug?: string;
+        state?: string;
+        country?: string;
+        postalCode?: string;
+        name?: string;
+        latitude?: number;
+        longitude?: number;
+        placeId?: string;
+      };
   coordinates?: { latitude: number; longitude: number };
   rating?: number;
   subCategory?: string | { id: string; name: string };
@@ -111,12 +141,11 @@ export function getListingType(listing: Listing): string {
   return sub.name || "";
 }
 
-/** The city, preferring the already-normalised citySlug the ad document
-    carries, so the website and admin build the same slug from the same word. */
+/** The city as a key, so the website and admin build the same slug from the
+ *  same word. Safe to feed makeSlug either way, since words() strips the
+ *  hyphens anyway, but one definition beats two. */
 export function getListingCity(listing: Listing): string {
-  if (listing.citySlug) return listing.citySlug;
-  if (typeof listing.location === "object" && listing.location?.city) return listing.location.city;
-  return "";
+  return listingPlace(listing).citySlug;
 }
 
 /**
@@ -155,10 +184,10 @@ export function getListingPrice(listing: Listing): string {
   return `${sym}${nice}`;
 }
 
+/** The one line a card shows. Kept as its own name because that is what every
+ *  view calls it, but it is now just the label off listingPlace(). */
 export function getListingLocation(listing: Listing): string {
-  if (!listing.location) return "";
-  if (typeof listing.location === "string") return listing.location.split(",")[0].trim();
-  return listing.location.city || listing.location.name || listing.location.address || "";
+  return listingPlace(listing).label;
 }
 
 export function getCategoryLabel(role: string): string {
