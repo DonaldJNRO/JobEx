@@ -13,7 +13,15 @@
  * sabie-v53-main/eas.json:49, which is the id EAS submits builds to, so it is
  * the app that actually ships rather than the id somebody pasted once.
  */
-export const APP_STORE_URL = "https://apps.apple.com/gb/app/sabie/id6752625262";
+/**
+ * The App Store id on its own, because two things need it and one of them
+ * cannot use a URL: Apple's Smart App Banner takes the bare number. The URL is
+ * built from it rather than written out again, which is the mistake this file
+ * exists to have stopped once already.
+ */
+export const APP_STORE_ID = "6752625262";
+
+export const APP_STORE_URL = `https://apps.apple.com/gb/app/sabie/id${APP_STORE_ID}`;
 
 /**
  * Where the app strip's dismissal is remembered.

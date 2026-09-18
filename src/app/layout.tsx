@@ -4,7 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { APP_STRIP_KEY } from "@/lib/app-links";
+import { APP_STORE_ID, APP_STRIP_KEY } from "@/lib/app-links";
 
 /**
  * The same two faces Scout, admin and Studio render.
@@ -61,17 +61,41 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <link rel="icon" href="/images/favicon.ico" />
         <link rel="apple-touch-icon" href="/images/apple-touch-icon.png" />
-        {/* NO LAYOUT SHIFT ON LOAD. The app strip used to start hidden and
-            appear in an effect, which pushed the whole page down a beat after
-            it drew. So the strip is always in the markup, and this runs before
-            the first paint to hide it for somebody who has already dismissed
-            it. Blocking on purpose: it is one localStorage read, and the whole
-            point is that it finishes before anything is painted. Wrapped
-            because localStorage throws in a private window, in which case the
-            strip simply shows. */}
+        {/* APPLE'S OWN BANNER, on the one browser that has it.
+            In Safari on iOS this renders the native strip at the top of the
+            page: OPEN if Sabię is installed, which hands the person straight
+            to the app, and VIEW if it is not, which is the App Store. That is
+            the behaviour people expect from a real app's website, and it
+            costs one tag and no new build.
+
+            It is NOT a universal link and does not replace one. Safari has
+            never opened an app from a URL typed into the address bar; Apple
+            turned that off deliberately. A tapped link is the case universal
+            links handle, and ours are not wired up yet. See
+            docs/UNIVERSAL_LINKS.md for what is missing and what it costs. */}
+        <meta name="apple-itunes-app" content={`app-id=${APP_STORE_ID}`} />
+
+        {/* NO LAYOUT SHIFT ON LOAD, and never two app banners at once.
+            The strip used to start hidden and appear in an effect, which
+            pushed the whole page down a beat after it drew. So it is always in
+            the markup and this runs before the first paint, setting the
+            attribute that globals.css hides it on.
+
+            Two reasons to hide it. The person dismissed it, or Safari on iOS
+            is already showing Apple's banner above it: two asks for the same
+            thing, stacked, is the exact thing the strip replaced. The check
+            excludes the browsers that only LOOK like Safari in a user agent
+            string, Chrome, Firefox, Edge and the in-app browsers Instagram and
+            Facebook open links in, because none of them render Apple's banner
+            and in those our strip is the only ask there is.
+
+            Blocking on purpose: it is one localStorage read and one string
+            test, and the whole point is that both finish before anything is
+            painted. Wrapped because localStorage throws in a private window,
+            where the strip simply shows. */}
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{if(localStorage.getItem(${JSON.stringify(APP_STRIP_KEY)}))document.documentElement.dataset.appstrip='off'}catch(e){}`,
+            __html: `(function(){var h=document.documentElement;try{if(localStorage.getItem(${JSON.stringify(APP_STRIP_KEY)})){h.dataset.appstrip='off';return}}catch(e){}var u=navigator.userAgent;if(/iPhone|iPad|iPod/.test(u)&&/Safari/.test(u)&&!/CriOS|FxiOS|EdgiOS|OPiOS|Instagram|FBAN|FBAV|MicroMessenger/.test(u))h.dataset.appstrip='off'})()`,
           }}
         />
       </head>
