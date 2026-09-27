@@ -16,12 +16,13 @@
  * Search starts beating a scroll somewhere past a hundred listings, and Scout
  * will get us there, but not this month.
  *
- * THE STORY DID NOT DIE, IT MOVED. "Plan the trip back home, with the crew" is
- * the sharpest thing Sabię says and the only line that separates it from a
- * directory. It sits below the listings, where somebody who has already scrolled
- * past real places is the right person to hear it. The App Store is one
- * dismissible strip at the top and a link in the footer, instead of the three
- * separate asks it used to be.
+ * THE STORY DID NOT DIE, IT MOVED, and then it changed. It sits below the
+ * listings, where somebody who has already scrolled past real places is the
+ * right person to hear it. It used to read "Plan the trip back home, with the
+ * crew"; "back home" scoped it to the diaspora trip when the sentence is true
+ * of anyone going anywhere, and "plan" described a tool this site is not. The
+ * App Store is one dismissible strip at the top and a link in the footer,
+ * instead of the three separate asks it used to be.
  */
 
 import Image from "next/image";
@@ -194,30 +195,29 @@ export default function HomePage() {
             <p className="inline-flex items-center gap-2 text-xs font-bold text-primary uppercase tracking-[0.18em] mb-4">
               <Sparkles size={13} /> Going with people
             </p>
-            <h2 className="text-3xl sm:text-4xl text-ink leading-tight">
-              Plan the trip back home, with the crew.
-            </h2>
-            {/* NAMES NOTHING THIS SITE CANNOT DO. This used to promise "vote
-                on where to go, split what it costs", and neither exists on the
-                website: nothing here votes, nothing here splits, and the
-                button underneath goes to /explore, which is a list of places.
-                Somebody arriving on that promise and landing on listings has
-                been told the wrong thing about the product.
+            {/* "BACK HOME" IS GONE, at the founder's call. It scoped the
+                whole section to the diaspora trip, and the same sentence is
+                true of anybody going anywhere. The headline also stopped
+                saying "plan": this section used to promise "vote on where to
+                go, split what it costs", and neither exists anywhere on this
+                website, with the button underneath going to /explore, which
+                is a list of places.
 
-                The crew idea itself stays, because it is true and it is the
-                best line Sabię has. It just has to describe the part that
-                works from here: finding the places and asking them, together,
-                rather than features that live in the app. */}
+                What replaces it names where the good spots actually come from
+                today, which is the honest version of the problem: Instagram
+                and somebody's chat. */}
+            <h2 className="text-3xl sm:text-4xl text-ink leading-tight">
+              Keep the whole trip in one place.
+            </h2>
             <p className="mt-4 text-base sm:text-lg text-ink-body leading-relaxed">
-              Booking one place is the easy part. The rest of it, the food, the day out,
-              the people you are going with, is what Sabię is for. Find the places, ask
-              them, and keep the whole trip in one place instead of six group chats.
+              The good spots live on Instagram and in someone&apos;s chat. Find them here,
+              ask the business, and stop running the trip across six group chats.
             </p>
             <Link
               href="/explore"
               className="mt-7 inline-flex items-center gap-2.5 bg-primary hover:bg-primary-dark text-white font-bold px-7 py-3.5 rounded-full transition-colors"
             >
-              Start with somewhere to go <ArrowRight size={17} />
+              See what&apos;s live <ArrowRight size={17} />
             </Link>
           </div>
         </div>
