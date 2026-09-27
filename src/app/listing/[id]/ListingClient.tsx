@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { MapPin, Star, ChevronLeft, ChevronRight, Share2, Link2, Heart, Wifi, Car, Coffee, Waves, Shield, ArrowRight, Download, Check, Globe, Clock, Users } from "lucide-react";
-import { resolveListing, getListingPrice, getListingLocation, getListingType, getCategoryLabel, getFeaturedListings, Listing } from "@/lib/listings";
+import { resolveListing, getListingPrice, getListingLocation, getListingType, getCategoryLabel, getFeaturedListings, visitedBySabie, Listing } from "@/lib/listings";
 import ListingCard from "@/components/ListingCard";
 import { useReveal } from "@/lib/useReveal";
 import { useAuth } from "@/contexts/AuthContext";
@@ -409,16 +409,32 @@ export default function ListingClient() {
 
               <div className="my-6 border-t border-line" />
 
-              {/* Trust badges */}
+              {/* WHAT IS ACTUALLY TRUE OF EVERY LISTING, and nothing else.
+                  This used to show "Instant confirmation" and "Free
+                  cancellation" on every listing outside the shop window. Both
+                  are false and the code already knew it: the shop-window
+                  branch dropped exactly those two, because the real model is
+                  a request the business has 12 hours to accept, and Sabię has
+                  no cancellation policy of its own to give away for free. 36
+                  of the 38 live listings took the non-shop-window branch, so
+                  the false pair was what almost everybody saw.
+
+                  "Verified listing" went too, on both branches. The site never
+                  reads isVerifiedBusiness, verifiedMethod, visitedAt or the
+                  verification photo, so it cannot tell a verified business
+                  from an unverified one and was asserting it on all of them.
+                  Wiring the real four-field gate in is the fix worth doing;
+                  claiming it in the meantime is not.
+
+                  The visit badge is now READ, not asserted: visitedBySabie()
+                  checks the record, and 6 of the 38 public listings do not
+                  carry the visit, so they correctly do not get the badge. The
+                  12 hour line needs no data because it is the model itself. */}
               <div className="space-y-3">
-                {(shopWindow
-                  ? [{ icon: Shield, text: "Verified listing" }]
-                  : [
-                      { icon: Shield, text: "Verified listing" },
-                      { icon: Clock, text: "Instant confirmation" },
-                      { icon: Heart, text: "Free cancellation" },
-                    ]
-                ).map((badge) => (
+                {([
+                  ...(visitedBySabie(listing) ? [{ icon: Shield, text: "Visited by Sabię" }] : []),
+                  { icon: Clock, text: "The business replies within 12 hours" },
+                ]).map((badge) => (
                   <div key={badge.text} className="flex items-center gap-2.5 text-xs text-text-muted">
                     <badge.icon size={14} className="text-primary shrink-0" />
                     {badge.text}

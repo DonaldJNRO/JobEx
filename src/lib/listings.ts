@@ -68,6 +68,12 @@ export interface Listing {
   category?: string;
   viewsCount?: number;
   views?: number;
+  // Read these through visitedBySabie() in verified.ts rather than reaching
+  // in, so one file decides what the badge means. The reasoning, and the
+  // measurement behind requiring both halves, lives there.
+  isVerifiedBusiness?: boolean;
+  verifiedMethod?: string;
+  verificationMethod?: string;
   // The human link. Written by admin when a listing is published; absent on
   // every listing created before slugs existed, which listingSlug() covers.
   slug?: string;
@@ -210,9 +216,15 @@ export function getListingPrice(listing: Listing): string {
 
 /** The one line a card shows. Kept as its own name because that is what every
  *  view calls it, but it is now just the label off listingPlace(). */
+// Re-exported so callers have one import site for listing helpers. The
+// implementation is a leaf in verified.ts, which imports nothing, so plain
+// node can load it for its test; this file imports Firebase and cannot be.
+export { visitedBySabie } from "./verified";
+
 export function getListingLocation(listing: Listing): string {
   return listingPlace(listing).label;
 }
+
 
 /**
  * The words on a card. This used to be its own table, and it read
