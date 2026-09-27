@@ -43,15 +43,46 @@ const fraunces = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Sabię · Plan the trip back home, with the crew",
-  description: "Sabię is the group travel app for the diaspora. Plan, vote, split and book trips together, from the UK to Lagos, Accra, and everywhere in between.",
-  keywords: ["diaspora travel", "group travel", "trip planning", "Lagos travel", "Accra travel", "African diaspora", "Detty December", "travel with friends"],
+  // metadataBase is what lets Next resolve the generated OG image below into an
+  // absolute URL. Without it the image is emitted as a relative path, which
+  // every share target ignores.
+  metadataBase: new URL("https://www.sabieapp.com"),
+  title: "Sabię · Places worth the trip",
+  // ACCRA CAME OUT, three times. The `cities` collection holds Lagos, Abuja,
+  // Jos and London live, and Nouakchott as soon; there is no Accra, and the
+  // 38 public listings are 20 Lagos, 7 Jos, 6 Abuja, 2 London, 1 Bamako.
+  // Naming a city we cannot serve sends somebody to a search that returns
+  // nothing, which is a worse first visit than never having been named.
+  //
+  // The description also now leads with what the site SHOWS. The home page is
+  // the listings, so a description promising a planning app describes a
+  // different page than the one that loads.
+  description: "Stays, experiences and places to eat in Lagos, Abuja, Jos and London, from the people who run them. Sabię is where you find them and go with the crew.",
+  keywords: ["Lagos travel", "Abuja travel", "Jos travel", "Nigeria travel", "diaspora travel", "group travel", "Detty December", "travel with friends"],
+  // A SHARED LINK SHOWED NOTHING. There was no og:image at all, so every share
+  // of sabieapp.com on WhatsApp, iMessage or LinkedIn rendered as a bare text
+  // link. For a product whose proposition is places worth seeing, that was the
+  // most expensive omission on the site. opengraph-image.tsx beside this file
+  // generates one at build.
   openGraph: {
-    title: "Sabię · Plan the trip back home, with the crew",
-    description: "The group travel app for the diaspora. UK to Lagos, Accra, and everywhere in between.",
+    title: "Sabię · Places worth the trip",
+    description: "Stays, experiences and places to eat in Lagos, Abuja, Jos and London, from the people who run them.",
     siteName: "Sabię",
     type: "website",
     url: "https://www.sabieapp.com",
+    locale: "en_GB",
+  },
+  // summary renders a small square thumbnail. summary_large_image is the wide
+  // card, which is what a 1200x630 image is for.
+  twitter: {
+    card: "summary_large_image",
+    title: "Sabię · Places worth the trip",
+    description: "Stays, experiences and places to eat in Lagos, Abuja, Jos and London, from the people who run them.",
+  },
+  // The apex redirects to www, and without this both can be indexed as separate
+  // pages with the ranking split between them.
+  alternates: {
+    canonical: "https://www.sabieapp.com",
   },
 };
 
