@@ -3,6 +3,7 @@ import { db } from "./firebase";
 import { makeSlug, slugCandidates, looksLikeSlug, slugForListing } from "./slug";
 import { listingPlace, type KnownCity } from "./listing-place";
 import { CATEGORY_ROLES, categoryOf, categoryLabelOf, type ListingRole } from "./categories";
+import { priceParts, priceLine, type MoneyContext as MoneyCtx } from "./listing-price";
 
 export { listingPlace, citiesOf, inCity, parentCity, areaIndexFrom } from "./listing-place";
 export type { ListingPlace, CityOption, KnownCity, AreaIndex } from "./listing-place";
@@ -110,25 +111,11 @@ export function isPublicListing(l: Listing): boolean {
   return true;
 }
 
-// Currency symbols keyed by ISO 4217 code. Fall back to the raw
-// code for anything not on the list (safer than showing $).
-const CURRENCY_SYMBOLS: Record<string, string> = {
-  GBP: '£', USD: '$', EUR: '€', NGN: '₦', ZAR: 'R',
-  GHS: 'GH₵', KES: 'KSh', UGX: 'USh', TZS: 'TSh',
-  RWF: 'RWF', XOF: 'CFA', XAF: 'FCFA', MAD: 'DH',
-  EGP: 'E£', ETB: 'Br', CAD: 'C$', AUD: 'A$', JPY: '¥',
-  INR: '₹', CNY: '¥',
-};
-
-function symbolFor(listing: Listing): string {
-  const code = listing.currency?.toUpperCase();
-  if (code) return CURRENCY_SYMBOLS[code] || code + ' ';
-  // No currency on the document. The platform default is GBP, but a listing
-  // in Nigeria priced in pounds is simply a wrong number on the page, and
-  // every listing we have today is Nigerian. Trust the country first.
-  if ((listing.country || '').toLowerCase().includes('nigeria')) return '₦';
-  return '£';
-}
+// The currency symbols and the native-currency rule moved to listing-price.ts
+// so a test can load them without Firebase. Re-exported here so every caller
+// keeps one import site, the same arrangement as listing-place and categories.
+export { nativeCurrencyOf, symbolForCurrency } from "./listing-price";
+export type { MoneyContext, Rates } from "./listing-price";
 
 /** The human label for the listing type. Firestore stores subCategory as a
     string key with the label beside it; the object form is older data. */
@@ -171,47 +158,25 @@ export function getListingImage(listing: Listing): string | null {
 }
 
 /**
- * A price split into its parts, so a card can typeset them at different
- * weights instead of running them together in one bold string.
+ * What a listing costs, in the VISITOR'S money when we know it.
  *
- * THE UNIT IS THE POINT. A gate fee of 500 and an apartment at 120,000 were
- * rendering identically, same size, same weight, nothing to say one was a
- * night and the other a person walking through a gate. A number with no unit
- * beside it is not a price, it is a number.
+ * The rules live in listing-price.ts, which imports nothing so plain node can
+ * load it for currency.test.mjs; this file imports Firebase and cannot be.
  *
- * It reads pricingUnit first and falls back to customPrice.model, because
- * Studio writes one and older docs carry the other, and a listing that has
- * neither says nothing rather than guessing at "per night".
+ * `money` is optional. A caller without it (a server component, a first
+ * render, a failed rate fetch) gets the operator's own price in the operator's
+ * own currency, which is always true.
  */
-export function getListingPriceParts(listing: Listing): {
-  amount: string | null;
-  unit: string;
-} {
-  const price = listing.customPrice?.price;
-  // Not a price, and it must not be typeset as one.
-  if (!price) return { amount: null, unit: "" };
-
-  // The operator's actual currency, not a hardcoded $. This is the
-  // source-of-truth price the traveller will be charged. Locale conversion
-  // (~₦16,600) is a future add; honest currency beats a wrong symbol.
-  const amount = `${symbolFor(listing)}${price.toLocaleString("en-US")}`;
-  const raw = `${listing.pricingUnit || ""} ${listing.customPrice?.model || ""}`.toLowerCase();
-  if (raw.includes("night")) return { amount, unit: "per night" };
-  if (raw.includes("person") || raw.includes("guest")) return { amount, unit: "per person" };
-  if (raw.includes("ticket")) return { amount, unit: "per ticket" };
-  if (raw.includes("hour")) return { amount, unit: "per hour" };
-  if (raw.includes("day")) return { amount, unit: "per day" };
-  return { amount, unit: "" };
+export function getListingPriceParts(
+  listing: Listing,
+  money?: MoneyCtx,
+): { amount: string | null; unit: string } {
+  return priceParts(listing, money);
 }
 
 /** The one-line version, for callers that want a string. */
-export function getListingPrice(listing: Listing): string {
-  const { amount, unit } = getListingPriceParts(listing);
-  // "Contact host" was wrong twice over: host is Airbnb's word and Sabię's is
-  // operator, and it sat in the price slot at price weight, so it read as a
-  // price. This says what it is.
-  if (!amount) return "Price on request";
-  return unit ? `${amount} ${unit}` : amount;
+export function getListingPrice(listing: Listing, money?: MoneyCtx): string {
+  return priceLine(listing, money);
 }
 
 /** The one line a card shows. Kept as its own name because that is what every

@@ -18,7 +18,9 @@ import { useEffect, useRef, useState } from "react";
 import { X, Check, Loader2, AlertTriangle, ChevronDown } from "lucide-react";
 import { sendBookingRequest, BookingError } from "@/lib/book";
 import { offersOf, type Offer } from "@/lib/shop-window";
-import { buildDisplayPrice, guestCurrency, formatPriceWithCurrency } from "@/lib/display-price";
+import { buildDisplayPrice, formatPriceWithCurrency } from "@/lib/display-price";
+import { useMoney } from "@/lib/useRates";
+import { nativeCurrencyOf } from "@/lib/listing-price";
 import { APP_STORE_URL } from "@/lib/app-links";
 import type { Listing } from "@/lib/listings";
 
@@ -93,13 +95,24 @@ export default function BookingRequest({
   const chosen: Offer | undefined = offers.find((o) => o.name === offer);
   const unit = chosen?.price;
   const total = typeof unit === "number" ? unit * Math.max(1, guests) : undefined;
+  // RATES ARE IN NOW. This was ratesReady:false with a note saying it would
+  // convert the day rates arrived; useRates fetches them from the same CDN and
+  // the same GBP base the app uses, so the two cannot disagree about what
+  // ₦8,000 is worth.
+  //
+  // THE ONE PLACE THAT KEEPS SHOWING BOTH. Everywhere else on the site shows
+  // the visitor's own money alone, which is what was asked for. Here the guest
+  // is committing to a number, and the number the operator will actually
+  // charge is the native one. buildDisplayPrice puts the converted figure
+  // large and "≈ ₦8,000 NGN" small beneath it, so nothing is hidden at the
+  // moment it matters most.
+  const { rates, ready, to } = useMoney();
   const money = buildDisplayPrice({
     amount: total,
-    nativeCurrency: listing.currency || "NGN",
-    selectedCurrency: guestCurrency(typeof navigator !== "undefined" ? navigator.language : ""),
-    // No rates on the web yet, so this shows the operator's own price and says
-    // nothing it cannot stand behind. It converts the day rates arrive.
-    ratesReady: false,
+    nativeCurrency: nativeCurrencyOf(listing),
+    selectedCurrency: to,
+    exchangeRates: rates,
+    ratesReady: ready,
   });
 
   const submit = async (e: React.FormEvent) => {

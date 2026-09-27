@@ -28,10 +28,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { MapPin, Star } from "lucide-react";
 import { Listing, getListingImage, getListingPriceParts, getListingLocation, getCategoryLabel, listingSlug } from "@/lib/listings";
+import { useMoney } from "@/lib/useRates";
 
 export default function ListingCard({ listing, index = 0 }: { listing: Listing; index?: number }) {
   const image = getListingImage(listing);
-  const { amount, unit } = getListingPriceParts(listing);
+  // THE VISITOR'S OWN MONEY. A card used to print the operator's currency, so
+  // somebody in London scrolling Lagos listings saw ₦ figures with no way to
+  // tell what anything cost. Falls back to the operator's price whenever the
+  // rates are not in, which is never wrong, only less useful.
+  const money = useMoney();
+  const { amount, unit } = getListingPriceParts(listing, money);
   const location = getListingLocation(listing);
   const name = listing.businessName || listing.title || "Listing";
   const category = getCategoryLabel(listing.role);

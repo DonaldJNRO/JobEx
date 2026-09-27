@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { MapPin, Star, ChevronLeft, ChevronRight, Share2, Link2, Heart, Wifi, Car, Coffee, Waves, Shield, ArrowRight, Download, Check, Globe, Clock, Users } from "lucide-react";
 import { resolveListing, getListingPrice, getListingLocation, getListingType, getCategoryLabel, getFeaturedListings, visitedBySabie, Listing } from "@/lib/listings";
+import { useMoney } from "@/lib/useRates";
 import ListingCard from "@/components/ListingCard";
 import { useReveal } from "@/lib/useReveal";
 import { useAuth } from "@/contexts/AuthContext";
@@ -38,6 +39,10 @@ export default function ListingClient() {
   const [booking, setBooking] = useState(false);
   const revealRef = useReveal();
   const { user } = useAuth();
+  // ABOVE THE EARLY RETURNS, with the other hooks. Placed beside the price it
+  // feeds, it sat after `if (loading)` and `if (!listing)`, so it was called on
+  // some renders and not others: a conditional hook, which React throws on.
+  const money = useMoney();
 
   useEffect(() => {
     if (!id) return;
@@ -132,7 +137,7 @@ export default function ListingClient() {
   const images = (listing.imageUrls || []).map((img) => typeof img === "string" ? img : img?.url).filter(Boolean) as string[];
   if (listing.coverImage && !images.includes(listing.coverImage)) images.unshift(listing.coverImage);
   const name = listing.businessName || listing.title || "Listing";
-  const price = getListingPrice(listing);
+  const price = getListingPrice(listing, money);
   const location = getListingLocation(listing);
   const category = getCategoryLabel(listing.role);
   const amenities = listing.selectedAmenities || listing.amenities || [];
