@@ -75,6 +75,23 @@ export interface Listing {
   isVerifiedBusiness?: boolean;
   verifiedMethod?: string;
   verificationMethod?: string;
+  /**
+   * WHAT THE OPERATOR ALREADY TOLD US and the site was not reading. Measured
+   * across the 38 public listings: openingHours on 100%, menuPdfUrl on 50%,
+   * businessModel and a named rep on about half. Read these through
+   * operator-info.ts rather than reaching in, so one file decides what a page
+   * may claim from them.
+   *
+   * phone, whatsapp and instagram are on the documents too and are
+   * DELIBERATELY ABSENT from this type. Publishing an operator's direct line
+   * turns a marketplace into a directory: the guest rings them, no booking
+   * record exists, and the commission that paid for the visit is never
+   * earned. Adding them here is a business decision, not a display one.
+   */
+  openingHours?: Record<string, { open?: string; close?: string; closed?: boolean }> | null;
+  menuPdfUrl?: string | null;
+  businessModel?: string | null;
+  verifiedRepName?: string | null;
   // The human link. Written by admin when a listing is published; absent on
   // every listing created before slugs existed, which listingSlug() covers.
   slug?: string;

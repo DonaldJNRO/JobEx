@@ -7,6 +7,7 @@ import Link from "next/link";
 import { MapPin, Star, ChevronLeft, ChevronRight, Share2, Link2, Heart, Wifi, Car, Coffee, Waves, Shield, ArrowRight, Download, Check, Globe, Clock, Users } from "lucide-react";
 import { resolveListing, getListingPrice, getListingLocation, getListingType, getCategoryLabel, getFeaturedListings, visitedBySabie, Listing } from "@/lib/listings";
 import { useMoney } from "@/lib/useRates";
+import { openingRows, openNow, serviceStyle, verificationLine, amenityLabel } from "@/lib/operator-info";
 import ListingCard from "@/components/ListingCard";
 import { useReveal } from "@/lib/useReveal";
 import { useAuth } from "@/contexts/AuthContext";
@@ -141,6 +142,10 @@ export default function ListingClient() {
   const location = getListingLocation(listing);
   const category = getCategoryLabel(listing.role);
   const amenities = listing.selectedAmenities || listing.amenities || [];
+  const openingWeek = openingRows(listing);
+  const isOpenNow = openNow(listing);
+  const style = serviceStyle(listing);
+  const visitLine = verificationLine(listing);
   const type = getListingType(listing);
   // getListingPrice already appends the unit for the units it knows, so the
   // page rendered "₦2,250/person" with "per person" directly underneath it.
@@ -373,11 +378,87 @@ export default function ListingClient() {
                         <div className="w-9 h-9 rounded-lg bg-primary/12 flex items-center justify-center group-hover:scale-110 transition-transform">
                           <IconComp size={16} className="text-primary" />
                         </div>
-                        <span className="text-sm font-medium capitalize text-ink">{a.replace(/_/g, " ")}</span>
+                        <span className="text-sm font-medium text-ink">{amenityLabel(a)}</span>
                       </div>
                     );
                   })}
                 </div>
+              </div>
+            )}
+
+            {/* ── WHO RUNS THIS PLACE, AND WHEN IT IS OPEN ──
+                The page knew almost nothing about the business: a name, a
+                description, a price. The ad documents carry far more that
+                nothing read. Measured across the 38 public listings:
+                openingHours on 100%, businessModel on 47%, a named rep on 53%.
+
+                NOT SHOWN, deliberately: phone, WhatsApp and Instagram, which
+                are on 95%, 84% and 79% of documents. Publishing an operator's
+                direct line turns a marketplace into a directory, and the
+                booking request is the only thing that creates a record and
+                earns the commission that paid for the visit. */}
+            {(openingWeek.length > 0 || style || visitLine) && (
+              <div className="reveal">
+                <h2 className="text-lg font-bold text-ink mb-5">Good to know</h2>
+
+                <div className="rounded-2xl border border-line bg-card divide-y divide-line">
+                  {visitLine && (
+                    <div className="flex items-start gap-3 p-4">
+                      <Shield size={16} className="text-primary shrink-0 mt-0.5" />
+                      <span className="text-sm text-ink">{visitLine}</span>
+                    </div>
+                  )}
+
+                  {style && (
+                    <div className="flex items-start gap-3 p-4">
+                      <Users size={16} className="text-primary shrink-0 mt-0.5" />
+                      <span className="text-sm text-ink">{style}</span>
+                    </div>
+                  )}
+
+                  {openingWeek.length > 0 && (
+                    <div className="p-4">
+                      <div className="flex items-center gap-3 mb-3">
+                        <Clock size={16} className="text-primary shrink-0" />
+                        <span className="text-sm font-semibold text-ink">Opening hours</span>
+                        {/* Only when we can actually tell. `null` means the
+                            document says nothing about today, and rendering
+                            that as "Closed" would send somebody to a locked
+                            door on a day the place was open. */}
+                        {isOpenNow === true && (
+                          <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">Open now</span>
+                        )}
+                        {isOpenNow === false && (
+                          <span className="text-xs font-semibold text-ink-muted bg-surface-sunken px-2 py-0.5 rounded-full">Closed now</span>
+                        )}
+                      </div>
+                      <dl className="space-y-1.5">
+                        {openingWeek.map((row) => (
+                          <div key={row.day} className="flex justify-between gap-4 text-sm">
+                            <dt className="text-text-muted">{row.label}</dt>
+                            <dd className={row.closed ? "text-ink-muted" : "text-ink font-medium"}>{row.hours}</dd>
+                          </div>
+                        ))}
+                      </dl>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* The menu, where there is one. On 50% of listings and read by
+                nothing until now, which for a restaurant is the single most
+                useful thing on the document. */}
+            {listing.menuPdfUrl && (
+              <div className="reveal">
+                <a
+                  href={listing.menuPdfUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2.5 text-sm font-semibold text-primary hover:underline underline-offset-4"
+                >
+                  <Download size={16} /> See the menu
+                </a>
               </div>
             )}
           </div>
