@@ -6,7 +6,7 @@
  * those can be the app, and the wrong one is a dead end at the exact moment
  * somebody has decided to book.
  *
- Sabię launched on the App Store on 2026-06-01, iOS only;
+ * Sabię launched on the App Store on 2026-06-01, iOS only;
  * Android is still to come, so there is one link here and not two.
  *
  * 6752625262 is the real one. It is the `ascAppId` in

@@ -17,7 +17,7 @@ export default function NotFound() {
           <Link href="/" className="bg-primary hover:bg-primary-dark text-white font-semibold px-6 py-3 rounded-full transition-colors">
             Go Home
           </Link>
-          <Link href="/explore" className="bg-surface-sunken hover:bg-black/10 hover:bg-surface-sunken font-semibold px-6 py-3 rounded-full transition-colors">
+          <Link href="/explore" className="bg-surface-sunken hover:bg-line/40 font-semibold px-6 py-3 rounded-full transition-colors">
             Explore Listings
           </Link>
         </div>

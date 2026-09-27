@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MapPin, Mail, Phone, Send, CheckCircle, AlertTriangle } from "lucide-react";
+import { MapPin, Mail, Send, CheckCircle, AlertTriangle } from "lucide-react";
 import {
   CONTACT_EMAIL,
   mailtoFallback,

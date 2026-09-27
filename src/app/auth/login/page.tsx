@@ -56,7 +56,7 @@ export default function LoginPage() {
         {/* Card */}
         <div className="bg-card rounded-2xl border border-line p-8 shadow-sm">
           {error && (
-            <div className="flex items-center gap-2 bg-red-500/10 text-red-400 text-sm p-3 rounded-xl mb-5">
+            <div className="flex items-center gap-2 bg-alarm-bg text-alarm-ink border border-alarm-line text-sm p-3 rounded-xl mb-5">
               <AlertCircle size={16} /> {error}
             </div>
           )}
@@ -72,9 +72,9 @@ export default function LoginPage() {
           </button>
 
           <div className="flex items-center gap-3 my-5">
-            <hr className="flex-1 border-black/5 border-line" />
+            <hr className="flex-1 border-line" />
             <span className="text-xs text-text-muted">or</span>
-            <hr className="flex-1 border-black/5 border-line" />
+            <hr className="flex-1 border-line" />
           </div>
 
           {/* Email form */}

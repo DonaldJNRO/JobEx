@@ -44,7 +44,12 @@ export default function Footer() {
             <h4 className="text-sm font-semibold text-ink mb-4 uppercase tracking-wider">Company</h4>
             <ul className="space-y-2.5 text-sm">
               <li><Link href="/about" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">About</Link></li>
-              <li><Link href="/blog" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">Blog</Link></li>
+              {/* NO BLOG LINK until there is a blog. /blog is a Coming Soon
+                  card with no posts and no [slug] route behind it. sitemap.ts
+                  already excludes it for exactly that reason, and the two
+                  disagreeing meant we kept it out of search results while
+                  still sending our own visitors to it from every page. Put
+                  this back the day it has something to read. */}
               <li><Link href="/contact" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">Contact</Link></li>
               <li><Link href="/privacy" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">Privacy</Link></li>
               <li><Link href="/terms" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">Terms</Link></li>
