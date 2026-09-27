@@ -43,17 +43,33 @@ const CATEGORIES = [
 ];
 
 // Real beta-user testimonials, tightened from raw transcripts. `photo` is
-// optional and falls back to an initial avatar. Their dashes stay: these are
-// quotes from real people, and editing somebody's words to fit a style guide
-// is worse than the style miss.
+// optional and falls back to an initial avatar.
+//
+// THEIR WORDS ARE NOT OURS TO EDIT, and that rule decided what happened here.
+// Everything else on this page is copy we can make truer by rewriting it. A
+// testimonial is a different object: it is a claim that a NAMED person, under
+// their own photo, said a specific thing. Trimming a quote to fit the
+// positioning makes them say something they did not say, in public, and it is
+// the one thing on this page a reader could never check. So a quote that no
+// longer fits gets CUT, never shortened.
+//
+// CUT ON 2026-09-27: Tolu O. ("Chatted with Bie, planned my whole trip, booked
+// a place, and set up a shared wallet with the crew. UI's clean too, easy on
+// the eye."). It is a good quote and it is true of the iOS app. It came out
+// because it named the shared wallet three cards below a section that had just
+// stopped offering one, so the page contradicted itself in a reader's own
+// words. Put it back the day the website does wallets, or ask Tolu for a line
+// about finding and asking a place.
+//
+// KEPT DELIBERATELY: Seb's "plan a Croatia trip" survives although Croatia is
+// not a city we serve and "plan" is a word this site no longer uses. He is
+// describing the PROBLEM he had before Sabię, checking two sites and messaging
+// six friends, which is the same problem the section above now describes. He
+// is not claiming we sell Croatia.
+//
+// Their dashes stay for the same reason the quotes do: these are real people's
+// words, and editing them to fit a style guide is worse than the style miss.
 const TESTIMONIALS: { name: string; role: string; text: string; avatar: string; photo?: string }[] = [
-  {
-    name: "Tolu O.",
-    role: "London · originally from Lagos",
-    text: "Chatted with Bie, planned my whole trip, booked a place, and set up a shared wallet with the crew. UI's clean too — easy on the eye.",
-    avatar: "T",
-    photo: "/images/testimonials/tolu-omidan.jpg",
-  },
   {
     name: "Maureen N.",
     role: "Birmingham · originally from Nigeria",
@@ -227,7 +243,12 @@ export default function HomePage() {
       <section className="py-16 sm:py-20 bg-surface">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl sm:text-3xl text-ink mb-8">What people say</h2>
-          <div className="grid md:grid-cols-3 gap-5 stagger-children">
+          {/* The column count follows the DATA, not a fixed three. Cutting a
+              quote left a hardcoded md:grid-cols-3 with two cards in it, so
+              desktop showed an empty third column: a visible hole where a
+              testimonial used to be, which advertises the removal. Two cards
+              now fill a two-column grid. */}
+          <div className={`grid gap-5 stagger-children ${TESTIMONIALS.length >= 3 ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
             {TESTIMONIALS.map((t) => (
               <figure key={t.name} className="reveal bg-card p-6 rounded-2xl border border-line">
                 {/* The five identical gold stars are gone. Three perfect ratings
