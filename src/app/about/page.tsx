@@ -16,7 +16,7 @@ export default function AboutPage() {
         <div className="max-w-3xl mx-auto px-4">
           <h1 className="text-4xl sm:text-5xl font-extrabold text-white mb-4">About Sabię</h1>
           <p className="text-lg text-white/85 leading-relaxed">
-            We&apos;re building the future of group travel, where planning is fun, booking is easy, and every trip actually happens.
+            We make a whole trip bookable, not just the bed you sleep in.
           </p>
         </div>
       </section>
@@ -27,19 +27,31 @@ export default function AboutPage() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-2xl font-bold text-ink mb-4">Our Mission</h2>
+              {/* The old copy here sold a planning tool: WhatsApp polls,
+                  spreadsheet budgets, AI recommendations, expense splitting.
+                  Three of those four name features this site does not have,
+                  and the category as a whole is one a free group chat already
+                  wins. This is the actual mission. */}
               <p className="text-text-muted leading-relaxed mb-4">
-                Travel is better with friends. But planning a group trip? That&apos;s a nightmare of WhatsApp polls, spreadsheet budgets, and someone always ghosting the chat.
+                Booking a hotel has been solved for twenty years. Everything else about a trip still happens over phone calls, voice notes, and a cousin who knows somebody.
               </p>
               <p className="text-text-muted leading-relaxed">
-                Sabię fixes all of that. We bring AI-powered recommendations, real-time collaboration, built-in expense splitting, and verified listings into one beautiful app. Plan together, book together, travel together.
+                So we go to the places the booking platforms never listed, the restaurants and the salons and the studios and the days out, we film them, and we make them bookable. A trip should be something you book, not something you arrange once you land.
               </p>
             </div>
             <div className="grid grid-cols-2 gap-4">
+              {/* Measured, not claimed. "Listings worldwide" was the worst of
+                  the four: the cities collection holds Lagos, Abuja, Jos and
+                  London live, and the 38 public listings are 20 Lagos, 7 Jos,
+                  6 Abuja, 2 London, 1 Bamako. "AI-Powered" and "Verified" were
+                  the same shape of claim the listing page was making with
+                  nothing behind it. A smaller true number beats a big one a
+                  visitor can disprove in one tap on Explore. */}
               {[
-                { icon: Globe, label: "Global", desc: "Listings worldwide" },
-                { icon: Sparkles, label: "AI-Powered", desc: "Smart recommendations" },
-                { icon: Shield, label: "Verified", desc: "Trusted hosts" },
-                { icon: Users, label: "Group-First", desc: "Built for crews" },
+                { icon: Sparkles, label: "Visited", desc: "We went there ourselves" },
+                { icon: Shield, label: "Bookable", desc: "A request, not a phone number" },
+                { icon: Users, label: "Together", desc: "One trip the whole crew sees" },
+                { icon: Globe, label: "Nigeria first", desc: "Lagos, Abuja and Jos" },
               ].map((s) => (
                 <div key={s.label} className="bg-card p-5 rounded-2xl border border-line text-center">
                   <s.icon size={24} className="mx-auto text-primary mb-2" />

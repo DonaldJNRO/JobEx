@@ -197,10 +197,21 @@ export default function HomePage() {
             <h2 className="text-3xl sm:text-4xl text-ink leading-tight">
               Plan the trip back home, with the crew.
             </h2>
+            {/* NAMES NOTHING THIS SITE CANNOT DO. This used to promise "vote
+                on where to go, split what it costs", and neither exists on the
+                website: nothing here votes, nothing here splits, and the
+                button underneath goes to /explore, which is a list of places.
+                Somebody arriving on that promise and landing on listings has
+                been told the wrong thing about the product.
+
+                The crew idea itself stays, because it is true and it is the
+                best line Sabię has. It just has to describe the part that
+                works from here: finding the places and asking them, together,
+                rather than features that live in the app. */}
             <p className="mt-4 text-base sm:text-lg text-ink-body leading-relaxed">
-              Booking one place is the easy part. Sabię is where the whole group plans it:
-              vote on where to go, split what it costs, and keep it in one place instead of
-              six group chats.
+              Booking one place is the easy part. The rest of it, the food, the day out,
+              the people you are going with, is what Sabię is for. Find the places, ask
+              them, and keep the whole trip in one place instead of six group chats.
             </p>
             <Link
               href="/explore"

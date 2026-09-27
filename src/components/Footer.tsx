@@ -22,8 +22,13 @@ export default function Footer() {
                 className="h-8 w-auto"
               />
             </div>
+            {/* ON EVERY PAGE, so it was the most repeated untrue sentence on
+                the site. It promised "AI-powered recommendations, built-in
+                budget splitting", neither of which exists anywhere on this
+                website, under a wordmark, in the footer of the listings, the
+                legal pages and everything else. */}
             <p className="text-sm leading-relaxed">
-              Plan trips with friends. AI-powered recommendations, built-in budget splitting, and vibes that match your crew.
+              Stays, experiences and places to eat, visited by us and bookable in one place. Lagos, Abuja, Jos and London.
             </p>
           </div>
 
