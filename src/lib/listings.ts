@@ -1,6 +1,6 @@
 import { collection, getDocs, doc, getDoc, query, limit, where, orderBy, startAt, endAt, documentId } from "firebase/firestore";
 import { db } from "./firebase";
-import { makeSlug, slugCandidates, looksLikeSlug, slugForListing } from "./slug";
+import { makeSlug, slugCandidates, slugForListing } from "./slug";
 import { listingPlace, type KnownCity } from "./listing-place";
 import { CATEGORY_ROLES, categoryOf, categoryLabelOf, type ListingRole } from "./categories";
 import { priceParts, priceLine, type MoneyContext as MoneyCtx } from "./listing-price";
@@ -344,7 +344,23 @@ export async function resolveListing(param: string): Promise<ResolvedListing | n
   const found = async (listing: Listing | null, wasCanonical = false) =>
     listing ? { listing, slug: listingSlug(listing), canonical: wasCanonical } : null;
 
-  if (looksLikeSlug(value)) {
+  // A ONE WORD NAME IS STILL A NAME.
+  //
+  // looksLikeSlug requires a hyphen: /^[a-z0-9]+(?:-[a-z0-9]+)+$/, with a `+`
+  // on the group. So "naileditbyd" and "teedeluxelash" were not treated as
+  // slugs at all. They fell through to the document id lookups, which of
+  // course did not match either, and the page rendered "Listing not found"
+  // while generateMetadata returned {} and the share card showed the Sabię
+  // homepage. Seven live listings were unreachable this way: Naileditbyd,
+  // Teedeluxelash, Simmer, Orllycooks, Kruiseyard, Varlaine and Kapadoccia.
+  //
+  // Tested here rather than by changing looksLikeSlug, because slug.ts is a
+  // verbatim copy in four repos and that function is also what the WRITERS
+  // use to validate; loosening it there is a bigger decision than fixing a
+  // lookup. Here `*` instead of `+` simply means a single word may be a slug.
+  const slugShaped = /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value);
+
+  if (slugShaped) {
     const stored = await getListingBySlug(value);
     if (stored) return found(stored, true);
 
@@ -357,7 +373,9 @@ export async function resolveListing(param: string): Promise<ResolvedListing | n
       slugCandidates(l.businessName || l.listingName || l.title || "", getListingCity(l)).includes(value)
     );
     if (match) return found(match, listingSlug(match) === value);
-    return null;
+    // AND FALL THROUGH rather than giving up. Accepting a single word as
+    // slug shaped means an all lowercase document id now takes this branch
+    // too, and it must still resolve as an id.
   }
 
   const byId = await getListingById(value);
