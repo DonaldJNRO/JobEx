@@ -153,3 +153,26 @@ function ServiceRow(
 
 interface MenuItem { name?: string; price?: number }
 interface MenuCategory { name?: string; items?: MenuItem[] }
+
+/**
+ * Will this listing render anything to pick?
+ *
+ * The page needs to know BEFORE it draws its own booking card, because the
+ * two must never both appear: a single "Book" button above a list of
+ * seventeen services cannot say which one it means.
+ *
+ * Measured on 9 Oct: of 49 live listings, 20 have something to pick and 29
+ * have nothing at all, most of them cafés with no menu items loaded yet.
+ * Those 29 still need a way to act, so the page keeps its card for them.
+ * Exported from here rather than worked out again on the page, so the answer
+ * cannot differ from what this component actually does.
+ */
+export function hasPickableList(listing: Record<string, unknown>): boolean {
+  const { services: shape } = resolveProfileSections(listing);
+  // A CAFÉ'S MENU IS NOT A WAY TO BOOK. Nothing in it is tappable, because
+  // cafés are reservation-only and that rule is locked, so the one action a
+  // café has is the card's. Hiding it on the strength of a menu being
+  // present would leave the café with no way to request a table at all.
+  if (shape === "menu") return false;
+  return serviceGroups(listing).length > 0;
+}

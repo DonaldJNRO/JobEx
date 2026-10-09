@@ -86,5 +86,29 @@ ck(/const ctaWord = CTA_LABEL\[/.test(live(PAGE)),
 ck(/resolveProfileSections\(listing \?\? \{\}\)\.bookCta/.test(live(PAGE)),
   "and the word comes from the shape, so a cafe cannot say Book");
 
+
+// ── one way in, never two ───────────────────────────────────────────────
+// "Why are we saying book? They have so many services. Get rid of that
+//  whole section."
+//
+// A single Book button above a list of seventeen services cannot say which
+// one it means. Where there is a list, the list IS the booking.
+//
+// It cannot just be deleted though: of 49 live listings, 29 have nothing to
+// pick, most of them cafés whose menu items are not loaded. For those a
+// single action is the only action there could be.
+
+ck(/const pickable = hasPickableList\(/.test(live(PAGE)),
+  "the page asks whether there is anything to pick");
+ck(/\{\(!pickable \|\| pickedOffer\) && \(/.test(live(PAGE)),
+  "and hides its own card when there is");
+ck((live(PAGE).match(/!pickable \|\| pickedOffer/g) || []).length === 2,
+  "on the phone card AND the desktop sidebar, or one of them still competes");
+ck(/export function hasPickableList/.test(live(SECTION)),
+  "the answer comes from the component that does the rendering, not a second guess");
+
+ck(/if \(shape === "menu"\) return false;/.test(live(SECTION)),
+  "a cafe keeps its card, because its menu is not tappable and the card is its only action");
+
 console.log(fails ? `\n${fails} FAILED` : "\nALL PASSED");
 process.exit(fails ? 1 : 0);

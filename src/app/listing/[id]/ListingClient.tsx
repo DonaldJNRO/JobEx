@@ -15,7 +15,7 @@ import { isSaved, saveListing, unsaveListing } from "@/lib/saved";
 import { APP_STORE_URL } from "@/lib/app-links";
 import { isShopWindow } from "@/lib/shop-window";
 import { fetchBookingDecision, ASK, type BookingDecision } from "@/lib/booking-decision";
-import ProfileServices from "@/components/ProfileServices";
+import ProfileServices, { hasPickableList } from "@/components/ProfileServices";
 import { offersOf } from "@/lib/shop-window";
 import { resolveProfileSections, CTA_LABEL } from "@/lib/profile-sections";
 import type { ListingSnapshot } from "@/lib/listing-snapshot";
@@ -194,6 +194,14 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
   // table; a stay shows rooms. Same resolver as the services section, so the
   // word on the button and the shape of the list below it cannot disagree.
   const ctaWord = CTA_LABEL[resolveProfileSections(listing ?? {}).bookCta];
+  // ONE WAY IN, NEVER TWO. A single Book button above a list of seventeen
+  // services cannot say which one it means, so where there is a list the
+  // list IS the booking and this card does not appear at all.
+  //
+  // It stays for the listings with nothing to pick. Of 49 live listings 29
+  // are in that state, most of them cafés whose menu items are not loaded,
+  // and for those a single action is the only action there could be.
+  const pickable = hasPickableList((listing ?? {}) as unknown as Record<string, unknown>);
   // The price of the row they chose, so the headline figure is no longer the
   // cheapest of everything while they are looking at something else. Null
   // until they choose, which is when the "from" price is the honest answer.
@@ -401,11 +409,13 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
           page in a sidebar that only exists on a desktop. Hidden at lg, where
           the sticky sidebar card carries it instead, so there is never more
           than one Book button on screen. */}
-      <div className="lg:hidden max-w-6xl mx-auto px-4 sm:px-6 pt-6">
-        <div className="bg-card rounded-2xl border border-line p-6 shadow-lg shadow-black/5">
-          {bookingBlock}
+      {(!pickable || pickedOffer) && (
+        <div className="lg:hidden max-w-6xl mx-auto px-4 sm:px-6 pt-6">
+          <div className="bg-card rounded-2xl border border-line p-6 shadow-lg shadow-black/5">
+            {bookingBlock}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Content */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -548,10 +558,15 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
           {/* Sidebar — Booking Card */}
           <div className="lg:col-span-1">
             <div className="sticky top-24 bg-card rounded-2xl border border-line p-7 shadow-xl shadow-black/5 ">
-              <div className="hidden lg:block">
-                {bookingBlock}
-                <div className="my-6 border-t border-line" />
-              </div>
+              {/* Same rule on the desktop sidebar: where the page has a
+                  list to pick from, the list is the booking and this is not
+                  a second offer competing with it. */}
+              {(!pickable || pickedOffer) && (
+                <div className="hidden lg:block">
+                  {bookingBlock}
+                  <div className="my-6 border-t border-line" />
+                </div>
+              )}
 
               {/* Quick info */}
               <div className="space-y-4 text-sm">
