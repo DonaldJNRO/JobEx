@@ -82,6 +82,12 @@ export async function sendBookingRequest(
     bookingDetails: {
       package: ask.offer,
       date: ask.date,
+      // `time` EXACTLY, because that is the second rung of the ladder
+      // onBookingRequestCreated reads when it decides which slot a request
+      // belongs to (data.bookingTime || bookingDetails.time || ...). Writing
+      // it under any other name puts the request in no slot at all, which is
+      // what a request with no time has always done.
+      time: ask.time,
       guests: ask.guests,
       totalPrice: ask.totalPrice,
       // A phone number has nowhere else to go: userEmail is for addresses, and

@@ -17,7 +17,7 @@
 import { useEffect, useRef, useState } from "react";
 import { X, Check, Loader2, AlertTriangle, ChevronDown } from "lucide-react";
 import { sendBookingRequest, BookingError } from "@/lib/book";
-import { offersOf, type Offer } from "@/lib/shop-window";
+import { offersOf, slotsFor, type Offer } from "@/lib/shop-window";
 import { buildDisplayPrice, formatPriceWithCurrency } from "@/lib/display-price";
 import { useMoney } from "@/lib/useRates";
 import { nativeCurrencyOf } from "@/lib/listing-price";
@@ -55,6 +55,7 @@ export default function BookingRequest({
   const offers = offersOf(listing);
   const [offer, setOffer] = useState<string>(offers[0]?.name ?? "");
   const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
   const [guests, setGuests] = useState(1);
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
@@ -91,6 +92,10 @@ export default function BookingRequest({
   }, [open, onClose]);
 
   const chosen: Offer | undefined = offers.find((o) => o.name === offer);
+  // The operator's own hours for the thing being booked. Empty for the 32 of
+  // 49 listings that have not set any, and the field below then asks in plain
+  // words instead of inventing a grid nobody agreed to.
+  const slots = slotsFor(listing, offer);
   const unit = chosen?.price;
   const total = typeof unit === "number" ? unit * Math.max(1, guests) : undefined;
   // RATES ARE IN NOW. This was ratesReady:false with a note saying it would
@@ -133,7 +138,7 @@ export default function BookingRequest({
     try {
       const id = await sendBookingRequest(
         listing,
-        { offer, date, guests, name, contact, note, totalPrice: total },
+        { offer, date, time, guests, name, contact, note, totalPrice: total },
         idempotencyKey.current,
       );
       setSentId(id);
@@ -263,6 +268,33 @@ export default function BookingRequest({
                   onChange={(e) => setDate(e.target.value)}
                   className="w-full h-12 px-3 rounded-2xl bg-card border border-line text-ink focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-colors"
                 />
+              </label>
+              {/* THE HOUR IS THE BOOKING for a studio or a spa, and this form
+                  never asked for it. The server counts an allocation per
+                  listing per day AND TIME, so a request with no time could not
+                  be placed against a slot, and the operator was left to agree
+                  an hour by message. */}
+              <label className="block">
+                <span className="block text-sm font-semibold text-ink mb-1.5">Time</span>
+                {slots.length > 0 ? (
+                  <select
+                    required
+                    value={time}
+                    onChange={(e) => setTime(e.target.value)}
+                    className="w-full h-12 px-3 rounded-2xl bg-card border border-line text-ink focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-colors"
+                  >
+                    <option value="">Pick a time</option>
+                    {slots.map((t) => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                ) : (
+                  <input
+                    type="time"
+                    required
+                    value={time}
+                    onChange={(e) => setTime(e.target.value)}
+                    className="w-full h-12 px-3 rounded-2xl bg-card border border-line text-ink focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-colors"
+                  />
+                )}
               </label>
               <label className="block">
                 <span className="block text-sm font-semibold text-ink mb-1.5">How many</span>

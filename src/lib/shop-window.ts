@@ -46,6 +46,44 @@ export interface OfferSource {
 }
 
 /**
+ * The times this operator actually offers, for the thing being booked.
+ *
+ * WHY IT MATTERS. The web form asked for a date and never a time, while the
+ * server counts an allocation per listing per DAY AND TIME
+ * (onBookingRequestCreated, slotTime). So a request arrived with no time, the
+ * counter could not place it, and an operator got "Tuesday" and had to message
+ * the customer to agree an hour. For a nail studio or a spa the hour IS the
+ * booking.
+ *
+ * Per service, because they differ: 17 of 49 live listings carry timeSlots and
+ * they hang off each service, not the listing. Teedeluxelash runs on the hour
+ * from 10, Central Park every fifteen minutes.
+ *
+ * Returns [] when this operator has not set any, and the form then asks for a
+ * time in plain words rather than inventing a grid nobody agreed to.
+ */
+export function slotsFor(l: OfferSource, offerName?: string): string[] {
+  const rows = (l as { services?: { name?: string; timeSlots?: unknown }[] }).services ?? [];
+  const wanted = (offerName ?? "").trim().toLowerCase();
+  const pick = wanted
+    ? rows.find((r) => (r?.name ?? "").trim().toLowerCase() === wanted)
+    : undefined;
+  // The chosen service's own times. With no match, fall back to the union of
+  // everything the listing offers: better to show the operator's real hours
+  // than nothing, and a request is a question either way.
+  const source = pick ? [pick] : rows;
+  const out: string[] = [];
+  for (const r of source) {
+    if (!Array.isArray(r?.timeSlots)) continue;
+    for (const t of r.timeSlots) {
+      const v = typeof t === "string" ? t : (t as { time?: string })?.time;
+      if (typeof v === "string" && v.trim() && !out.includes(v.trim())) out.push(v.trim());
+    }
+  }
+  return out;
+}
+
+/**
  * The offers, in the order an operator entered them.
  *
  * Deliberately does NOT merge, rename or price anything. A guest picking

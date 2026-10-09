@@ -94,6 +94,15 @@ export function buildBookingRequestPayload({
 export interface BookingFormInput {
   offer: string;
   date: string;
+  /**
+   * The hour, which this form never used to ask for.
+   *
+   * onBookingRequestCreated counts an allocation per listing per day AND
+   * time, so a request without one cannot be placed against a slot and the
+   * operator is left agreeing an hour by message. For a studio or a spa the
+   * hour is the booking.
+   */
+  time: string;
   guests: number;
   name: string;
   contact: string;
@@ -109,6 +118,12 @@ export interface BookingFormInput {
 export function validateBookingForm(input: BookingFormInput): string | null {
   if (!input.offer.trim()) return "Choose what you are booking.";
   if (!input.date.trim()) return "Pick a date.";
+  // READ DEFENSIVELY, unlike the fields above it. `time` is new, and a
+  // browser holding yesterday's bundle will post without it. A validator that
+  // THROWS on a missing field takes the sheet down instead of saying what is
+  // wrong, which is the same class of failure as the hooks crash that this
+  // form just had.
+  if (!(input.time ?? "").trim()) return "Pick a time.";
   if (!Number.isFinite(input.guests) || input.guests < 1) return "How many people are coming?";
   if (!input.name.trim()) return "Please add your name, so they know who is asking.";
   const contact = input.contact.trim();

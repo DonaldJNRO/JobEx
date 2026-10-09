@@ -59,9 +59,13 @@ is(empty.userName, 'Traveler', 'with the same default name the app uses')
 is(empty.currency, null, 'and no invented currency')
 
 // ── what we refuse to send ──────────────────────────────────────────────
-const ok = { offer: 'Massage', date: '2026-10-02', guests: 2, name: 'Chioma', contact: 'c@example.com' }
+const ok = { offer: 'Massage', date: '2026-10-02', time: '2:00 PM', guests: 2, name: 'Chioma', contact: 'c@example.com' }
 is(validateBookingForm(ok), null, 'a complete request passes')
 is(validateBookingForm({ ...ok, name: '  ' }) !== null, true, 'no name is refused')
+is(validateBookingForm({ ...ok, time: '' }) !== null, true, 'no time is refused')
+// A browser on yesterday's bundle posts without the field at all. That must
+// be a sentence, not a crash: a throwing validator takes the sheet down.
+is(typeof validateBookingForm({ ...ok, time: undefined }), 'string', 'a missing time is a message, not a crash')
 is(validateBookingForm({ ...ok, contact: '' }) !== null, true, 'no way to reply is refused')
 is(validateBookingForm({ ...ok, contact: '+234 803 123 4567' }), null, 'a phone number is a way to reply')
 is(validateBookingForm({ ...ok, contact: '0803' }) !== null, true, 'but four digits is not')
