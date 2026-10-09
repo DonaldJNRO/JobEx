@@ -5,18 +5,25 @@
  * else, understand what the price is for, and be able to ask for a booking in
  * the browser. Not a second Sabię homepage, and not a poster for the App Store.
  *
- * GATED TO TWO LISTINGS ON PURPOSE. The founder asked to see it working on
- * Elroise and Arrows Den before it reaches all 31, which is right: this
- * changes what a live page does for a real business's customers. Everything
- * else renders exactly as it did this morning.
+ * ROLLED OUT TO EVERY LISTING, 9 Oct 2026. It was gated to Elroise and Arrows
+ * Den so the founder could see it on two real businesses first. He has, and
+ * the gate was then left closed for twelve days, which cost more than the
+ * caution saved:
  *
- * To roll it out, empty this set: `isShopWindow` then answers true for every
- * listing. One line, and that is the whole switch.
+ *   - 42 of 44 listings served the SITE's title and image as their share card,
+ *     and `og:url` of the homepage. An operator pasting their own link into a
+ *     WhatsApp status advertised Sabię, not their business. That is the exact
+ *     complaint this file was written to answer, still true for everyone
+ *     except two.
+ *   - Those same 42 are in the sitemap, so Google was offered 42 pages with
+ *     one title between them, each declaring itself the homepage.
+ *   - And Book sent them to the App Store, so a guest arriving from a bio had
+ *     to install an app before asking a question.
+ *
+ * The set is kept rather than deleted because it is the mechanism, not the
+ * decision: a future staged rollout puts slugs back in it.
  */
-const FIRST: ReadonlySet<string> = new Set([
-  "elroise-wellness-center",
-  "arrows-den",
-]);
+const FIRST: ReadonlySet<string> = new Set<string>([]);
 
 export function isShopWindow(slug: string | null | undefined): boolean {
   if (!FIRST.size) return true;

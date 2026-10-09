@@ -82,14 +82,36 @@ export function nativeCurrencyOf(listing: PriceableListing): string {
  * `money` is optional: a caller with no rates (a server component, a failed
  * fetch, a first render) gets the operator's own price.
  */
+/**
+ * Does this listing sell more than one thing at more than one price?
+ *
+ * If it does, the headline is the CHEAPEST of them and saying so is the
+ * difference between a price and a lie. Naileditbyd showed "£2", which is her
+ * gel on natural toes converted out of 4,000 naira: true, and read by anybody
+ * glancing at the card as what a set of nails costs, when her acrylics start
+ * at 17,000. Airbnb never prints a bare number for the same reason.
+ */
+function hasRange(l: PriceableListing): boolean {
+  const rows = [
+    ...((l as { services?: { price?: unknown }[] }).services ?? []),
+    ...((l as { packages?: { price?: unknown }[] }).packages ?? []),
+  ];
+  const prices = new Set<number>();
+  for (const r of rows) {
+    const n = typeof r?.price === "number" ? r.price : Number(r?.price);
+    if (Number.isFinite(n) && n > 0) prices.add(n);
+  }
+  return prices.size > 1;
+}
+
 export function priceParts(
   listing: PriceableListing,
   money?: MoneyContext,
-): { amount: string | null; unit: string } {
+): { amount: string | null; unit: string; from: boolean } {
   const price = listing.customPrice?.price;
   // NOT A PRICE, and it must not be typeset as one. One real listing carries
   // {price: 0}, which would otherwise render "£0" and read as free.
-  if (!price) return { amount: null, unit: "" };
+  if (!price) return { amount: null, unit: "", from: false };
 
   const native = nativeCurrencyOf(listing);
   const target = money?.to || "";
@@ -120,12 +142,12 @@ export function priceParts(
   }
 
   const raw = `${listing.pricingUnit || ""} ${listing.customPrice?.model || ""}`.toLowerCase();
-  if (raw.includes("night")) return { amount, unit: "per night" };
-  if (raw.includes("person") || raw.includes("guest")) return { amount, unit: "per person" };
-  if (raw.includes("ticket")) return { amount, unit: "per ticket" };
-  if (raw.includes("hour")) return { amount, unit: "per hour" };
-  if (raw.includes("day")) return { amount, unit: "per day" };
-  return { amount, unit: "" };
+  if (raw.includes("night")) return { amount, unit: "per night", from: hasRange(listing) };
+  if (raw.includes("person") || raw.includes("guest")) return { amount, unit: "per person", from: hasRange(listing) };
+  if (raw.includes("ticket")) return { amount, unit: "per ticket", from: hasRange(listing) };
+  if (raw.includes("hour")) return { amount, unit: "per hour", from: hasRange(listing) };
+  if (raw.includes("day")) return { amount, unit: "per day", from: hasRange(listing) };
+  return { amount, unit: "", from: hasRange(listing) };
 }
 
 /** The one-line version, for callers that want a string. */

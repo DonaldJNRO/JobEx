@@ -37,7 +37,7 @@ export default function ListingCard({ listing, index = 0 }: { listing: Listing; 
   // tell what anything cost. Falls back to the operator's price whenever the
   // rates are not in, which is never wrong, only less useful.
   const money = useMoney();
-  const { amount, unit } = getListingPriceParts(listing, money);
+  const { amount, unit, from } = getListingPriceParts(listing, money);
   const location = getListingLocation(listing);
   const name = listing.businessName || listing.title || "Listing";
   const category = getCategoryLabel(listing.role);
@@ -102,6 +102,11 @@ export default function ListingCard({ listing, index = 0 }: { listing: Listing; 
         <p className="mt-1.5 text-[15px] leading-snug">
           {amount ? (
             <>
+              {/* "from" BEFORE the number, because that is where a reader
+                  expects it and because the number alone is a different
+                  claim. Naileditbyd read "£2", her cheapest add on, next to
+                  acrylics that start at eight times that. */}
+              {from && <span className="text-[13px] text-ink-muted mr-1">from</span>}
               <span className="font-semibold text-ink">{amount}</span>
               {unit && <span className="ml-1.5 text-[13px] text-ink-muted">{unit}</span>}
             </>

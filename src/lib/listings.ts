@@ -187,7 +187,7 @@ export function getListingImage(listing: Listing): string | null {
 export function getListingPriceParts(
   listing: Listing,
   money?: MoneyCtx,
-): { amount: string | null; unit: string } {
+): { amount: string | null; unit: string; from: boolean } {
   return priceParts(listing, money);
 }
 
