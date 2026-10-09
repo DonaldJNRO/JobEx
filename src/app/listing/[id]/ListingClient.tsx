@@ -99,6 +99,23 @@ export default function ListingClient() {
     }
   };
 
+  // THE SAME SERVER ANSWER as the sheet, so the page cannot promise one
+  // thing and the form say another. Asked without an offer, which gives the
+  // listing's headline terms, which is what a page-level line should say.
+  //
+  // ABOVE THE EARLY RETURNS, and that is not a style choice. This sat below
+  // `if (loading) return` and `if (!listing) return`, so a closed render ran
+  // two fewer hooks than an open one and React tore the page down the moment
+  // the listing arrived: "This page couldn't load". Exactly the fault fixed
+  // in BookingRequest this morning, reintroduced here hours later.
+  const [bookMode, setBookMode] = useState<BookingDecision>(ASK);
+  useEffect(() => {
+    if (!listing?.id) return;
+    let live = true;
+    fetchBookingDecision(listing.id, "").then((d) => { if (live) setBookMode(d); });
+    return () => { live = false; };
+  }, [listing?.id]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-surface">
@@ -160,16 +177,6 @@ export default function ListingClient() {
      other businesses, no app poster, and Book finishes here. Everywhere else
      renders exactly as it did before, until the founder has seen these two. */
   const shopWindow = isShopWindow(slug || id);
-  // THE SAME SERVER ANSWER as the sheet, so the page cannot promise one
-  // thing and the form say another. Asked without an offer, which gives the
-  // listing's headline terms, which is what a page-level line should say.
-  const [bookMode, setBookMode] = useState<BookingDecision>(ASK);
-  useEffect(() => {
-    if (!listing?.id) return;
-    let live = true;
-    fetchBookingDecision(listing.id, "").then((d) => { if (live) setBookMode(d); });
-    return () => { live = false; };
-  }, [listing?.id]);
   const instant = bookMode.mode === "instant" || bookMode.mode === "deposit";
 
   const bookingBlock = (

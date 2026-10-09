@@ -32,12 +32,26 @@ function hooksAfterEarlyReturn(src) {
   // returns null for a missing amount. A check that cries wolf gets deleted.
   const comp = /\n(?:export default )?function [A-Z]\w*\(/.exec(src);
   const body = comp ? src.slice(comp.index) : src;
-  const m = /\n  if \([^)]*\) return null;/.exec(body);
+  // ANY early return, not just `return null`.
+  //
+  // The first version matched only `return null;` and therefore did not see
+  // ListingClient, whose guards are `if (loading) { return ( <div>…` . Hooks
+  // were added below them, the hook count changed when the listing arrived,
+  // and React took the page down: "This page couldn't load", in production,
+  // hours after the identical fault was fixed in BookingRequest. The test
+  // existed to prevent exactly that and was looking at the wrong shape.
+  const m = /\n  if \([^)]*\) (?:return|\{)/.exec(body);
   if (!m) return [];
   return body
     .slice(m.index + m[0].length)
     .split("\n")
-    .filter((l) => /^  (const|let)\s.*\buse[A-Z]\w*\(/.test(l))
+    // `[<(]`, because a TYPED hook call is `useState<Decision>(ASK)` and a
+    // regex demanding `useState(` walks straight past it. That is precisely
+    // what happened: this test reported ALL PASSED while the page was
+    // crashing in production, and kept reporting it when the bug was put
+    // back deliberately to check. A green test that cannot fail is worse
+    // than no test, because it is believed.
+    .filter((l) => /^  (const|let)\s.*\buse[A-Z]\w*\s*[<(]/.test(l))
     .map((l) => l.trim());
 }
 
