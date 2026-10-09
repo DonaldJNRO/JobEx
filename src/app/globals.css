@@ -280,3 +280,12 @@ html.reveal-ready .reveal.visible { opacity: 1; transform: translateY(0); }
    The strip is always rendered, so the page never changes height after it
    draws; the blocking script in layout.tsx sets the attribute this reads. */
 html[data-appstrip="off"] [data-app-strip] { display: none; }
+
+/* A date input with nothing in it looks different on every platform:
+   desktop Chrome draws dd/mm/yyyy, mobile Safari draws an empty box. Beside
+   a Time field that says "Pick a time", the Safari version read as broken.
+   So when it is empty the native text is hidden and the form draws its own
+   hint over the top, and the two fields match everywhere. The calendar
+   button is left alone, because that is how the picker is opened. */
+input[type="date"][data-empty="true"]::-webkit-datetime-edit { opacity: 0; }
+input[type="date"][data-empty="true"]::-moz-placeholder-shown { opacity: 0; }

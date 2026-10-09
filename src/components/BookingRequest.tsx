@@ -135,6 +135,15 @@ export default function BookingRequest({
   // What the SERVER says is taken at booking. Null until it has answered,
   // so nothing is promised before it has.
   const dueNow = decision.payNow > 0 ? decision.payNow : null;
+  // Every figure in this sheet goes through here, so the dropdown, the
+  // total and the amount on the Pay button can never disagree.
+  const priceFor = (n: number) => buildDisplayPrice({
+    amount: n,
+    nativeCurrency: listing.currency,
+    selectedCurrency: to,
+    exchangeRates: rates,
+    ratesReady: ready,
+  }).display || formatPriceWithCurrency(n, listing.currency || "NGN");
   // Will pressing the button take a card? Everything has to agree: the server
   // called it payable, the site has a key, and there is a price to charge.
   const willCharge = instant && canPay() && typeof total === "number" && total > 0;
@@ -238,6 +247,19 @@ export default function BookingRequest({
             <div className="w-12 h-12 rounded-full bg-primary/10 text-primary inline-flex items-center justify-center mb-3">
               <Check size={22} />
             </div>
+
+              <label className="block mb-4">
+                <span className="block text-sm font-semibold text-ink mb-1.5">How many</span>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  required
+                  value={guests}
+                  onChange={(e) => setGuests(Number(e.target.value))}
+                  className="w-full h-12 px-3 rounded-2xl bg-card border border-line text-ink focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-colors"
+                />
+              </label>
             <h2 className="text-xl text-ink mb-2">You are booked</h2>
             <p className="text-sm text-ink-muted mb-1">
               {business} has your booking for {date}{time ? ` at ${time}` : ""}.
@@ -348,7 +370,13 @@ export default function BookingRequest({
                   >
                     {offers.map((o) => (
                       <option key={o.name} value={o.name}>
-                        {o.name}{typeof o.price === "number" ? ` · ${formatPriceWithCurrency(o.price, listing.currency || "NGN")}` : ""}
+                        {/* THE GUEST'S CURRENCY, like the total below it. This
+                            formatted in the operator's, so the sheet read
+                            "Lymphatic drainage massage · ₦35,000" above a
+                            total of "£20" with nothing to connect them. Two
+                            currencies in one form is how a guest decides they
+                            do not understand what they are paying. */}
+                        {o.name}{typeof o.price === "number" ? ` · ${priceFor(o.price)}` : ""}
                       </option>
                     ))}
                   </select>
@@ -368,24 +396,44 @@ export default function BookingRequest({
               </div>
             ) : null}
 
+            {/* Date and time share a row; how many gets its own, because a
+                third child in a two-column grid was being stranded at half
+                width beside nothing. */}
             <div className="grid grid-cols-2 gap-3 mb-4">
-              <label className="block">
+              <label className="block min-w-0">
                 <span className="block text-sm font-semibold text-ink mb-1.5">Date</span>
-                <input
-                  type="date"
-                  required
-                  min={todayLocal()}
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  className="w-full h-12 px-3 rounded-2xl bg-card border border-line text-ink focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-colors"
-                />
+                {/* AN EMPTY DATE INPUT SHOWS NOTHING ON IOS. Desktop Chrome
+                    draws dd/mm/yyyy; mobile Safari draws a blank box, so the
+                    field read as broken next to the "Pick a time" beside it.
+                    A date input ignores `placeholder`, so the hint is drawn
+                    over it and taken out of the hit area, leaving the native
+                    picker to do its job. */}
+                <span className="relative block">
+                  <input
+                    type="date"
+                    required
+                    min={todayLocal()}
+                    value={date}
+                    data-empty={date ? undefined : "true"}
+                    onChange={(e) => setDate(e.target.value)}
+                    className="w-full h-12 px-3 rounded-2xl bg-card border border-line text-ink focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-colors"
+                  />
+                  {!date && (
+                    <span
+                      aria-hidden="true"
+                      className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint"
+                    >
+                      Pick a date
+                    </span>
+                  )}
+                </span>
               </label>
               {/* THE HOUR IS THE BOOKING for a studio or a spa, and this form
                   never asked for it. The server counts an allocation per
                   listing per day AND TIME, so a request with no time could not
                   be placed against a slot, and the operator was left to agree
                   an hour by message. */}
-              <label className="block">
+              <label className="block min-w-0">
                 <span className="block text-sm font-semibold text-ink mb-1.5">Time</span>
                 {slots.length > 0 ? (
                   <select
@@ -407,18 +455,7 @@ export default function BookingRequest({
                   />
                 )}
               </label>
-              <label className="block">
-                <span className="block text-sm font-semibold text-ink mb-1.5">How many</span>
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  min={1}
-                  required
-                  value={guests}
-                  onChange={(e) => setGuests(Number(e.target.value))}
-                  className="w-full h-12 px-3 rounded-2xl bg-card border border-line text-ink focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-colors"
-                />
-              </label>
+
             </div>
 
             {date && (
