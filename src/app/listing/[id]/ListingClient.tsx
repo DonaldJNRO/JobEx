@@ -16,6 +16,7 @@ import { APP_STORE_URL } from "@/lib/app-links";
 import { isShopWindow } from "@/lib/shop-window";
 import { fetchBookingDecision, ASK, type BookingDecision } from "@/lib/booking-decision";
 import { offersOf } from "@/lib/shop-window";
+import type { ListingSnapshot } from "@/lib/listing-snapshot";
 import BookingRequest from "@/components/BookingRequest";
 
 const AMENITY_ICONS: Record<string, typeof Wifi> = {
@@ -23,12 +24,16 @@ const AMENITY_ICONS: Record<string, typeof Wifi> = {
   kitchen: Coffee, gym: Users, spa: Waves, restaurant: Coffee,
 };
 
-export default function ListingClient() {
+export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot | null }) {
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
-  const [listing, setListing] = useState<Listing | null>(null);
-  const [loading, setLoading] = useState(true);
+  // SEEDED FROM THE SERVER, so the first paint has a name, a photo and a
+  // price list instead of a skeleton. The effect below still resolves the
+  // listing and overwrites this; the snapshot only has to be right for the
+  // moment before that lands.
+  const [listing, setListing] = useState<Listing | null>((snapshot as Listing) ?? null);
+  const [loading, setLoading] = useState(!snapshot);
   const [currentImage, setCurrentImage] = useState(0);
   // The heart used to be local state only: it filled in, wrote nothing, and
   // /favorites told people their taps were being saved. `savingLike` stops a

@@ -27,6 +27,7 @@ import {
 } from "@/lib/listings";
 import { isShopWindow } from "@/lib/shop-window";
 import ListingClient from "./ListingClient";
+import { toListingSnapshot } from "@/lib/listing-snapshot";
 
 export const revalidate = 3600;
 
@@ -93,6 +94,30 @@ export async function generateMetadata(
   };
 }
 
-export default function ListingPage() {
-  return <ListingClient />;
+/**
+ * ONE FEWER ROUND TRIP BEFORE ANYTHING IS DRAWN.
+ *
+ * generateMetadata above already resolves this listing, for the share card.
+ * ListingClient then resolved it AGAIN in the browser before it could draw
+ * anything, so a visitor on a Lagos connection waited for two trips to see a
+ * business they had already tapped.
+ *
+ * The snapshot is a first paint and nothing more: the client still resolves
+ * the listing itself and overwrites this the moment it answers. If the
+ * resolve fails here, the prop is null and the page behaves exactly as it did
+ * before.
+ */
+export default async function ListingPage(
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params;
+  let snapshot = null;
+  try {
+    const resolved = await resolveListing(id);
+    snapshot = resolved ? toListingSnapshot({ ...resolved.listing, slug: resolved.slug }) : null;
+  } catch {
+    // A first paint is never worth a 500. The client will fetch it.
+    snapshot = null;
+  }
+  return <ListingClient snapshot={snapshot} />;
 }
