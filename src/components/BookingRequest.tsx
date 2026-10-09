@@ -20,6 +20,8 @@ import { sendBookingRequest, BookingError } from "@/lib/book";
 import { offersOf, slotsFor, policyLines, addressOf, type Offer } from "@/lib/shop-window";
 import { fetchBookingDecision, ASK, type BookingDecision } from "@/lib/booking-decision";
 import { buildDisplayPrice, formatPriceWithCurrency } from "@/lib/display-price";
+import PayStep, { canPay } from "./PayStep";
+import { startPayment, PayError, type PayIntent } from "@/lib/pay";
 import { useMoney } from "@/lib/useRates";
 import { nativeCurrencyOf } from "@/lib/listing-price";
 import { APP_STORE_URL } from "@/lib/app-links";
@@ -67,6 +69,10 @@ export default function BookingRequest({
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sentId, setSentId] = useState<string | null>(null);
+  // The card step. intent holds the server's client secret once it has said
+  // yes; paid is only ever set by Stripe confirming the charge succeeded.
+  const [intent, setIntent] = useState<PayIntent | null>(null);
+  const [paid, setPaid] = useState(false);
   const firstField = useRef<HTMLSelectElement | HTMLInputElement | null>(null);
 
   // One key per opening of this form, so a guest who taps Send twice on a slow
@@ -129,6 +135,9 @@ export default function BookingRequest({
   // What the SERVER says is taken at booking. Null until it has answered,
   // so nothing is promised before it has.
   const dueNow = decision.payNow > 0 ? decision.payNow : null;
+  // Will pressing the button take a card? Everything has to agree: the server
+  // called it payable, the site has a key, and there is a price to charge.
+  const willCharge = instant && canPay() && typeof total === "number" && total > 0;
   // RATES ARE IN NOW. This was ratesReady:false with a note saying it would
   // convert the day rates arrived; useRates fetches them from the same CDN and
   // the same GBP base the app uses, so the two cannot disagree about what
@@ -167,6 +176,25 @@ export default function BookingRequest({
     setSending(true);
     setError(null);
     try {
+      // PAY WHERE THE SERVER SAID PAY. `instant` and `deposit` are its
+      // words, reached through bookingDecision, which has already applied
+      // the café rule, the external-booking rule and the operator's own
+      // terms. This does not second-guess any of that; it asks for a
+      // payment intent and lets the server refuse if it disagrees.
+      if (instant && canPay() && typeof total === "number" && total > 0) {
+        const got = await startPayment({
+          listing: listing as unknown as Record<string, unknown>,
+          offer, date, time, guests, name, contact, note,
+          totalPrice: dueNow ?? total,
+          // The currency they were SHOWN. Charging a different one than the
+          // page quoted is how a guest ends up disputing a correct charge.
+          currency: to || listing.currency || "GBP",
+        });
+        setIntent(got);
+        setSending(false);
+        return;
+      }
+
       const id = await sendBookingRequest(
         listing,
         { offer, date, time, guests, name, contact, note, totalPrice: total },
@@ -174,7 +202,10 @@ export default function BookingRequest({
       );
       setSentId(id);
     } catch (err) {
-      setError(err instanceof BookingError ? err.message : "That did not send. Nothing has been booked.");
+      const msg = err instanceof BookingError || err instanceof PayError
+        ? err.message
+        : "That did not send. Nothing has been booked.";
+      setError(msg);
     } finally {
       setSending(false);
     }
@@ -200,7 +231,39 @@ export default function BookingRequest({
           <X size={18} />
         </button>
 
-        {sentId ? (
+        {paid ? (
+          /* PAID, AND ONLY BECAUSE STRIPE SAID SO. PayStep sets this when the
+             intent comes back succeeded, never when the form submits. */
+          <div className="pt-4">
+            <div className="w-12 h-12 rounded-full bg-primary/10 text-primary inline-flex items-center justify-center mb-3">
+              <Check size={22} />
+            </div>
+            <h2 className="text-xl text-ink mb-2">You are booked</h2>
+            <p className="text-sm text-ink-muted mb-1">
+              {business} has your booking for {date}{time ? ` at ${time}` : ""}.
+            </p>
+            <p className="text-sm text-ink-muted mb-4">
+              Your booking reference is <span className="font-semibold text-ink">{intent?.bookingRequestId?.slice(0, 8).toUpperCase()}</span>.
+              Show it when you arrive. We have emailed it to you.
+            </p>
+            <p className="text-xs text-ink-muted">
+              Sabię holds your money until after your visit.
+            </p>
+          </div>
+        ) : intent ? (
+          <div className="pt-4">
+            <h2 className="text-xl text-ink mb-1">Pay {business}</h2>
+            <p className="text-sm text-ink-muted mb-4">
+              {offer ? `${offer}, ` : ""}{date}{time ? ` at ${time}` : ""}
+            </p>
+            <PayStep
+              clientSecret={intent.clientSecret}
+              amountLabel={money.display || formatPriceWithCurrency(dueNow ?? total ?? 0, listing.currency || "NGN")}
+              onPaid={() => setPaid(true)}
+              onCancel={() => setIntent(null)}
+            />
+          </div>
+        ) : sentId ? (
           <div className="pt-4">
             <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
               <Check size={22} className="text-primary" />
@@ -452,7 +515,13 @@ export default function BookingRequest({
               className="w-full h-13 min-h-[52px] rounded-2xl bg-primary text-white font-semibold inline-flex items-center justify-center gap-2 disabled:opacity-60"
             >
               {sending && <Loader2 size={16} className="animate-spin" />}
-              {sending ? "Sending" : "Send request"}
+              {/* THE BUTTON SAYS WHAT HAPPENS NEXT. "Send request" above a
+                  form that is about to ask for a card is a small lie, and it
+                  is the one that makes a guest feel tricked at the exact
+                  moment they are deciding to trust us with money. */}
+              {sending
+                ? (willCharge ? "Starting payment" : "Sending")
+                : (willCharge ? "Continue to payment" : "Send request")}
             </button>
             <p className="mt-3 text-xs text-ink-faint text-center">
               {instant
