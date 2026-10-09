@@ -1,3 +1,4 @@
+import { REGION_CURRENCY } from "./region-currency";
 /**
  * What a price says, and in whose money.
  *
@@ -82,11 +83,6 @@ export function buildDisplayPrice({
  * Returns "" when the region is unknown, which means no conversion is
  * attempted and the operator's own price stands.
  */
-const REGION_CURRENCY: Record<string, string> = {
-  GB: "GBP", US: "USD", NG: "NGN", ZA: "ZAR", KE: "KES", GH: "GHS",
-  CA: "CAD", AU: "AUD", ML: "XOF", SN: "XOF", MR: "MRU",
-  IE: "EUR", FR: "EUR", DE: "EUR", ES: "EUR", IT: "EUR", NL: "EUR", PT: "EUR",
-};
 
 export function guestCurrency(locale?: string | null): string {
   const tag = (locale || "").trim();
