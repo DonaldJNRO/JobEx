@@ -13,7 +13,7 @@
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { serviceGroups, type ServiceGroup } from "@/lib/shop-window";
-import { resolveProfileSections } from "@/lib/profile-sections";
+import { resolveProfileSections, CTA_LABEL } from "@/lib/profile-sections";
 
 const money = (n: number | null, currency: string) =>
   n === null ? "Ask" : `${currency === "GBP" ? "£" : "₦"}${n.toLocaleString("en-NG")}`;
@@ -26,7 +26,9 @@ interface Props {
 }
 
 export default function ProfileServices({ listing, currency, onPick }: Props) {
-  const { services: shape } = resolveProfileSections(listing);
+  const { services: shape, bookCta } = resolveProfileSections(listing);
+  // The same word the button at the top of the page uses.
+  const cta = CTA_LABEL[bookCta];
   const groups = serviceGroups(listing);
   const menu = Array.isArray(listing.menu) ? (listing.menu as MenuCategory[]) : [];
 
@@ -67,13 +69,16 @@ export default function ProfileServices({ listing, currency, onPick }: Props) {
 
   if (groups.length === 0) return null;
 
-  const heading = shape === "rooms" ? "Rooms" : "What they offer";
+  // THE HEADING SAYS WHAT TO DO WITH IT. "What they offer" reads as a
+  // brochure next to a Book button at the top of the page, and a visitor
+  // cannot tell which one is the booking. This says the list IS the booking.
+  const heading = shape === "rooms" ? "Pick a room" : "Pick what you want";
   return (
     <section className="reveal">
       <h2 className="text-lg font-semibold text-ink mb-3">{heading}</h2>
       <ul className="rounded-2xl border border-line divide-y divide-line overflow-hidden">
         {groups.map((g) => (
-          <ServiceRow key={g.name} group={g} currency={currency} onPick={onPick} />
+          <ServiceRow key={g.name} group={g} currency={currency} cta={cta} onPick={onPick} />
         ))}
       </ul>
     </section>
@@ -81,7 +86,8 @@ export default function ProfileServices({ listing, currency, onPick }: Props) {
 }
 
 function ServiceRow(
-  { group, currency, onPick }: { group: ServiceGroup; currency: string; onPick: (n: string) => void },
+  { group, currency, cta, onPick }:
+    { group: ServiceGroup; currency: string; cta: string; onPick: (n: string) => void },
 ) {
   const [open, setOpen] = useState(false);
 
@@ -102,15 +108,22 @@ function ServiceRow(
             <span className="block text-xs text-ink-muted mt-0.5">{group.description}</span>
           )}
         </span>
-        <span className="flex items-center gap-1.5 whitespace-nowrap">
+        <span className="flex items-center gap-2 whitespace-nowrap">
           <span className="text-sm font-semibold text-ink">
             {group.hasChoices ? "from " : ""}{money(group.fromPrice, currency)}
           </span>
-          {group.hasChoices && (
-            <ChevronDown
-              size={15}
-              className={`text-ink-muted transition-transform ${open ? "rotate-180" : ""}`}
-            />
+          {/* A ROW HAS TO LOOK LIKE THE WAY IN. Without this the list reads
+              as a brochure beside the Book button at the top of the page,
+              and a visitor cannot tell which of the two is the booking.
+              "Choose" on a row that opens, the action word on one that
+              books straight through. */}
+          {group.hasChoices ? (
+            <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary">
+              Choose
+              <ChevronDown size={14} className={`transition-transform ${open ? "rotate-180" : ""}`} />
+            </span>
+          ) : (
+            <span className="text-xs font-semibold text-primary">{cta}</span>
           )}
         </span>
       </button>
@@ -125,8 +138,9 @@ function ServiceRow(
                 className="w-full flex items-baseline justify-between gap-4 pl-7 pr-4 py-2.5 text-left hover:bg-line/40 transition-colors"
               >
                 <span className="text-sm text-ink-muted">{t.label}</span>
-                <span className="text-sm font-semibold text-ink whitespace-nowrap">
-                  {money(t.price, currency)}
+                <span className="flex items-center gap-2 whitespace-nowrap">
+                  <span className="text-sm font-semibold text-ink">{money(t.price, currency)}</span>
+                  <span className="text-xs font-semibold text-primary">{cta}</span>
                 </span>
               </button>
             </li>

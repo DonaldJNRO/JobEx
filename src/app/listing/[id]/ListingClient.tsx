@@ -16,6 +16,8 @@ import { APP_STORE_URL } from "@/lib/app-links";
 import { isShopWindow } from "@/lib/shop-window";
 import { fetchBookingDecision, ASK, type BookingDecision } from "@/lib/booking-decision";
 import ProfileServices from "@/components/ProfileServices";
+import { offersOf } from "@/lib/shop-window";
+import { resolveProfileSections, CTA_LABEL } from "@/lib/profile-sections";
 import type { ListingSnapshot } from "@/lib/listing-snapshot";
 import BookingRequest from "@/components/BookingRequest";
 
@@ -188,10 +190,34 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
      renders exactly as it did before, until the founder has seen these two. */
   const shopWindow = isShopWindow(slug || id);
   const instant = bookMode.mode === "instant" || bookMode.mode === "deposit";
+  // THE BUTTON SAYS WHAT IT DOES. A café "Books" nothing, it requests a
+  // table; a stay shows rooms. Same resolver as the services section, so the
+  // word on the button and the shape of the list below it cannot disagree.
+  const ctaWord = CTA_LABEL[resolveProfileSections(listing ?? {}).bookCta];
+  // The price of the row they chose, so the headline figure is no longer the
+  // cheapest of everything while they are looking at something else. Null
+  // until they choose, which is when the "from" price is the honest answer.
+  const pickedPrice = pickedOffer
+    ? (() => {
+      const hit = offersOf(listing ?? {}).find((o) => o.name === pickedOffer);
+      return typeof hit?.price === "number"
+        ? `${listing?.currency === "GBP" ? "£" : "₦"}${hit.price.toLocaleString("en-NG")}`
+        : null;
+    })()
+    : null;
 
   const bookingBlock = (
     <>
-      <div className="text-3xl font-extrabold text-primary mb-1">{price}</div>
+      {/* WHAT THEY PICKED, where they complete it. Two entry points competed
+          here: a big "from" price with a Book button at the top, and a list
+          of services with their own prices below. Nothing connected them, so
+          a visitor could not tell which was the booking. Choosing a row now
+          names it up here, and the price stops being the cheapest of
+          everything and becomes the price of that thing. */}
+      {pickedOffer ? (
+        <p className="text-sm text-ink-muted mb-1">{pickedOffer}</p>
+      ) : null}
+      <div className="text-3xl font-extrabold text-primary mb-1">{pickedPrice ?? price}</div>
       <div className={priceUnit ? "" : "mb-6"} />
       {priceUnit && <p className="text-sm text-text-muted mb-6">{priceUnit}</p>}
       {shopWindow ? (
@@ -206,7 +232,7 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
             onClick={() => setBooking(true)}
             className="btn-shine w-full flex items-center justify-center gap-2.5 bg-primary hover:bg-primary-dark text-white font-bold py-4 rounded-xl transition-all hover:shadow-lg hover:shadow-primary/20"
           >
-            Book <ArrowRight size={18} />
+            {ctaWord} <ArrowRight size={18} />
           </button>
           {/* THE SERVER ALREADY DECIDES THIS, and the page did not know.
               canSellInstantly in onBookingRequestCreated confirms a request
@@ -229,7 +255,7 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
             rel="noopener noreferrer"
             className="btn-shine w-full flex items-center justify-center gap-2.5 bg-primary hover:bg-primary-dark text-white font-bold py-4 rounded-xl transition-all hover:shadow-lg hover:shadow-primary/20"
           >
-            Book <ArrowRight size={18} />
+            {ctaWord} <ArrowRight size={18} />
           </a>
           <p className="text-[11px] text-text-muted text-center mt-3">Book and manage your trip in the Sabię app</p>
         </>

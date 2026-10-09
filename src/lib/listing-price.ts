@@ -152,10 +152,16 @@ export function priceParts(
 
 /** The one-line version, for callers that want a string. */
 export function priceLine(listing: PriceableListing, money?: MoneyContext): string {
-  const { amount, unit } = priceParts(listing, money);
+  const { amount, unit, from } = priceParts(listing, money);
   // "Contact host" was wrong twice over: host is Airbnb's word and Sabię's is
   // operator, and it sat in the price slot at price weight, so it read as a
   // price. This says what it is.
   if (!amount) return "Price on request";
-  return unit ? `${amount} ${unit}` : amount;
+  // "FROM" HERE TOO, OR THE TWO SURFACES ARGUE. The grid card already says
+  // "from £3" and the listing page said a bare "₦4,000" at triple the size,
+  // directly above a list of services with their own prices. A visitor could
+  // not tell whether the big number was the price of something or the
+  // cheapest of everything.
+  const head = from ? `from ${amount}` : amount;
+  return unit ? `${head} ${unit}` : head;
 }

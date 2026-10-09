@@ -23,7 +23,7 @@ const live = (s) => s.split("\n").filter((l) => !l.trimStart().startsWith("//") 
 const SECTION = readFileSync(new URL("../components/ProfileServices.tsx", import.meta.url), "utf8");
 
 ck(/<ProfileServices/.test(live(PAGE)), "the page renders the services section");
-ck(/What they offer/.test(live(SECTION)), "under a heading that says what it is");
+ck(/Pick what you want/.test(live(SECTION)), "under a heading that says what it is");
 ck(/resolveProfileSections\(listing\)/.test(live(SECTION)),
   "whose shape is decided the same way the app decides it");
 
@@ -59,6 +59,32 @@ const o = offersOf(NAILS);
 ck(o.length === 3, "a tiered service becomes one row per real price");
 ck(o.every((x) => typeof x.price === "number"), "and every row the page shows has a price");
 ck(new Set(o.map((x) => x.name)).size === o.length, "with no row listed twice");
+
+
+// ── one booking, not two competing ones ──────────────────────────────────
+// "At the top it says Book, and at the bottom it says what they offer.
+//  Which is which?"
+//
+// A big "from" price with a Book button at the top, and a list of services
+// with their own prices below, and nothing connecting them.
+
+ck(/Pick what you want|Pick a room/.test(live(SECTION)),
+  "the heading says the list IS the booking, not a brochure");
+ck(/\{cta\}/.test(live(SECTION)),
+  "and every bookable row carries the action word");
+ck(/Choose/.test(live(SECTION)),
+  "a row with tiers says Choose rather than the action word, because it opens first");
+
+ck(/\{pickedOffer\}/.test(live(PAGE)),
+  "the top card names what they picked");
+ck(/\{pickedPrice \?\? price\}/.test(live(PAGE)),
+  "and shows that price instead of the cheapest of everything");
+ck(/const ctaWord = CTA_LABEL\[/.test(live(PAGE)),
+  "the top button uses the same word as the rows");
+
+// A café never says Book: it requests a table. Same resolver on both.
+ck(/resolveProfileSections\(listing \?\? \{\}\)\.bookCta/.test(live(PAGE)),
+  "and the word comes from the shape, so a cafe cannot say Book");
 
 console.log(fails ? `\n${fails} FAILED` : "\nALL PASSED");
 process.exit(fails ? 1 : 0);
