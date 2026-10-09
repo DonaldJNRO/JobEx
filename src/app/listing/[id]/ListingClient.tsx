@@ -7,6 +7,7 @@ import Link from "next/link";
 import { MapPin, Star, ChevronLeft, ChevronRight, Share2, Link2, Heart, Wifi, Car, Coffee, Waves, Shield, ArrowRight, Download, Check, Globe, Clock, Users } from "lucide-react";
 import { resolveListing, getListingPrice, getListingLocation, getListingType, getCategoryLabel, getFeaturedListings, visitedBySabie, Listing } from "@/lib/listings";
 import { useMoney } from "@/lib/useRates";
+import { buildDisplayPrice } from "@/lib/display-price";
 import { openingRows, openNow, serviceStyle, verificationLine, amenityLabel } from "@/lib/operator-info";
 import ListingCard from "@/components/ListingCard";
 import { useReveal } from "@/lib/useReveal";
@@ -208,9 +209,18 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
   const pickedPrice = pickedOffer
     ? (() => {
       const hit = offersOf(listing ?? {}).find((o) => o.name === pickedOffer);
-      return typeof hit?.price === "number"
-        ? `${listing?.currency === "GBP" ? "£" : "₦"}${hit.price.toLocaleString("en-NG")}`
-        : null;
+      if (typeof hit?.price !== "number") return null;
+      // THE GUEST'S CURRENCY, through the same converter as everything else
+      // on the page. This hardcoded the naira symbol when it was written,
+      // which showed a guest in London a figure in a currency they do not
+      // think in, directly above a button asking them to pay it.
+      return buildDisplayPrice({
+        amount: hit.price,
+        nativeCurrency: listing?.currency || "NGN",
+        selectedCurrency: money.to,
+        exchangeRates: money.rates,
+        ratesReady: money.ready,
+      }).display || null;
     })()
     : null;
 

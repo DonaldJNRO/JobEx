@@ -12,11 +12,43 @@
 
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
+import { useMoney as useGuestRates } from "@/lib/useRates";
+import { buildDisplayPrice } from "@/lib/display-price";
 import { serviceGroups, type ServiceGroup } from "@/lib/shop-window";
 import { resolveProfileSections, CTA_LABEL } from "@/lib/profile-sections";
 
-const money = (n: number | null, currency: string) =>
-  n === null ? "Ask" : `${currency === "GBP" ? "£" : "₦"}${n.toLocaleString("en-NG")}`;
+/**
+ * THE GUEST'S OWN CURRENCY, not the operator's.
+ *
+ * This component first shipped with `currency === "GBP" ? "£" : "₦"` written
+ * into it, which showed a guest in London ₦35,000 and asked them to work out
+ * what that is. The site already had the answer: buildDisplayPrice, the same
+ * converter the grid cards and the booking sheet use, reading the same rate
+ * source as the mobile app so the two cannot disagree. Hardcoding the symbol
+ * walked straight past it.
+ *
+ * When rates have not arrived this returns the operator's own price in the
+ * operator's own currency, which is the rule inherited from the app: show
+ * native only, never a guess.
+ */
+function useMoney(nativeCurrency: string) {
+  // THE EXISTING HOOK, not a second copy of it. The first version of this
+  // read navigator.language during render; useMoney reads it in an effect,
+  // and the comment there says why: navigator does not exist on the server,
+  // so reading it while rendering makes the server and client markup differ
+  // and trips hydration. Walking past that comment was the whole bug.
+  const { rates, ready, to } = useGuestRates();
+  return (n: number | null): string => {
+    if (n === null) return "Ask";
+    return buildDisplayPrice({
+      amount: n,
+      nativeCurrency,
+      selectedCurrency: to,
+      exchangeRates: rates,
+      ratesReady: ready,
+    }).display;
+  };
+}
 
 interface Props {
   listing: Record<string, unknown>;
@@ -30,6 +62,7 @@ export default function ProfileServices({ listing, currency, onPick }: Props) {
   // The same word the button at the top of the page uses.
   const cta = CTA_LABEL[bookCta];
   const groups = serviceGroups(listing);
+  const money = useMoney(currency);
   const menu = Array.isArray(listing.menu) ? (listing.menu as MenuCategory[]) : [];
 
   // A CAFÉ READS ITS MENU, it does not pick a service. Never payable, so
@@ -54,7 +87,7 @@ export default function ProfileServices({ listing, currency, onPick }: Props) {
                     <span className="text-sm text-ink">{it?.name}</span>
                     {typeof it?.price === "number" && (
                       <span className="text-sm text-ink-muted whitespace-nowrap">
-                        {money(it.price, currency)}
+                        {money(it.price)}
                       </span>
                     )}
                   </li>
@@ -78,7 +111,7 @@ export default function ProfileServices({ listing, currency, onPick }: Props) {
       <h2 className="text-lg font-semibold text-ink mb-3">{heading}</h2>
       <ul className="rounded-2xl border border-line divide-y divide-line overflow-hidden">
         {groups.map((g) => (
-          <ServiceRow key={g.name} group={g} currency={currency} cta={cta} onPick={onPick} />
+          <ServiceRow key={g.name} group={g} money={money} cta={cta} onPick={onPick} />
         ))}
       </ul>
     </section>
@@ -86,8 +119,8 @@ export default function ProfileServices({ listing, currency, onPick }: Props) {
 }
 
 function ServiceRow(
-  { group, currency, cta, onPick }:
-    { group: ServiceGroup; currency: string; cta: string; onPick: (n: string) => void },
+  { group, money, cta, onPick }:
+    { group: ServiceGroup; money: (n: number | null) => string; cta: string; onPick: (n: string) => void },
 ) {
   const [open, setOpen] = useState(false);
 
@@ -110,7 +143,7 @@ function ServiceRow(
         </span>
         <span className="flex items-center gap-2 whitespace-nowrap">
           <span className="text-sm font-semibold text-ink">
-            {group.hasChoices ? "from " : ""}{money(group.fromPrice, currency)}
+            {group.hasChoices ? "from " : ""}{money(group.fromPrice)}
           </span>
           {/* A ROW HAS TO LOOK LIKE THE WAY IN. Without this the list reads
               as a brochure beside the Book button at the top of the page,
@@ -139,7 +172,7 @@ function ServiceRow(
               >
                 <span className="text-sm text-ink-muted">{t.label}</span>
                 <span className="flex items-center gap-2 whitespace-nowrap">
-                  <span className="text-sm font-semibold text-ink">{money(t.price, currency)}</span>
+                  <span className="text-sm font-semibold text-ink">{money(t.price)}</span>
                   <span className="text-xs font-semibold text-primary">{cta}</span>
                 </span>
               </button>

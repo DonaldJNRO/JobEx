@@ -45,7 +45,7 @@ ck(/o\.name === initialOffer/.test(live(SHEET)),
 
 // An unpriced row is still offerable: "ask to book" means the operator says
 // what it costs when they accept.
-ck(/\? "Ask" :/.test(live(SECTION)), "an unpriced row reads Ask rather than a made-up number");
+ck(/return "Ask";/.test(live(SECTION)), "an unpriced row reads Ask rather than a made-up number");
 
 // Naileditbyd's real shape: priced on the tier, mirrored into packages.
 const NAILS = {
