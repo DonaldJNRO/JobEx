@@ -1,56 +1,40 @@
-// The page has to agree with the server about who waits.
+// The page and the sheet must both ASK THE SERVER, and neither may decide.
 //
-// onBookingRequestCreated confirms a request on the spot when the listing
-// takes payment, is not a cafe, and has an allocation. It counts against the
-// slot in a transaction and stamps confirmedBy: 'instant_allocation'. That
-// has already happened 14 times.
-//
-// The web never knew. EVERY listing's page and form said "has 12 hours to
-// accept. You pay after they do", including the ones confirmed before the
-// operator had looked. Of 35 requests ever made, 26 were cancelled by the
-// traveller; telling somebody to wait for a yes they already have is one way
-// that happens.
+// booking-mode.ts used to decide here. It was the 118th place re-deriving
+// the same rule, and its own comment said it mirrored canSellInstantly,
+// which is an honest way of saying it would drift. Deleted; both surfaces
+// now call bookingDecision.
 //
 // Run: npx tsx src/lib/instant-book.test.mjs
 
-import { readFileSync } from "node:fs";
-import { confirmsInstantly } from "./shop-window.ts";
+import { readFileSync, existsSync } from "node:fs";
 
 let fails = 0;
 const ck = (ok, label) => { if (!ok) fails++; console.log(`${ok ? "PASS" : "FAIL"}  ${label}`); };
 
-// Naileditbyd as she stands: payable, allocation 2, an experience.
-ck(confirmsInstantly({ acceptsInAppPayment: true, sabieAllocationPerSlot: 2, role: "ExperienceProviders" }) === true,
-  "a payable experience with an allocation confirms on the spot");
-
-ck(confirmsInstantly({ acceptsInAppPayment: false, sabieAllocationPerSlot: 2, role: "ExperienceProviders" }) === false,
-  "a listing that cannot take payment still asks");
-ck(confirmsInstantly({ acceptsInAppPayment: true, sabieAllocationPerSlot: 0, role: "ExperienceProviders" }) === false,
-  "and so does one with no allocation, which is what the server counts against");
-
-// THE LOCKED RULE. A cafe is never payable, so it is never instant.
-for (const role of ["FoodBeverageManager", "food_beverage_manager", "restaurant"]) {
-  ck(confirmsInstantly({ acceptsInAppPayment: true, sabieAllocationPerSlot: 2, role }) === false,
-    `a cafe is never instant (${role})`);
-}
-
-ck(confirmsInstantly(null) === false, "nothing known is not instant");
-ck(confirmsInstantly({}) === false, "and neither is an empty listing");
-ck(confirmsInstantly({ acceptsInAppPayment: true, sabieAllocationPerSlot: "2", role: "Host" }) === true,
-  "an allocation stored as a string still counts, as Firestore has held both");
-
-// ── the same rule, on both sides ────────────────────────────────────────
 const SHEET = readFileSync(new URL("../components/BookingRequest.tsx", import.meta.url), "utf8");
 const PAGE = readFileSync(new URL("../app/listing/[id]/ListingClient.tsx", import.meta.url), "utf8");
+const CLIENT = readFileSync(new URL("./booking-decision.ts", import.meta.url), "utf8");
 
-ck(/bookingMode\(listing\)/.test(SHEET) && /bookingMode\(listing\)/.test(PAGE),
-  "both the page and the sheet ask the same resolver");
-ck(/instant \? "Book now" : "Ask to book"/.test(SHEET),
-  "the sheet says Book now rather than Ask to book");
-ck(/Confirmed on the spot/.test(PAGE),
-  "and the page stops promising a 12 hour wait it does not mean");
-ck(!/^\s*Ask first, pay later\. They have 12 hours to accept\.$/m.test(PAGE.replace(/\{[^}]*\}/g, "")),
-  "the unconditional version of that line is gone");
+ck(!existsSync(new URL("./booking-mode.ts", import.meta.url)),
+  "the local copy of the rule is gone");
+ck(/fetchBookingDecision/.test(SHEET) && /fetchBookingDecision/.test(PAGE),
+  "both surfaces ask the server");
+ck(!/acceptsInAppPayment/.test(SHEET) && !/acceptsInAppPayment/.test(PAGE),
+  "and neither decides payability for itself");
+ck(!/food_beverage/.test(SHEET) && !/food_beverage/.test(PAGE),
+  "nor re-derives the cafe rule");
+
+// THE FALLBACK IS "ASK". Failing to reach the server must never promise
+// "confirmed on the spot" or a price nobody has agreed to.
+ck(/mode: "request"/.test(CLIENT), "the fallback mode is request");
+ck(/payNow: 0/.test(CLIENT), "and it charges nothing");
+ck(/catch\s*\{\s*\n?\s*return ASK;/.test(CLIENT) || /catch \{[\s\S]{0,40}ASK/.test(CLIENT),
+  "a failed call falls back rather than throwing into the sheet");
+
+// Re-asked per offer, because a deposit is per SERVICE.
+ck(/\[open, listing\?\.id, offer\]/.test(SHEET),
+  "the sheet re-asks when the chosen service changes");
 
 console.log(fails ? `\n${fails} FAILED` : "\nALL PASSED");
 process.exit(fails ? 1 : 0);

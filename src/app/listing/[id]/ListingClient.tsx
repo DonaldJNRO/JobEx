@@ -14,7 +14,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { isSaved, saveListing, unsaveListing } from "@/lib/saved";
 import { APP_STORE_URL } from "@/lib/app-links";
 import { isShopWindow } from "@/lib/shop-window";
-import { bookingMode } from "@/lib/booking-mode";
+import { fetchBookingDecision, ASK, type BookingDecision } from "@/lib/booking-decision";
 import BookingRequest from "@/components/BookingRequest";
 
 const AMENITY_ICONS: Record<string, typeof Wifi> = {
@@ -160,9 +160,16 @@ export default function ListingClient() {
      other businesses, no app poster, and Book finishes here. Everywhere else
      renders exactly as it did before, until the founder has seen these two. */
   const shopWindow = isShopWindow(slug || id);
-  // Same resolver as the sheet, so the page cannot promise one thing and
-  // the form say another.
-  const bookMode = bookingMode(listing);
+  // THE SAME SERVER ANSWER as the sheet, so the page cannot promise one
+  // thing and the form say another. Asked without an offer, which gives the
+  // listing's headline terms, which is what a page-level line should say.
+  const [bookMode, setBookMode] = useState<BookingDecision>(ASK);
+  useEffect(() => {
+    if (!listing?.id) return;
+    let live = true;
+    fetchBookingDecision(listing.id, "").then((d) => { if (live) setBookMode(d); });
+    return () => { live = false; };
+  }, [listing?.id]);
   const instant = bookMode.mode === "instant" || bookMode.mode === "deposit";
 
   const bookingBlock = (

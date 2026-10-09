@@ -2,6 +2,7 @@ import { initializeApp, getApps, getApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth, signInAnonymously } from "firebase/auth";
 import { getStorage } from "firebase/storage";
+import { getFunctions } from "firebase/functions";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDdYVdY09hHPn9Q34ebTQUjvCIqUd3Rc7c",
@@ -16,6 +17,9 @@ const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 export const storage = getStorage(app);
+// europe-west1, where every Sabię callable lives. Getting the region wrong
+// fails as a CORS error rather than a not-found, which is a long afternoon.
+export const functions = getFunctions(app, "europe-west1");
 
 /**
  * Ensure there's an authenticated session (anonymous is fine) before doing

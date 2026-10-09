@@ -18,7 +18,7 @@ import { useEffect, useRef, useState } from "react";
 import { X, Check, Loader2, AlertTriangle, ChevronDown, MapPin } from "lucide-react";
 import { sendBookingRequest, BookingError } from "@/lib/book";
 import { offersOf, slotsFor, policyLines, addressOf, type Offer } from "@/lib/shop-window";
-import { bookingMode, payNowAmount } from "@/lib/booking-mode";
+import { fetchBookingDecision, ASK, type BookingDecision } from "@/lib/booking-decision";
 import { buildDisplayPrice, formatPriceWithCurrency } from "@/lib/display-price";
 import { useMoney } from "@/lib/useRates";
 import { nativeCurrencyOf } from "@/lib/listing-price";
@@ -99,19 +99,25 @@ export default function BookingRequest({
   const slots = slotsFor(listing, offer);
   const policy = policyLines(listing);
   const address = addressOf(listing);
-  // HOW THIS LISTING TAKES A BOOKING, decided per listing rather than by one
-  // rule for the platform. A rink selling a timed slot and a cafe taking a
-  // table are not the same transaction and should not wear the same button.
-  // The server confirms an instant one before the operator has even looked,
-  // so saying "they have 12 hours to accept" to somebody already booked is
-  // how an instant booking turns into a cancelled one.
-  const { mode, why } = bookingMode(listing);
+  // THE SERVER DECIDES, and this asks it. booking-mode.ts used to work it
+  // out here, which made it the 118th place re-deriving the same rule.
+  //
+  // Re-asked when the offer changes, because a deposit is per SERVICE: a
+  // studio may take one on a full set and the whole price on a toe gel.
+  const [decision, setDecision] = useState<BookingDecision>(ASK);
+  useEffect(() => {
+    if (!open) return;
+    let live = true;
+    fetchBookingDecision(listing?.id ?? "", offer).then((d) => { if (live) setDecision(d); });
+    return () => { live = false; };
+  }, [open, listing?.id, offer]);
+  const { mode, why } = decision;
   const instant = mode === "instant" || mode === "deposit";
   const unit = chosen?.price;
   const total = typeof unit === "number" ? unit * Math.max(1, guests) : undefined;
-  // What is actually taken at booking: the whole thing, or the operator's
-  // own deposit when they have set one.
-  const dueNow = payNowAmount(listing, total);
+  // What the SERVER says is taken at booking. Null until it has answered,
+  // so nothing is promised before it has.
+  const dueNow = decision.payNow > 0 ? decision.payNow : null;
   // RATES ARE IN NOW. This was ratesReady:false with a note saying it would
   // convert the day rates arrived; useRates fetches them from the same CDN and
   // the same GBP base the app uses, so the two cannot disagree about what
