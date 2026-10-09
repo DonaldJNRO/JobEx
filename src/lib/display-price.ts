@@ -1,4 +1,9 @@
 import { REGION_CURRENCY } from "./region-currency";
+
+/** What a listing is assumed to be priced in when it does not say. The
+ *  whole family assumes NGN; a surface that assumes otherwise shows a
+ *  traveller a price that is wrong by three orders of magnitude. */
+export const DEFAULT_CURRENCY = "NGN";
 /**
  * What a price says, and in whose money.
  *
@@ -48,8 +53,13 @@ export function buildDisplayPrice({
   exchangeRates?: Record<string, number> | null;
   ratesReady?: boolean;
 }): DisplayPrice {
-  const from = nativeCurrency || "USD";
-  const to = selectedCurrency || "USD";
+  // NGN, NOT USD, when a listing does not say. Seven live listings carry no
+  // currency and every one is a Lagos café, so "USD" meant a ₦3,000 plate
+  // of jollof displayed as £3,000 — not a rounding error, a 1500x one, on
+  // the page a traveller actually reads. Every other surface in the family
+  // assumes NGN; this one did not.
+  const from = nativeCurrency || DEFAULT_CURRENCY;
+  const to = selectedCurrency || DEFAULT_CURRENCY;
   const nativeFormatted = formatPriceWithCurrency(amount, from);
   if (amount == null || isNaN(Number(amount))) {
     return { display: "", original: "", isConverted: false, ready: true, nativeFormatted: "" };
@@ -57,8 +67,13 @@ export function buildDisplayPrice({
   if (from === to || !ratesReady) {
     return { display: nativeFormatted, original: "", isConverted: false, ready: Boolean(ratesReady), nativeFormatted };
   }
-  const fromRate = from === "USD" ? 1 : exchangeRates?.[from];
-  const toRate = to === "USD" ? 1 : exchangeRates?.[to];
+  // THE TABLE IS GBP-BASED, so GBP is the unit, not USD. This hardcoded
+  // USD as 1 against a table of "how many X per 1 GBP", which made every
+  // USD amount convert as though a dollar were a pound: $100 showed as
+  // £100 instead of £75. The rate feed is currencies/gbp.json and always
+  // has been; useRates.ts says so in its first line.
+  const fromRate = exchangeRates?.[from];
+  const toRate = exchangeRates?.[to];
   if (!fromRate || !toRate) {
     return { display: nativeFormatted, original: "", isConverted: false, ready: true, nativeFormatted };
   }
