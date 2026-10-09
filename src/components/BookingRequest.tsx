@@ -15,9 +15,9 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import { X, Check, Loader2, AlertTriangle, ChevronDown } from "lucide-react";
+import { X, Check, Loader2, AlertTriangle, ChevronDown, MapPin } from "lucide-react";
 import { sendBookingRequest, BookingError } from "@/lib/book";
-import { offersOf, slotsFor, type Offer } from "@/lib/shop-window";
+import { offersOf, slotsFor, policyLines, addressOf, type Offer } from "@/lib/shop-window";
 import { buildDisplayPrice, formatPriceWithCurrency } from "@/lib/display-price";
 import { useMoney } from "@/lib/useRates";
 import { nativeCurrencyOf } from "@/lib/listing-price";
@@ -96,6 +96,8 @@ export default function BookingRequest({
   // 49 listings that have not set any, and the field below then asks in plain
   // words instead of inventing a grid nobody agreed to.
   const slots = slotsFor(listing, offer);
+  const policy = policyLines(listing);
+  const address = addressOf(listing);
   const unit = chosen?.price;
   const total = typeof unit === "number" ? unit * Math.max(1, guests) : undefined;
   // RATES ARE IN NOW. This was ratesReady:false with a note saying it would
@@ -212,9 +214,19 @@ export default function BookingRequest({
         ) : (
           <form onSubmit={submit} className="pt-4">
             <h2 className="text-xl text-ink mb-1">Ask to book</h2>
-            <p className="text-sm text-ink-muted mb-5">
+            <p className="text-sm text-ink-muted mb-1.5">
               {business} has 12 hours to accept. You pay after they do, not now.
             </p>
+            {/* WHERE TO GO. The listing has carried an address all along and
+                the one screen where somebody commits to turning up never
+                showed it. */}
+            {address && (
+              <p className="flex items-start gap-1.5 text-sm text-ink-muted mb-5">
+                <MapPin size={15} className="mt-0.5 shrink-0 text-ink-faint" />
+                <span>{address}</span>
+              </p>
+            )}
+            {!address && <div className="mb-5" />}
 
             {offers.length > 1 ? (
               <label className="block mb-4">
@@ -355,6 +367,27 @@ export default function BookingRequest({
                   <span className="block text-2xl font-semibold text-ink">{money.display}</span>
                   {money.original && <span className="block text-xs text-ink-faint">{money.original}</span>}
                 </span>
+              </div>
+            )}
+
+            {/* THEIR TERMS, AT THE MOMENT OF COMMITMENT. Naileditbyd's first
+                line is "All appointments require advance booking, which is
+                non refundable", and a guest was agreeing to that without ever
+                being shown it. The founder asked for policies on captures to
+                protect the operator as much as the traveller; this is where
+                that protection is either real or decorative. */}
+            {policy.length > 0 && (
+              <div className="mb-5 rounded-2xl bg-surface-sunken px-3.5 py-3">
+                <p className="text-xs font-semibold text-ink mb-1.5">
+                  {business}&apos;s booking terms
+                </p>
+                <ul className="space-y-1">
+                  {policy.map((line) => (
+                    <li key={line} className="text-xs text-ink-muted leading-relaxed">
+                      {line}
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
 

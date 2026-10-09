@@ -38,11 +38,45 @@ export interface Offer {
   price?: number;
 }
 
+interface RawTier { label?: unknown; price?: unknown }
+interface RawOfferRow { name?: string; price?: unknown; tiers?: unknown }
+
 export interface OfferSource {
   services?: { name?: string; price?: number }[];
   packages?: { name?: string; price?: number }[];
   customPrice?: { price?: number };
   pricingUnit?: string;
+}
+
+/**
+ * The operator's own terms, in their own words.
+ *
+ * ASKED FOR, AND THEN NOT SHOWN. The founder asked for policies on captures
+ * "to protect us and also the operators as well", and Naileditbyd carries six
+ * lines including "All appointments require advance booking, which is non
+ * refundable". None of it reached the one screen where a guest commits.
+ *
+ * Shown at the point of commitment rather than buried on the page, because a
+ * cancellation term a guest has not read is not a term, it is an argument
+ * later.
+ */
+export function policyLines(l: unknown): string[] {
+  const pol = (l as { policy?: { lines?: unknown } })?.policy;
+  const lines = Array.isArray(pol?.lines) ? pol.lines : [];
+  return lines
+    .map((x) => (typeof x === "string" ? x.trim() : ""))
+    .filter(Boolean);
+}
+
+/**
+ * Where to actually go. A booking with no address is a question by another
+ * name, and the listing has carried one all along.
+ */
+export function addressOf(l: unknown): string {
+  const loc = (l as { location?: unknown })?.location;
+  if (typeof loc === "string") return loc.trim();
+  const m = loc as { address?: unknown } | undefined;
+  return typeof m?.address === "string" ? m.address.trim() : "";
 }
 
 /**
@@ -91,10 +125,47 @@ export function slotsFor(l: OfferSource, offerName?: string): string[] {
  * that row is what they will read back in Studio when they accept.
  */
 export function offersOf(l: OfferSource): Offer[] {
-  const rows = [...(l.services ?? []), ...(l.packages ?? [])]
-    .filter((r) => (r?.name ?? "").trim())
-    .map((r) => ({ name: (r.name as string).trim(), price: typeof r.price === "number" ? r.price : undefined }));
-  if (rows.length) return rows;
+  const services = (l as { services?: RawOfferRow[] }).services ?? [];
+  const packages = (l as { packages?: RawOfferRow[] }).packages ?? [];
+
+  // SERVICES FIRST, AND NEVER BOTH. These two arrays are the same list twice:
+  // `packages` is a flat mirror of `services` that the assemble path writes.
+  // Concatenating them gave Naileditbyd 36 rows for 17 services, 15 of them
+  // the same name listed twice, which is a guest choosing between two
+  // identical lines and an operator reading a request for one of them.
+  const rows = services.length ? services : packages;
+
+  const out: Offer[] = [];
+  for (const r of rows) {
+    const name = (r?.name ?? "").trim();
+    if (!name) continue;
+    const own = typeof r.price === "number" ? r.price : Number(r.price);
+    const tiers = Array.isArray(r.tiers) ? r.tiers : [];
+    const priced = tiers
+      .map((t) => ({ label: String((t as RawTier)?.label ?? "").trim(), price: Number((t as RawTier)?.price) }))
+      .filter((t) => Number.isFinite(t.price) && t.price > 0);
+
+    // A PRICE ON THE TIER, NOT THE ROW. A listing built from a Scout capture
+    // with tiers leaves the row's own price undefined, so reading only
+    // `r.price` left all seventeen of Naileditbyd's services with no price in
+    // the dropdown: the guest picked "plain short" and was shown nothing, and
+    // the request reached the operator with totalPrice undefined.
+    if (priced.length > 1) {
+      // Genuinely different choices at different prices, so they are
+      // different offers. Gel nails are 12,000 short and 14,000 medium.
+      for (const t of priced) out.push({ name: t.label ? `${name} (${t.label})` : name, price: t.price });
+    } else if (priced.length === 1) {
+      out.push({ name, price: priced[0].price });
+    } else if (Number.isFinite(own) && own > 0) {
+      out.push({ name, price: own });
+    } else {
+      // Named but unpriced. Still bookable: the operator says what it costs
+      // when they accept, which is what "ask to book" means.
+      out.push({ name });
+    }
+  }
+  if (out.length) return out;
+
   // No named offers. The headline price is still something a guest can ask
   // for, and an operator with one service should not have to invent a menu.
   const price = l.customPrice?.price;
