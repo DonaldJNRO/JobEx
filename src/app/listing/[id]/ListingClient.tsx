@@ -13,7 +13,8 @@ import { useReveal } from "@/lib/useReveal";
 import { useAuth } from "@/contexts/AuthContext";
 import { isSaved, saveListing, unsaveListing } from "@/lib/saved";
 import { APP_STORE_URL } from "@/lib/app-links";
-import { isShopWindow, confirmsInstantly } from "@/lib/shop-window";
+import { isShopWindow } from "@/lib/shop-window";
+import { bookingMode } from "@/lib/booking-mode";
 import BookingRequest from "@/components/BookingRequest";
 
 const AMENITY_ICONS: Record<string, typeof Wifi> = {
@@ -159,7 +160,10 @@ export default function ListingClient() {
      other businesses, no app poster, and Book finishes here. Everywhere else
      renders exactly as it did before, until the founder has seen these two. */
   const shopWindow = isShopWindow(slug || id);
-  const instant = confirmsInstantly(listing);
+  // Same resolver as the sheet, so the page cannot promise one thing and
+  // the form say another.
+  const bookMode = bookingMode(listing);
+  const instant = bookMode.mode === "instant" || bookMode.mode === "deposit";
 
   const bookingBlock = (
     <>
@@ -187,8 +191,10 @@ export default function ListingClient() {
               still promised a 12 hour wait. */}
           <p className="text-[11px] text-text-muted text-center mt-3">
             {instant
-              ? "Confirmed on the spot. No waiting for a reply."
-              : "Ask first, pay later. They have 12 hours to accept."}
+              ? `Confirmed on the spot. ${bookMode.why}`
+              : bookMode.mode === "external"
+                ? "They take bookings on their own system."
+                : "Ask first, pay later. They have 12 hours to accept."}
           </p>
         </>
       ) : (

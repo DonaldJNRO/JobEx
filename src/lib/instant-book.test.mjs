@@ -43,8 +43,8 @@ ck(confirmsInstantly({ acceptsInAppPayment: true, sabieAllocationPerSlot: "2", r
 const SHEET = readFileSync(new URL("../components/BookingRequest.tsx", import.meta.url), "utf8");
 const PAGE = readFileSync(new URL("../app/listing/[id]/ListingClient.tsx", import.meta.url), "utf8");
 
-ck(/confirmsInstantly\(listing\)/.test(SHEET) && /confirmsInstantly\(listing\)/.test(PAGE),
-  "both the page and the sheet ask the same function");
+ck(/bookingMode\(listing\)/.test(SHEET) && /bookingMode\(listing\)/.test(PAGE),
+  "both the page and the sheet ask the same resolver");
 ck(/instant \? "Book now" : "Ask to book"/.test(SHEET),
   "the sheet says Book now rather than Ask to book");
 ck(/Confirmed on the spot/.test(PAGE),

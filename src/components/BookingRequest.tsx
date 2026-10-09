@@ -17,7 +17,8 @@
 import { useEffect, useRef, useState } from "react";
 import { X, Check, Loader2, AlertTriangle, ChevronDown, MapPin } from "lucide-react";
 import { sendBookingRequest, BookingError } from "@/lib/book";
-import { offersOf, slotsFor, policyLines, addressOf, confirmsInstantly, type Offer } from "@/lib/shop-window";
+import { offersOf, slotsFor, policyLines, addressOf, type Offer } from "@/lib/shop-window";
+import { bookingMode, payNowAmount } from "@/lib/booking-mode";
 import { buildDisplayPrice, formatPriceWithCurrency } from "@/lib/display-price";
 import { useMoney } from "@/lib/useRates";
 import { nativeCurrencyOf } from "@/lib/listing-price";
@@ -98,10 +99,19 @@ export default function BookingRequest({
   const slots = slotsFor(listing, offer);
   const policy = policyLines(listing);
   const address = addressOf(listing);
-  // The server confirms these before the operator has looked. Saying "they\n  // have 12 hours to accept" to somebody already booked is how an instant\n  // booking turns into a cancelled one.
-  const instant = confirmsInstantly(listing);
+  // HOW THIS LISTING TAKES A BOOKING, decided per listing rather than by one
+  // rule for the platform. A rink selling a timed slot and a cafe taking a
+  // table are not the same transaction and should not wear the same button.
+  // The server confirms an instant one before the operator has even looked,
+  // so saying "they have 12 hours to accept" to somebody already booked is
+  // how an instant booking turns into a cancelled one.
+  const { mode, why } = bookingMode(listing);
+  const instant = mode === "instant" || mode === "deposit";
   const unit = chosen?.price;
   const total = typeof unit === "number" ? unit * Math.max(1, guests) : undefined;
+  // What is actually taken at booking: the whole thing, or the operator's
+  // own deposit when they have set one.
+  const dueNow = payNowAmount(listing, total);
   // RATES ARE IN NOW. This was ratesReady:false with a note saying it would
   // convert the day rates arrived; useRates fetches them from the same CDN and
   // the same GBP base the app uses, so the two cannot disagree about what
@@ -218,7 +228,7 @@ export default function BookingRequest({
             <h2 className="text-xl text-ink mb-1">{instant ? "Book now" : "Ask to book"}</h2>
             <p className="text-sm text-ink-muted mb-1.5">
               {instant
-                ? `Your slot at ${business} is confirmed as soon as you send this. No waiting.`
+                ? `Your slot at ${business} is confirmed as soon as you send this. ${why}`
                 : `${business} has 12 hours to accept. You pay after they do, not now.`}
             </p>
             {/* WHERE TO GO. The listing has carried an address all along and
@@ -364,9 +374,21 @@ export default function BookingRequest({
               />
             </label>
 
+            {/* WHAT THEY PAY NOW, when that is not the whole thing. An
+                operator on a deposit says the balance is due at the venue,
+                and a guest reading one number beside that sentence cannot
+                tell which number it is. */}
+            {money.display && dueNow !== null && dueNow !== total && (
+              <div className="mb-2 flex items-baseline justify-between">
+                <span className="text-sm text-ink">Pay now</span>
+                <span className="text-lg font-semibold text-ink">{dueNow.toLocaleString("en-NG")}</span>
+              </div>
+            )}
             {money.display && (
               <div className="mb-5 flex items-baseline justify-between">
-                <span className="text-sm text-ink-muted">Total</span>
+                <span className="text-sm text-ink-muted">
+                  {dueNow !== null && dueNow !== total ? "Full price" : "Total"}
+                </span>
                 <span className="text-right">
                   <span className="block text-2xl font-semibold text-ink">{money.display}</span>
                   {money.original && <span className="block text-xs text-ink-faint">{money.original}</span>}
