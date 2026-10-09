@@ -245,7 +245,12 @@ export default function BookingRequest({
             <h2 className="text-xl text-ink mb-1">{instant ? "Book now" : "Ask to book"}</h2>
             <p className="text-sm text-ink-muted mb-1.5">
               {instant
-                ? `Your slot at ${business} is confirmed as soon as you send this. ${why}`
+                // `why` ONLY WHEN IT ADDS SOMETHING. For an instant listing
+                // bookingTerms returns "Confirmed on the spot.", which this
+                // sentence has already said; appending it gave the listing
+                // page "Confirmed on the spot. Confirmed on the spot." A
+                // deposit's reason is the useful half, so that one stays.
+                ? `Your slot at ${business} is confirmed as soon as you send this.${mode === "deposit" ? ` ${why}` : ""}`
                 : `${business} has 12 hours to accept. You pay after they do, not now.`}
             </p>
             {/* WHERE TO GO. The listing has carried an address all along and

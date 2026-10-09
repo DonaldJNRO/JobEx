@@ -241,7 +241,13 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
               still promised a 12 hour wait. */}
           <p className="text-[11px] text-text-muted text-center mt-3">
             {instant
-              ? `Confirmed on the spot. ${bookMode.why}`
+              // THE SERVER'S SENTENCE, WHOLE. This prefixed it with "Confirmed
+              // on the spot." and bookingTerms already returns exactly that
+              // for an instant listing, so the line read "Confirmed on the
+              // spot. Confirmed on the spot." A deposit listing says
+              // something different again, which is the reason the sentence
+              // is composed there and not here.
+              ? bookMode.why
               : bookMode.mode === "external"
                 ? "They take bookings on their own system."
                 : "Ask first, pay later. They have 12 hours to accept."}
