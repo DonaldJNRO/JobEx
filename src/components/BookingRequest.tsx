@@ -335,7 +335,9 @@ export default function BookingRequest({
                 // sentence has already said; appending it gave the listing
                 // page "Confirmed on the spot. Confirmed on the spot." A
                 // deposit's reason is the useful half, so that one stays.
-                ? `Your slot at ${business} is confirmed as soon as you send this.${mode === "deposit" ? ` ${why}` : ""}`
+                ? (willCharge
+                  ? `Your slot at ${business} is confirmed as soon as you pay.${mode === "deposit" ? ` ${why}` : ""}`
+                  : `${business} holds your slot and confirms it. You pay them at the studio.`)
                 : `${business} has 12 hours to accept. You pay after they do, not now.`}
             </p>
             {/* WHERE TO GO. The listing has carried an address all along and
@@ -565,9 +567,17 @@ export default function BookingRequest({
                 : (willCharge ? "Continue to payment" : "Send request")}
             </button>
             <p className="mt-3 text-xs text-ink-faint text-center">
-              {instant
-                ? "Confirmed straight away. You settle with them at the studio."
-                : "No payment now. Nothing is charged until they accept."}
+              {/* THREE STATES, NOT TWO. `instant` says the server would
+                  take money for this; willCharge says this site actually
+                  can. While the publishable key is unset those differ, and
+                  the sheet was promising "confirmed straight away" under a
+                  button that only sends a request. Say what the button in
+                  front of them does. */}
+              {willCharge
+                ? "Confirmed as soon as you pay. Sabię holds your money until after your visit."
+                : instant
+                  ? "They hold your slot and confirm it. You pay them at the studio."
+                  : "No payment now. Nothing is charged until they accept."}
             </p>
           </form>
         )}

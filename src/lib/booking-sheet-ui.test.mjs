@@ -59,5 +59,18 @@ ck((SHEET.match(/className="w-full min-w-0 h-12/g) || []).length >= 3,
 ck(/input\[type="date"\], input\[type="time"\] \{ min-width: 0/.test(CSS),
   "with a CSS backstop, because iOS gives them an intrinsic width w-full does not beat");
 
+
+// ── THE SHEET SAYS WHAT THE BUTTON DOES ─────────────────────────────────
+// `instant` means the server would take money for this listing. willCharge
+// means this site actually can, which is false until the publishable key
+// is set. While they differ the sheet promised "confirmed straight away"
+// under a button that only sent a request.
+ck(/\{willCharge\s*\n?\s*\? "Confirmed as soon as you pay/.test(SHEET),
+  "when it will charge, it says so");
+ck(/holds your slot and confirms it\. You pay them at the studio\./.test(SHEET),
+  "when it cannot charge yet, it does not promise a payment");
+ck(!/\{instant\s*\n?\s*\? "Confirmed straight away/.test(SHEET),
+  "and the old two-state copy is gone");
+
 console.log(fails ? `\n${fails} FAILED` : "\nALL PASSED");
 process.exit(fails ? 1 : 0);
