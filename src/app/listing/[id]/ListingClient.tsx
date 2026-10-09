@@ -13,7 +13,7 @@ import { useReveal } from "@/lib/useReveal";
 import { useAuth } from "@/contexts/AuthContext";
 import { isSaved, saveListing, unsaveListing } from "@/lib/saved";
 import { APP_STORE_URL } from "@/lib/app-links";
-import { isShopWindow } from "@/lib/shop-window";
+import { isShopWindow, confirmsInstantly } from "@/lib/shop-window";
 import BookingRequest from "@/components/BookingRequest";
 
 const AMENITY_ICONS: Record<string, typeof Wifi> = {
@@ -159,6 +159,7 @@ export default function ListingClient() {
      other businesses, no app poster, and Book finishes here. Everywhere else
      renders exactly as it did before, until the founder has seen these two. */
   const shopWindow = isShopWindow(slug || id);
+  const instant = confirmsInstantly(listing);
 
   const bookingBlock = (
     <>
@@ -179,8 +180,15 @@ export default function ListingClient() {
           >
             Book <ArrowRight size={18} />
           </button>
+          {/* THE SERVER ALREADY DECIDES THIS, and the page did not know.
+              canSellInstantly in onBookingRequestCreated confirms a request
+              on the spot when the listing takes payment, is not a cafe and
+              has an allocation. It has fired 14 times. Every listing's page
+              still promised a 12 hour wait. */}
           <p className="text-[11px] text-text-muted text-center mt-3">
-            Ask first, pay later. They have 12 hours to accept.
+            {instant
+              ? "Confirmed on the spot. No waiting for a reply."
+              : "Ask first, pay later. They have 12 hours to accept."}
           </p>
         </>
       ) : (

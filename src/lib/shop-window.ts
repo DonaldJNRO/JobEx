@@ -49,6 +49,42 @@ export interface OfferSource {
 }
 
 /**
+ * Does this listing confirm on the spot, or does somebody have to say yes?
+ *
+ * MIRRORS canSellInstantly IN onBookingRequestCreated, which is the function
+ * that actually decides. It confirms a request immediately, inside a
+ * transaction that counts against the slot, when the listing takes payment,
+ * is not a cafe, and has an allocation. That has fired 14 times already,
+ * under confirmedBy: 'instant_allocation'.
+ *
+ * The web never knew. Every listing's form said "has 12 hours to accept. You
+ * pay after they do", including the ones the server confirms before the
+ * operator has even looked. Telling somebody to wait for a yes they have
+ * already been given is how an instant booking becomes a cancelled one.
+ *
+ * Re-derived here rather than stamped on the listing, for the same reason the
+ * cafe rule is re-checked everywhere: a value written weeks ago is not a
+ * promise about today.
+ */
+export function confirmsInstantly(l: unknown): boolean {
+  const d = l as {
+    acceptsInAppPayment?: unknown;
+    sabieAllocationPerSlot?: unknown;
+    role?: unknown;
+  } | null;
+  if (!d) return false;
+  if (d.acceptsInAppPayment !== true) return false;
+  const role = String(d.role ?? "").toLowerCase();
+  // A CAFE IS NEVER INSTANT, because a cafe is never payable. Locked rule,
+  // re-checked rather than trusted.
+  if (role.includes("food_beverage") || role.includes("foodbeverage") || role.includes("restaurant")) {
+    return false;
+  }
+  const alloc = Number(d.sabieAllocationPerSlot);
+  return Number.isFinite(alloc) && alloc > 0;
+}
+
+/**
  * The operator's own terms, in their own words.
  *
  * ASKED FOR, AND THEN NOT SHOWN. The founder asked for policies on captures

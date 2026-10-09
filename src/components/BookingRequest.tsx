@@ -17,7 +17,7 @@
 import { useEffect, useRef, useState } from "react";
 import { X, Check, Loader2, AlertTriangle, ChevronDown, MapPin } from "lucide-react";
 import { sendBookingRequest, BookingError } from "@/lib/book";
-import { offersOf, slotsFor, policyLines, addressOf, type Offer } from "@/lib/shop-window";
+import { offersOf, slotsFor, policyLines, addressOf, confirmsInstantly, type Offer } from "@/lib/shop-window";
 import { buildDisplayPrice, formatPriceWithCurrency } from "@/lib/display-price";
 import { useMoney } from "@/lib/useRates";
 import { nativeCurrencyOf } from "@/lib/listing-price";
@@ -98,6 +98,8 @@ export default function BookingRequest({
   const slots = slotsFor(listing, offer);
   const policy = policyLines(listing);
   const address = addressOf(listing);
+  // The server confirms these before the operator has looked. Saying "they\n  // have 12 hours to accept" to somebody already booked is how an instant\n  // booking turns into a cancelled one.
+  const instant = confirmsInstantly(listing);
   const unit = chosen?.price;
   const total = typeof unit === "number" ? unit * Math.max(1, guests) : undefined;
   // RATES ARE IN NOW. This was ratesReady:false with a note saying it would
@@ -213,9 +215,11 @@ export default function BookingRequest({
           </div>
         ) : (
           <form onSubmit={submit} className="pt-4">
-            <h2 className="text-xl text-ink mb-1">Ask to book</h2>
+            <h2 className="text-xl text-ink mb-1">{instant ? "Book now" : "Ask to book"}</h2>
             <p className="text-sm text-ink-muted mb-1.5">
-              {business} has 12 hours to accept. You pay after they do, not now.
+              {instant
+                ? `Your slot at ${business} is confirmed as soon as you send this. No waiting.`
+                : `${business} has 12 hours to accept. You pay after they do, not now.`}
             </p>
             {/* WHERE TO GO. The listing has carried an address all along and
                 the one screen where somebody commits to turning up never
@@ -407,7 +411,9 @@ export default function BookingRequest({
               {sending ? "Sending" : "Send request"}
             </button>
             <p className="mt-3 text-xs text-ink-faint text-center">
-              No payment now. Nothing is charged until they accept.
+              {instant
+                ? "Confirmed straight away. You settle with them at the studio."
+                : "No payment now. Nothing is charged until they accept."}
             </p>
           </form>
         )}
