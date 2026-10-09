@@ -48,13 +48,16 @@ export default function BookingRequest({
   listing,
   open,
   onClose,
+  initialOffer,
 }: {
   listing: Listing;
   open: boolean;
   onClose: () => void;
+  /** The row they tapped on the page, if they came in that way. */
+  initialOffer?: string;
 }) {
   const offers = offersOf(listing);
-  const [offer, setOffer] = useState<string>(offers[0]?.name ?? "");
+  const [offer, setOffer] = useState<string>(initialOffer || offers[0]?.name || "");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [guests, setGuests] = useState(1);
@@ -69,6 +72,14 @@ export default function BookingRequest({
   // One key per opening of this form, so a guest who taps Send twice on a slow
   // connection does not put two requests in the operator's inbox.
   const idempotencyKey = useRef<string>("");
+  // TAPPING A DIFFERENT ROW CHANGES THE CHOICE. useState only reads its
+  // initial value once, so without this a guest who closed the sheet, tapped
+  // Pedicure and reopened it would still be looking at Acrylic.
+  useEffect(() => {
+    if (!open) return;
+    if (initialOffer && offers.some((o) => o.name === initialOffer)) setOffer(initialOffer);
+  }, [open, initialOffer, offers]);
+
   useEffect(() => {
     if (!open) return;
     idempotencyKey.current =

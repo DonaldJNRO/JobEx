@@ -15,6 +15,7 @@ import { isSaved, saveListing, unsaveListing } from "@/lib/saved";
 import { APP_STORE_URL } from "@/lib/app-links";
 import { isShopWindow } from "@/lib/shop-window";
 import { fetchBookingDecision, ASK, type BookingDecision } from "@/lib/booking-decision";
+import { offersOf } from "@/lib/shop-window";
 import BookingRequest from "@/components/BookingRequest";
 
 const AMENITY_ICONS: Record<string, typeof Wifi> = {
@@ -39,6 +40,10 @@ export default function ListingClient() {
   const [slug, setSlug] = useState("");
   const [copied, setCopied] = useState(false);
   const [booking, setBooking] = useState(false);
+  // Which row they tapped, so the sheet opens on it rather than on whatever
+  // happens to be first. Tapping "Pedicure" and being shown "Acrylic" is the
+  // difference between a menu and a form.
+  const [pickedOffer, setPickedOffer] = useState("");
   const revealRef = useReveal();
   const { user } = useAuth();
   // ABOVE THE EARLY RETURNS, with the other hooks. Placed beside the price it
@@ -178,6 +183,7 @@ export default function ListingClient() {
      renders exactly as it did before, until the founder has seen these two. */
   const shopWindow = isShopWindow(slug || id);
   const instant = bookMode.mode === "instant" || bookMode.mode === "deposit";
+  const offers = offersOf(listing ?? {});
 
   const bookingBlock = (
     <>
@@ -474,6 +480,38 @@ export default function ListingClient() {
               </div>
             )}
 
+            {/* WHAT THEY ACTUALLY SELL.
+                The page showed a hero, a from-price and a Book button, and
+                nothing else: a traveller could not see what was on offer
+                without opening the booking sheet first. The app has shown
+                this list all along. Naileditbyd has seventeen services and
+                the page named none of them.
+                Tapping a row opens the sheet with that row chosen, which is
+                what makes it a menu rather than a price list. */}
+            {offers.length > 0 && (
+              <div className="reveal">
+                <h2 className="text-lg font-semibold text-ink mb-3">What they offer</h2>
+                <ul className="rounded-2xl border border-line divide-y divide-line overflow-hidden">
+                  {offers.map((o) => (
+                    <li key={o.name}>
+                      <button
+                        type="button"
+                        onClick={() => { setPickedOffer(o.name); setBooking(true); }}
+                        className="w-full flex items-baseline justify-between gap-4 px-4 py-3 text-left hover:bg-surface-sunken transition-colors"
+                      >
+                        <span className="text-sm text-ink">{o.name}</span>
+                        <span className="text-sm font-semibold text-ink whitespace-nowrap">
+                          {typeof o.price === "number"
+                            ? `${listing.currency === "GBP" ? "£" : "₦"}${o.price.toLocaleString("en-NG")}`
+                            : "Ask"}
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             {/* The menu, where there is one. On 50% of listings and read by
                 nothing until now, which for a restaurant is the single most
                 useful thing on the document. */}
@@ -585,7 +623,7 @@ export default function ListingClient() {
       )}
 
       {shopWindow && listing && (
-        <BookingRequest listing={listing} open={booking} onClose={() => setBooking(false)} />
+        <BookingRequest listing={listing} open={booking} initialOffer={pickedOffer} onClose={() => setBooking(false)} />
       )}
     </div>
   );
