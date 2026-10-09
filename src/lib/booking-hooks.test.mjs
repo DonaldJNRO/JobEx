@@ -31,7 +31,18 @@ function hooksAfterEarlyReturn(src) {
   // flagged bookings/page.tsx on the first run of this test, where money()
   // returns null for a missing amount. A check that cries wolf gets deleted.
   const comp = /\n(?:export default )?function [A-Z]\w*\(/.exec(src);
-  const body = comp ? src.slice(comp.index) : src;
+  if (!comp) return [];
+  // STOP AT THE NEXT COMPONENT. A file may hold more than one, and scanning
+  // to the end treats the second one's hooks as if they sat below the
+  // first's guards. ProfileServices.tsx caught this out: its ServiceRow is a
+  // separate component whose useState is perfectly legal, and the check
+  // reported it as a violation. A check that cries wolf gets deleted, so it
+  // is bounded instead.
+  const rest = src.slice(comp.index + comp[0].length);
+  const next = /\n(?:export default )?function [A-Z]\w*\(/.exec(rest);
+  const body = next
+    ? src.slice(comp.index, comp.index + comp[0].length + next.index)
+    : src.slice(comp.index);
   // ANY early return, not just `return null`.
   //
   // The first version matched only `return null;` and therefore did not see

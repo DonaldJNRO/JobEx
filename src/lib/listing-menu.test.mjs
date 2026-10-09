@@ -17,14 +17,21 @@ const PAGE = readFileSync(new URL("../app/listing/[id]/ListingClient.tsx", impor
 const SHEET = readFileSync(new URL("../components/BookingRequest.tsx", import.meta.url), "utf8");
 const live = (s) => s.split("\n").filter((l) => !l.trimStart().startsWith("//") && !l.trimStart().startsWith("*")).join("\n");
 
-ck(/offers\.length > 0 && \(/.test(live(PAGE)), "the page renders the offer list");
-ck(/What they offer/.test(live(PAGE)), "under a heading that says what it is");
-ck(/const offers = offersOf\(listing \?\? \{\}\)/.test(live(PAGE)),
-  "from the same offersOf the sheet uses, so the two cannot disagree");
+// The flat list this file first tested was replaced by ProfileServices,
+// which mirrors the app: three shapes, and services collapsed over their
+// tiers rather than one row per price.
+const SECTION = readFileSync(new URL("../components/ProfileServices.tsx", import.meta.url), "utf8");
+
+ck(/<ProfileServices/.test(live(PAGE)), "the page renders the services section");
+ck(/What they offer/.test(live(SECTION)), "under a heading that says what it is");
+ck(/resolveProfileSections\(listing\)/.test(live(SECTION)),
+  "whose shape is decided the same way the app decides it");
 
 // A MENU, NOT A PRICE LIST. Tapping a row has to carry the choice through.
-ck(/setPickedOffer\(o\.name\); setBooking\(true\)/.test(live(PAGE)),
+ck(/setPickedOffer\(name\); setBooking\(true\)/.test(live(PAGE)),
   "tapping a row opens the sheet on that row");
+ck(/onPick\(`\$\{group\.name\} \(\$\{t\.label\}\)`\)/.test(live(SECTION)),
+  "and a tier carries its own label, so the right price is booked");
 ck(/initialOffer=\{pickedOffer\}/.test(live(PAGE)), "and hands it over");
 ck(/initialOffer \|\| offers\[0\]\?\.name \|\| ""/.test(live(SHEET)),
   "the sheet starts on it");
@@ -38,7 +45,7 @@ ck(/o\.name === initialOffer/.test(live(SHEET)),
 
 // An unpriced row is still offerable: "ask to book" means the operator says
 // what it costs when they accept.
-ck(/: "Ask"/.test(live(PAGE)), "an unpriced row reads Ask rather than a made-up number");
+ck(/\? "Ask" :/.test(live(SECTION)), "an unpriced row reads Ask rather than a made-up number");
 
 // Naileditbyd's real shape: priced on the tier, mirrored into packages.
 const NAILS = {

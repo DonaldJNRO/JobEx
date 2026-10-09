@@ -84,6 +84,67 @@ export function confirmsInstantly(l: unknown): boolean {
   return Number.isFinite(alloc) && alloc > 0;
 }
 
+export interface ServiceTierRow { label: string; price: number | null }
+export interface ServiceGroup {
+  name: string;
+  description: string | null;
+  /** Empty when the service has a single price of its own. */
+  tiers: ServiceTierRow[];
+  /** The one price to show on the collapsed row, cheapest when tiered. */
+  fromPrice: number | null;
+  /** True when the row is worth expanding. */
+  hasChoices: boolean;
+}
+
+/**
+ * The services as the app shows them: a row, and its tiers underneath.
+ *
+ * TWO LEVELS, LOCKED, mirroring ProfileServices.js. The app's comment is
+ * explicit that three levels (category → service → tier) waits for Studio to
+ * ship a service.category enum, and inventing a grouping here would put the
+ * two surfaces out of step the day it arrives.
+ *
+ * offersOf() flattens the same data into one row per bookable price, which is
+ * what a dropdown needs. This keeps the shape, which is what a page needs:
+ * "Gel nails" with Short and Medium under it reads as one service with a
+ * choice, where two sibling rows read as two services.
+ */
+export function serviceGroups(l: OfferSource): ServiceGroup[] {
+  const services = (l as { services?: RawOfferRow[] }).services ?? [];
+  const packages = (l as { packages?: RawOfferRow[] }).packages ?? [];
+  // Services first and never both, for the same reason offersOf does it:
+  // packages is a flat mirror of services that the assemble path writes.
+  const rows = services.length ? services : packages;
+
+  const out: ServiceGroup[] = [];
+  for (const r of rows) {
+    const name = (r?.name ?? "").trim();
+    if (!name) continue;
+    const own = Number(r.price);
+    const tiers = (Array.isArray(r.tiers) ? r.tiers : [])
+      .map((t) => ({
+        label: String((t as RawTier)?.label ?? "").trim(),
+        price: Number((t as RawTier)?.price),
+      }))
+      .filter((t) => Number.isFinite(t.price) && t.price > 0)
+      .map((t) => ({ label: t.label, price: t.price as number }));
+
+    const prices = tiers.length ? tiers.map((t) => t.price as number)
+      : Number.isFinite(own) && own > 0 ? [own] : [];
+
+    out.push({
+      name,
+      description: ((r as { description?: string })?.description ?? "").trim() || null,
+      // A single tier is not a choice: "Acrylic / Single" is the same row
+      // said twice, and the app collapses it the same way.
+      tiers: tiers.length > 1 ? tiers : [],
+      fromPrice: prices.length ? Math.min(...prices) : null,
+      hasChoices: tiers.length > 1,
+    });
+  }
+  return out;
+}
+
 /**
  * The operator's own terms, in their own words.
  *
