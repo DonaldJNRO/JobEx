@@ -90,8 +90,6 @@ export default function BookingRequest({
     };
   }, [open, onClose]);
 
-  if (!open) return null;
-
   const chosen: Offer | undefined = offers.find((o) => o.name === offer);
   const unit = chosen?.price;
   const total = typeof unit === "number" ? unit * Math.max(1, guests) : undefined;
@@ -114,6 +112,18 @@ export default function BookingRequest({
     exchangeRates: rates,
     ratesReady: ready,
   });
+
+  // EVERY HOOK IS ABOVE THIS LINE, and that is the whole point of where it
+  // sits. `if (!open) return null` used to be ~16 lines higher, above
+  // useMoney(). So a closed sheet ran fewer hooks than an open one, and the
+  // render where a guest tapped Book went from one hook count to another.
+  // React treats that as unrecoverable, and on Chrome for Android it does not
+  // surface as a red error, it takes the tab down: "This page couldn't load".
+  //
+  // It was not noticed for twelve days because the form was gated to two
+  // listings and nobody pressed Book on either, which is its own finding. The
+  // moment the gate came off, the first guest to try it hit this.
+  if (!open) return null;
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
