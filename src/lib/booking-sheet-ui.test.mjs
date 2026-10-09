@@ -47,5 +47,17 @@ const gridEnd = SHEET.indexOf("</div>", gridStart);
 ck(!/How many/.test(SHEET.slice(gridStart, gridEnd)),
   "and 'How many' is out of the two-column grid, not stranded at half width beside nothing");
 
+
+// ── THE TWO BOXES MUST NOT TOUCH ────────────────────────────────────────
+// min-w-0 on the label was not enough: the wrapper span and the control
+// itself each needed it too, or the input's intrinsic width pushes through
+// and the cell grows past its grid track.
+ck(/relative block w-full min-w-0/.test(SHEET),
+  "the date wrapper can shrink to its track");
+ck((SHEET.match(/className="w-full min-w-0 h-12/g) || []).length >= 3,
+  "and so can the date input, the time select and the time input");
+ck(/input\[type="date"\], input\[type="time"\] \{ min-width: 0/.test(CSS),
+  "with a CSS backstop, because iOS gives them an intrinsic width w-full does not beat");
+
 console.log(fails ? `\n${fails} FAILED` : "\nALL PASSED");
 process.exit(fails ? 1 : 0);

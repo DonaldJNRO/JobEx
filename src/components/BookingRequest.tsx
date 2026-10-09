@@ -408,7 +408,11 @@ export default function BookingRequest({
                     A date input ignores `placeholder`, so the hint is drawn
                     over it and taken out of the hit area, leaving the native
                     picker to do its job. */}
-                <span className="relative block">
+                {/* w-full min-w-0 on the wrapper too, or the input's
+                    intrinsic width pushes straight through it and the cell
+                    grows past its grid track — which is why the two boxes
+                    were still touching after the label got min-w-0. */}
+                <span className="relative block w-full min-w-0">
                   <input
                     type="date"
                     required
@@ -416,7 +420,7 @@ export default function BookingRequest({
                     value={date}
                     data-empty={date ? undefined : "true"}
                     onChange={(e) => setDate(e.target.value)}
-                    className="w-full h-12 px-3 rounded-2xl bg-card border border-line text-ink focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-colors"
+                    className="w-full min-w-0 h-12 px-3 rounded-2xl bg-card border border-line text-ink focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-colors"
                   />
                   {!date && (
                     <span
@@ -440,7 +444,7 @@ export default function BookingRequest({
                     required
                     value={time}
                     onChange={(e) => setTime(e.target.value)}
-                    className="w-full h-12 px-3 rounded-2xl bg-card border border-line text-ink focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-colors"
+                    className="w-full min-w-0 h-12 px-3 rounded-2xl bg-card border border-line text-ink focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-colors"
                   >
                     <option value="">Pick a time</option>
                     {slots.map((t) => <option key={t} value={t}>{t}</option>)}
@@ -451,7 +455,7 @@ export default function BookingRequest({
                     required
                     value={time}
                     onChange={(e) => setTime(e.target.value)}
-                    className="w-full h-12 px-3 rounded-2xl bg-card border border-line text-ink focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-colors"
+                    className="w-full min-w-0 h-12 px-3 rounded-2xl bg-card border border-line text-ink focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-colors"
                   />
                 )}
               </label>

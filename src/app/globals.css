@@ -289,3 +289,8 @@ html[data-appstrip="off"] [data-app-strip] { display: none; }
    button is left alone, because that is how the picker is opened. */
 input[type="date"][data-empty="true"]::-webkit-datetime-edit { opacity: 0; }
 input[type="date"][data-empty="true"]::-moz-placeholder-shown { opacity: 0; }
+
+/* iOS gives date and time inputs an intrinsic width that w-full does not
+   beat, so in a two-column grid the cell grows past its track and the two
+   boxes end up touching. This lets them shrink to the track they are in. */
+input[type="date"], input[type="time"] { min-width: 0; max-width: 100%; }
