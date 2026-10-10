@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { User, LogOut, Bookmark, Calendar } from "lucide-react";
+import { User, LogOut, Calendar } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
 
@@ -57,7 +57,6 @@ export default function AccountPage() {
         <div className="bg-card rounded-2xl border border-line overflow-hidden mb-6">
           {[
             { icon: Calendar, label: "My Bookings", href: "/bookings" },
-            { icon: Bookmark, label: "Saved Listings", href: "/favorites" },
           ].map((item) => (
             <Link key={item.label} href={item.href} className="flex items-center gap-4 px-6 py-4 border-b border-line last:border-0 hover:bg-surface-sunken transition-colors">
               <item.icon size={20} className="text-text-muted" />
