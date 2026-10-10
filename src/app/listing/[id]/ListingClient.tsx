@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { MapPin, Star, ChevronLeft, ChevronRight, Share2, Link2, Heart, Wifi, Car, Coffee, Waves, Shield, ArrowRight, Download, Check, Globe, Clock, Users } from "lucide-react";
+import { MapPin, Star, ChevronLeft, ChevronRight, Wifi, Car, Coffee, Waves, Shield, ArrowRight, Download, Globe, Clock, Users, Check } from "lucide-react";
 import { resolveListing, getListingPrice, getListingLocation, getListingType, getCategoryLabel, getFeaturedListings, visitedBySabie, Listing } from "@/lib/listings";
 import { useMoney } from "@/lib/useRates";
 import { buildDisplayPrice } from "@/lib/display-price";
@@ -12,7 +12,6 @@ import { openingRows, openNow, serviceStyle, verificationLine, amenityLabel } fr
 import ListingCard from "@/components/ListingCard";
 import { useReveal } from "@/lib/useReveal";
 import { useAuth } from "@/contexts/AuthContext";
-import { isSaved, saveListing, unsaveListing } from "@/lib/saved";
 import { APP_STORE_URL } from "@/lib/app-links";
 import { isShopWindow } from "@/lib/shop-window";
 import { fetchBookingDecision, ASK, type BookingDecision } from "@/lib/booking-decision";
@@ -38,15 +37,18 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
   const [listing, setListing] = useState<Listing | null>((snapshot as Listing) ?? null);
   const [loading, setLoading] = useState(!snapshot);
   const [currentImage, setCurrentImage] = useState(0);
-  // The heart used to be local state only: it filled in, wrote nothing, and
-  // /favorites told people their taps were being saved. `savingLike` stops a
-  // double tap racing two writes at the same document.
-  const [liked, setLiked] = useState(false);
-  const [savingLike, setSavingLike] = useState(false);
+  // SWIPE, BECAUSE THE ARROWS ARE DESKTOP ONLY. They are hidden below sm to
+  // keep a chevron off the business name, which left the dots as the only
+  // way through seven photos on the surface where almost everyone is. A
+  // gallery you cannot swipe on a phone reads as broken.
+  //
+  // Tracked in a ref rather than state: a re-render per touchmove to drag a
+  // number across the screen is work for nothing, and the gesture only needs
+  // to be judged once, at the end.
+  const touchX = useRef<number | null>(null);
   const [similarListings, setSimilarListings] = useState<Listing[]>([]);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [slug, setSlug] = useState("");
-  const [copied, setCopied] = useState(false);
   const [booking, setBooking] = useState(false);
   // Which row they tapped, so the sheet opens on it rather than on whatever
   // happens to be first. Tapping "Pedicure" and being shown "Acrylic" is the
@@ -80,37 +82,7 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
       .finally(() => setLoading(false));
   }, [id, router]);
 
-  // Reads the saved state once both the viewer and the listing are known.
-  // Sits above the loading return, so it is not a conditional hook.
-  useEffect(() => {
-    if (!user?.uid || !listing?.id) { setLiked(false); return; }
-    let cancelled = false;
-    isSaved(user.uid, listing.id).then((saved) => {
-      if (!cancelled) setLiked(saved);
-    });
-    return () => { cancelled = true; };
-  }, [user?.uid, listing?.id]);
 
-  const toggleLike = async () => {
-    if (!listing) return;
-    // Signed out, the heart is an invitation to sign in rather than a control
-    // that silently does nothing.
-    if (!user?.uid) { router.push("/auth/login"); return; }
-    if (savingLike) return;
-    setSavingLike(true);
-    const next = !liked;
-    setLiked(next);
-    try {
-      if (next) await saveListing(user.uid, listing);
-      else await unsaveListing(user.uid, listing.id);
-    } catch {
-      // The write failed, so the heart has to go back. Leaving it filled is
-      // the same lie this whole change exists to remove.
-      setLiked(!next);
-    } finally {
-      setSavingLike(false);
-    }
-  };
 
   // THE SAME SERVER ANSWER as the sheet, so the page cannot promise one
   // thing and the form say another. Asked without an offer, which gives the
@@ -185,7 +157,6 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
     listing.pricingUnit && !price.includes("/")
       ? `per ${listing.pricingUnit.replace("per_", "").replace(/_/g, " ")}`
       : "";
-  const bookingLink = slug ? `https://www.sabieapp.com/listing/${slug}` : "";
   /* THE SHOP WINDOW. On these listings the page belongs to the operator: no
      other businesses, no app poster, and Book finishes here. Everywhere else
      renders exactly as it did before, until the founder has seen these two. */
@@ -202,6 +173,27 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
   // It stays for the listings with nothing to pick. Of 49 live listings 29
   // are in that state, most of them cafés whose menu items are not loaded,
   // and for those a single action is the only action there could be.
+  const go = (delta: number) => {
+    if (images.length < 2) return;
+    setCurrentImage((i) => (i + delta + images.length) % images.length);
+    setImageLoaded(false);
+  };
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchX.current = e.touches[0]?.clientX ?? null;
+  };
+
+  const onTouchEnd = (e: React.TouchEvent) => {
+    const start = touchX.current;
+    touchX.current = null;
+    if (start === null) return;
+    const dx = (e.changedTouches[0]?.clientX ?? start) - start;
+    // 40px, so a tap with a shaky thumb does not change the photo and a
+    // deliberate flick always does. Below that it was never a swipe.
+    if (Math.abs(dx) < 40) return;
+    go(dx < 0 ? 1 : -1);
+  };
+
   const pickable = hasPickableList((listing ?? {}) as unknown as Record<string, unknown>);
   // The price of the row they chose, so the headline figure is no longer the
   // cheapest of everything while they are looking at something else. Null
@@ -287,21 +279,17 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
     </>
   );
 
-  const copyLink = async () => {
-    if (!bookingLink) return;
-    try {
-      await navigator.clipboard.writeText(bookingLink);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {}
-  };
 
   return (
     <div ref={revealRef} className="min-h-screen bg-surface">
       {/* Image Gallery */}
       <div className="relative bg-neutral-dark">
         <div className="max-w-6xl mx-auto">
-          <div className="relative aspect-[4/3] sm:aspect-[2.5/1] overflow-hidden sm:rounded-b-3xl">
+          <div
+            className="relative aspect-[4/3] sm:aspect-[2.5/1] overflow-hidden sm:rounded-b-3xl select-none"
+            onTouchStart={onTouchStart}
+            onTouchEnd={onTouchEnd}
+          >
             {images.length > 0 ? (
               <Image
                 src={images[currentImage]}
@@ -329,14 +317,14 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
             {images.length > 1 && (
               <>
                 <button
-                  onClick={() => { setCurrentImage((i) => (i - 1 + images.length) % images.length); setImageLoaded(false); }}
+                  onClick={() => go(-1)}
                   aria-label="Previous photo"
                   className="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full glass hidden sm:flex items-center justify-center text-ink hover:bg-line-strong transition-all"
                 >
                   <ChevronLeft size={20} />
                 </button>
                 <button
-                  onClick={() => { setCurrentImage((i) => (i + 1) % images.length); setImageLoaded(false); }}
+                  onClick={() => go(1)}
                   aria-label="Next photo"
                   className="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full glass hidden sm:flex items-center justify-center text-ink hover:bg-line-strong transition-all"
                 >
@@ -365,29 +353,16 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
               </div>
             )}
 
-            {/* Top actions */}
-            <div className="absolute top-4 left-4 right-4 flex justify-between">
+            {/* THE HEART AND THE SHARE BUTTON ARE GONE. The heart did write
+                a real save to Firestore, but there is no page anywhere that
+                lists saved listings, so it filed things where nobody could
+                ever look at them. Share duplicated what the browser's own
+                share sheet does better, from a button that cost a corner of
+                the photo. Back only. */}
+            <div className="absolute top-4 left-4">
               <Link href="/explore" className="w-10 h-10 rounded-full glass flex items-center justify-center text-ink hover:bg-line-strong transition-all">
                 <ChevronLeft size={20} />
               </Link>
-              <div className="flex gap-2">
-                <button
-                  onClick={toggleLike}
-                  aria-pressed={liked}
-                  aria-label={liked ? "Remove from saved listings" : "Save this listing"}
-                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 ${liked ? "bg-red-500 text-white scale-110" : "glass text-ink hover:bg-line-strong"}`}
-                >
-                  <Heart size={18} fill={liked ? "currentColor" : "none"} />
-                </button>
-                <button
-                  onClick={copyLink}
-                  aria-label={copied ? "Link copied" : "Copy link to this listing"}
-                  className="h-10 rounded-full glass flex items-center justify-center gap-1.5 text-ink hover:bg-line-strong transition-all px-3"
-                >
-                  {copied ? <Check size={18} /> : <Share2 size={18} />}
-                  {copied && <span className="text-xs font-semibold">Copied</span>}
-                </button>
-              </div>
             </div>
 
             {/* Title overlay at bottom */}
