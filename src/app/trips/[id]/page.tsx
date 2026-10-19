@@ -119,7 +119,10 @@ export default function TripChatPage({ params }: { params: Promise<{ id: string 
   let lastDay = "";
 
   return (
-    <main className="flex h-screen flex-col bg-surface">
+    // 100vh MINUS the navbar, not 100vh. layout.tsx pads main by pt-16 for
+    // the fixed nav, so a full-screen child is 64px taller than the window
+    // and the composer sits just under the fold.
+    <main className="flex h-[calc(100vh-4rem)] flex-col bg-surface">
       <header className="flex items-center gap-3 border-b border-line bg-card px-4 py-3">
         <Link href="/trips" aria-label="Back to your trips" className="rounded-lg p-1.5 text-ink hover:bg-surface-sunken">
           <ArrowLeft className="h-5 w-5" />

@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import AppShell from "@/components/AppShell";
 import { APP_STORE_ID, APP_STRIP_KEY } from "@/lib/app-links";
 
 /**
@@ -133,8 +134,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="min-h-screen bg-surface text-ink-body antialiased">
         <AuthProvider>
           <Navbar />
-          <main className="pt-16">{children}</main>
-          <Footer />
+          {/* The shell decides for itself which routes it belongs on: the app
+              surfaces get a rail and a bottom bar, the marketing and legal
+              pages stay a plain website. See src/components/AppShell.tsx. */}
+          <AppShell footer={<Footer />}>
+            <main className="pt-16">{children}</main>
+          </AppShell>
         </AuthProvider>
       </body>
     </html>
