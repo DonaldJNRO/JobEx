@@ -18,6 +18,7 @@ import { useEffect, useRef, useState } from "react";
 import { X, Check, Loader2, AlertTriangle, ChevronDown, MapPin } from "lucide-react";
 import { sendBookingRequest, BookingError } from "@/lib/book";
 import { offersOf, slotsFor, policyLines, addressOf, type Offer } from "@/lib/shop-window";
+import { offerTotal } from "@/lib/offer-total";
 import { fetchBookingDecision, ASK, type BookingDecision } from "@/lib/booking-decision";
 import { buildDisplayPrice, formatPriceWithCurrency } from "@/lib/display-price";
 import PayStep, { canPay } from "./PayStep";
@@ -131,7 +132,12 @@ export default function BookingRequest({
   const { mode, why } = decision;
   const instant = mode === "instant" || mode === "deposit";
   const unit = chosen?.price;
-  const total = typeof unit === "number" ? unit * Math.max(1, guests) : undefined;
+  // What the unit actually means: per head, per night, or flat. This was
+  // `unit * Math.max(1, guests)` for every offer, so a per-night listing
+  // quoted three guests three nights — and since `totalPrice: dueNow ?? total`
+  // is what gets sent, that figure could reach the card. The rule and its
+  // reasoning are in src/lib/offer-total.ts, where they are tested.
+  const { amount: total, isRate } = offerTotal(chosen?.name, unit, guests);
   // What the SERVER says is taken at booking. Null until it has answered,
   // so nothing is promised before it has.
   const dueNow = decision.payNow > 0 ? decision.payNow : null;
@@ -308,7 +314,7 @@ export default function BookingRequest({
               </div>
               {money.display && (
                 <div className="flex justify-between gap-4 py-1">
-                  <dt className="text-ink-muted">Price</dt><dd className="text-ink font-medium text-right">{money.display}</dd>
+                  <dt className="text-ink-muted">{isRate ? chosen?.name : "Price"}</dt><dd className="text-ink font-medium text-right">{money.display}</dd>
                 </div>
               )}
             </dl>
@@ -518,7 +524,17 @@ export default function BookingRequest({
                   {dueNow !== null && dueNow !== total ? "Full price" : "Total"}
                 </span>
                 <span className="text-right">
-                  <span className="block text-2xl font-semibold text-ink">{money.display}</span>
+                  {/* A RATE SAYS SO. When the offer is priced per night or per
+                      hour this figure is the rate, not the bill: the form has
+                      a date and no checkout, so there is no stay length to
+                      total. Showing it bare reads as the price of the whole
+                      booking. */}
+                  <span className="block text-2xl font-semibold text-ink">
+                    {money.display}
+                    {isRate && (
+                      <span className="text-sm font-normal text-ink-muted"> {(chosen?.name || "").toLowerCase()}</span>
+                    )}
+                  </span>
                   {money.original && <span className="block text-xs text-ink-faint">{money.original}</span>}
                 </span>
               </div>
