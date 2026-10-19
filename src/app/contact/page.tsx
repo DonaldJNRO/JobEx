@@ -97,7 +97,7 @@ export default function ContactPage() {
           <div className="bg-card rounded-2xl border border-line p-8">
             {submitted ? (
               <div className="text-center py-12">
-                <CheckCircle size={48} className="mx-auto text-green-600 mb-4" />
+                <CheckCircle size={48} className="mx-auto text-settled-ink mb-4" />
                 <h3 className="text-lg font-bold text-ink">Message sent</h3>
                 <p className="text-sm text-text-muted mt-2">
                   It is with us now. We reply to {CONTACT_EMAIL} within a working day.
@@ -126,9 +126,9 @@ export default function ContactPage() {
                 </div>
 
                 {error && (
-                  <div role="alert" className="flex items-start gap-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3">
-                    <AlertTriangle size={16} className="mt-0.5 shrink-0 text-amber-700" />
-                    <p className="text-sm text-amber-800">
+                  <div role="alert" className="flex items-start gap-2.5 rounded-xl border border-secondary/30 bg-secondary/10 px-4 py-3">
+                    <AlertTriangle size={16} className="mt-0.5 shrink-0 text-secondary-ink" />
+                    <p className="text-sm text-secondary-ink">
                       {error}{" "}
                       <a href={mailtoFallback(form)} className="font-semibold underline underline-offset-2">
                         Email it to us instead

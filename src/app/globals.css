@@ -193,9 +193,12 @@
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
+/* THE LAST OF THE OLD PURPLE. rgba(68,54,109) is #44366d written in decimal,
+   so it survived the brand change: every search was for the hex. A keyframe
+   is exactly where a colour hides, because nothing reads it until it runs. */
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(68, 54, 109, 0.4); }
-  50% { box-shadow: 0 0 0 12px rgba(68, 54, 109, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(44, 44, 42, 0.4); }
+  50% { box-shadow: 0 0 0 12px rgba(44, 44, 42, 0); }
 }
 @keyframes gradient-x {
   0%, 100% { background-position: 0% 50%; }

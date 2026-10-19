@@ -13,12 +13,16 @@ import BookingFields from "@/components/BookingFields";
 // through to the raw status rather than being hidden, because a status nobody
 // mapped is still information.
 const STATUS_TONE: Record<string, { label: string; className: string }> = {
-  confirmed_paid: { label: "Confirmed", className: "bg-emerald-600/10 text-emerald-700" },
-  confirmed: { label: "Confirmed", className: "bg-emerald-600/10 text-emerald-700" },
-  pending: { label: "Awaiting operator", className: "bg-amber-500/12 text-amber-700" },
-  declined: { label: "Declined", className: "bg-red-500/10 text-red-700" },
-  cancelled: { label: "Cancelled", className: "bg-line-strong text-text-muted" },
-  refunded: { label: "Refunded", className: "bg-line-strong text-text-muted" },
+  // THE BRAND'S OWN THREE, not Tailwind's. leaf for money received, gold for
+  // waiting, danger for refused, which is the set the app and Scout use.
+  // Tailwind's emerald, amber and red belong to no product and were putting
+  // five foreign colours into the stylesheet.
+  confirmed_paid: { label: "Confirmed", className: "bg-settled-bg text-settled-ink" },
+  confirmed: { label: "Confirmed", className: "bg-settled-bg text-settled-ink" },
+  pending: { label: "Awaiting operator", className: "bg-secondary/15 text-secondary-ink" },
+  declined: { label: "Declined", className: "bg-alarm-bg text-alarm-ink" },
+  cancelled: { label: "Cancelled", className: "bg-surface-sunken text-ink-muted" },
+  refunded: { label: "Refunded", className: "bg-surface-sunken text-ink-muted" },
 };
 
 function money(amount: number | null, currency: string | null): string | null {

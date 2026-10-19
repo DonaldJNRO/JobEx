@@ -63,3 +63,47 @@ if (bad.length > 0) {
 console.log(
   `No token is named after a CSS keyword. Checked ${tokens.length} tokens in ${THEME_FILE}.`,
 );
+
+// ── NO FOREIGN PALETTES ───────────────────────────────────────────────────
+//
+// Tailwind ships emerald, amber, red, blue and the rest, and they belong to
+// no product. Five of them were in the live stylesheet: #fb2c36, #e40014,
+// #ffa3a3, #ffe2e2 and #f99c00, from a handful of text-red-600 and
+// bg-emerald-600 classes on the bookings, contact and payment surfaces.
+//
+// The brand has its own three for exactly these jobs, the same three the app
+// and Scout use: settled (leaf) for money received, secondary (gold) for
+// waiting, alarm (danger) for refused. A status pill in Tailwind's emerald
+// beside one in the brand's leaf is two greens that do not match.
+import { readdirSync as rd, statSync as st } from 'node:fs';
+
+const FOREIGN = /\b(?:text|bg|border|from|to|via|ring|divide)-(?:red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|slate|gray|zinc|neutral|stone)-\d{2,3}\b/g;
+
+function walkTsx(dir, out = []) {
+  for (const name of rd(dir)) {
+    if (name === 'node_modules' || name.startsWith('.')) continue;
+    const full = `${dir}/${name}`;
+    if (st(full).isDirectory()) walkTsx(full, out);
+    else if (name.endsWith('.tsx') || name.endsWith('.ts')) out.push(full);
+  }
+  return out;
+}
+
+const foreign = [];
+for (const file of walkTsx(new URL('../src', import.meta.url).pathname)) {
+  const src = readFileSync(file, 'utf8');
+  for (const m of src.match(FOREIGN) || []) {
+    foreign.push(`${file.split('/src/')[1]}: ${m}`);
+  }
+}
+
+if (foreign.length) {
+  console.error(`\n${foreign.length} off-brand colour class(es). Use the tokens in globals.css:\n`);
+  for (const f of [...new Set(foreign)].slice(0, 20)) console.error(`  ${f}`);
+  console.error('\n  money received -> settled-bg / settled-ink');
+  console.error('  waiting        -> secondary/15 / secondary-ink');
+  console.error('  refused        -> alarm-bg / alarm-ink');
+  console.error('  anything grey  -> surface-sunken / ink-muted / line\n');
+  process.exit(1);
+}
+console.log('No off-brand colour classes. Checked every .ts and .tsx under src.');
