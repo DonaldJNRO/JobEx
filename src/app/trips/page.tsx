@@ -42,6 +42,7 @@ function TripsInner() {
   const [creating, setCreating] = useState(false);
   const [adding, setAdding] = useState(false);
   const [filter, setFilter] = useState("");
+  const [onlyUnread, setOnlyUnread] = useState(false);
   const [term, setTerm] = useState("");
   const [found, setFound] = useState<TripMember[]>([]);
 
@@ -77,42 +78,63 @@ function TripsInner() {
     //
     // The rail is fixed and the layout is already inset past it by the
     // shell, so this is only the height.
-    <div className="flex h-[calc(100vh-4rem)] min-h-0 overflow-hidden">
+    // A CONTAINED PANEL, the way LinkedIn's messaging sits: a card with the
+    // page showing around it rather than chrome running edge to edge. On a
+    // phone it fills the screen, because margins there are just lost width.
+    <div className="h-[calc(100vh-4rem)] overflow-hidden p-0 lg:p-4">
+      <div className="flex h-full min-h-0 overflow-hidden rounded-none border-line bg-card lg:rounded-2xl lg:border">
       {/* THE LIST. Full width on a phone until a trip is picked, then it
           steps aside; always there from lg up. */}
       <aside
         className={`${open ? "hidden lg:flex" : "flex"} w-full shrink-0 flex-col border-r border-line bg-card lg:w-80`}
       >
-        <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-3">
-          <h1 className="text-lg font-bold tracking-tight text-ink">Trips</h1>
+        {/* TITLE AND SEARCH ON ONE ROW, as LinkedIn has them. Two rows of
+            chrome above a list is two rows of list you cannot see. */}
+        <div className="flex items-center gap-2 border-b border-line px-3 py-2.5">
+          <h1 className="shrink-0 pl-1 font-bold tracking-tight text-ink">Trips</h1>
+          <div className="relative min-w-0 flex-1">
+            <Search className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-ink-faint" />
+            <input
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              placeholder="Search"
+              aria-label="Search your trips"
+              className="w-full rounded-lg border border-line bg-surface py-1.5 pl-8 pr-2 text-sm text-ink placeholder:text-ink-faint"
+            />
+          </div>
           <button
             type="button"
             onClick={start}
             disabled={creating}
             aria-label="Start a trip"
-            className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-sm font-semibold text-white disabled:opacity-50"
+            className="shrink-0 rounded-lg bg-primary p-2 text-white disabled:opacity-50"
           >
             {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-            New
           </button>
         </div>
 
-        {/* SEARCH, which every messaging list has and this one did not.
-            LinkedIn, Studio and WhatsApp Web all put it directly under the
-            title: with more than a handful of trips, scrolling to find one is
-            the only way to open it. */}
-        <div className="border-b border-line px-3 py-2">
-          <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-faint" />
-            <input
-              value={filter}
-              onChange={(e) => setFilter(e.target.value)}
-              placeholder="Search trips"
-              aria-label="Search your trips"
-              className="w-full rounded-xl border border-line bg-surface py-2 pl-9 pr-3 text-sm text-ink placeholder:text-ink-faint"
-            />
+        {/* UNREAD, the one filter that earns its row. LinkedIn carries six;
+            with a handful of trips the rest would be chrome over an empty
+            list. It hides itself until there IS something unread. */}
+        {(trips ?? []).some((t) => (t.unreadCounts?.[user.uid] || 0) > 0) && (
+          <div className="flex gap-2 border-b border-line px-3 py-2">
+            {([["all", "All"], ["unread", "Unread"]] as const).map(([id, label]) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setOnlyUnread(id === "unread")}
+                aria-pressed={onlyUnread === (id === "unread")}
+                className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+                  onlyUnread === (id === "unread")
+                    ? "bg-primary text-white"
+                    : "bg-surface-sunken text-ink-muted hover:text-ink"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
           </div>
-        </div>
+        )}
 
         <div className="min-h-0 flex-1 overflow-y-auto">
           {trips === null && (
@@ -132,6 +154,7 @@ function TripsInner() {
 
           {(trips ?? [])
             .filter((t) => {
+              if (onlyUnread && !(t.unreadCounts?.[user.uid] || 0)) return false;
               const q = filter.trim().toLowerCase();
               if (!q) return true;
               // The name, and whoever last spoke, which is how somebody
@@ -254,6 +277,7 @@ function TripsInner() {
           <NoTripPicked />
         )}
       </section>
+      </div>
     </div>
   );
 }
