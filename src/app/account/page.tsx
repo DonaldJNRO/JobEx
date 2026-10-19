@@ -1,78 +1,295 @@
 "use client";
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
-import { User, LogOut, Calendar } from "lucide-react";
-import { useAuth } from "@/contexts/AuthContext";
+// Your account, as something you can actually change.
+//
+// This was a name, an email, one link and a log out button: signing in gave
+// you a read-only card about yourself. Everything a person might reasonably
+// want to adjust about how this site behaves lived either in a guess
+// (currency, from the browser's language) or nowhere at all.
+//
+// WHAT IT DOES NOT DO, and why. No password change, because every account
+// here can reset by email and a second path to the same thing is a second
+// thing to get wrong. No delete account: that is a real promise about data
+// in five collections across two apps, and a button that half does it is
+// worse than no button.
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import {
+  Calendar, MessageSquare, ShoppingBag, LogOut, Check, Loader2, Pencil,
+} from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { saveProfile } from "@/lib/account";
+import { savedCurrency, setSavedCurrency } from "@/lib/useRates";
+import { getKnownCities, type KnownCity } from "@/lib/listings";
+import { flagFor } from "@/lib/city-flag";
+import { symbolForCurrency } from "@/lib/listing-price";
+
+// The ones Sabię actually trades in, plus the big three a visitor is likely
+// to think in. Not a list of 255: a picker nobody can get to the bottom of
+// is worse than a short one that covers everybody who has ever paid.
+const CURRENCIES = ["NGN", "GBP", "USD", "EUR", "GHS", "KES", "ZAR", "CAD"];
 
 export default function AccountPage() {
-  const router = useRouter();
   const { user, userProfile, loading, logout } = useAuth();
+  const router = useRouter();
+
+  const [editing, setEditing] = useState(false);
+  const [name, setName] = useState("");
+  const [handle, setHandle] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [currency, setCurrency] = useState("");
+  const [cities, setCities] = useState<KnownCity[]>([]);
+  const [city, setCity] = useState<string | null>(null);
 
   useEffect(() => {
     if (!loading && !user) router.push("/auth/login");
-  }, [loading, user, router]);
+  }, [user, loading, router]);
 
-  if (loading || !user) {
-    return (
-      <div className="min-h-screen bg-surface flex items-center justify-center">
-        <div className="animate-pulse text-text-muted">Loading...</div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    setName(userProfile?.fullName || "");
+    setHandle((userProfile?.handle || "").replace(/^@+/, ""));
+  }, [userProfile]);
 
-  const handleLogout = async () => {
-    await logout();
-    router.push("/");
+  useEffect(() => {
+    setCurrency(savedCurrency());
+    getKnownCities().then(setCities).catch(() => {});
+    try { setCity(window.localStorage.getItem("sabie.city")); } catch { /* blocked */ }
+  }, []);
+
+  if (loading || !user) return null;
+
+  const save = async () => {
+    if (saving) return;
+    setSaving(true);
+    try {
+      await saveProfile(user.uid, { fullName: name, handle });
+      setSaved(true);
+      setEditing(false);
+      setTimeout(() => setSaved(false), 2000);
+    } catch { /* the inputs keep what was typed */ }
+    finally { setSaving(false); }
   };
 
-  return (
-    <div className="min-h-screen bg-surface py-12">
-      <div className="max-w-2xl mx-auto px-4">
-        <h1 className="text-2xl font-bold text-ink mb-8">My Account</h1>
+  const pickCurrency = (code: string) => {
+    setCurrency(code);
+    setSavedCurrency(code);
+    // Prices are read through useMoney all over the site and it reads this
+    // once on mount, so a reload is the honest way to apply it everywhere at
+    // the same moment rather than leaving half the page in the old money.
+    router.refresh();
+  };
 
-        {/* Profile card */}
-        <div className="bg-card rounded-2xl border border-line p-6 mb-6">
+  const pickCity = (id: string | null) => {
+    setCity(id);
+    try {
+      if (id) window.localStorage.setItem("sabie.city", id);
+      else window.localStorage.removeItem("sabie.city");
+    } catch { /* applies to this visit */ }
+  };
+
+  const initial = (userProfile?.fullName || user.email || "?").charAt(0).toUpperCase();
+
+  return (
+    <main className="min-h-screen bg-surface">
+      <div className="mx-auto max-w-2xl px-4 py-8">
+        <h1 className="text-2xl font-bold tracking-tight text-ink">Account</h1>
+
+        {/* WHO YOU ARE, and the first thing on the page you can change. */}
+        <section className="mt-6 rounded-2xl border border-line bg-card p-5">
           <div className="flex items-center gap-4">
             {userProfile?.profileImage ? (
-              <Image src={userProfile.profileImage} alt="" width={56} height={56} className="rounded-full" />
+              <Image
+                src={userProfile.profileImage}
+                alt=""
+                width={64}
+                height={64}
+                className="h-16 w-16 rounded-full object-cover"
+              />
             ) : (
-              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
-                <User size={24} className="text-primary" />
+              <span className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-2xl font-bold text-primary">
+                {initial}
+              </span>
+            )}
+
+            {editing ? (
+              <div className="min-w-0 flex-1 space-y-2">
+                <input
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Your name"
+                  aria-label="Your name"
+                  className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-ink"
+                />
+                <div className="flex items-center gap-1.5">
+                  <span className="text-ink-muted">@</span>
+                  <input
+                    value={handle}
+                    onChange={(e) => setHandle(e.target.value)}
+                    placeholder="handle"
+                    aria-label="Your handle"
+                    className="w-full rounded-lg border border-line bg-surface px-3 py-2 font-mono text-sm text-ink"
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-lg font-bold text-ink">{userProfile?.fullName || "Add your name"}</p>
+                {userProfile?.handle && (
+                  <p className="truncate font-mono text-sm text-ink-muted">{userProfile.handle}</p>
+                )}
+                <p className="truncate text-sm text-ink-muted">{user.email}</p>
               </div>
             )}
-            <div>
-              <h2 className="font-bold text-ink">{userProfile?.fullName || "User"}</h2>
-              <p className="text-sm text-text-muted">{user.email}</p>
-              {userProfile?.handle && (
-                <p className="text-xs text-text-muted">@{userProfile.handle}</p>
-              )}
-            </div>
-          </div>
-        </div>
 
-        {/* Menu */}
-        <div className="bg-card rounded-2xl border border-line overflow-hidden mb-6">
+            {editing ? (
+              <button
+                type="button"
+                onClick={save}
+                disabled={saving}
+                className="shrink-0 rounded-xl bg-primary px-4 py-2.5 font-semibold text-white disabled:opacity-50"
+              >
+                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : "Save"}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setEditing(true)}
+                aria-label="Edit your profile"
+                className="shrink-0 rounded-xl p-2.5 text-ink-muted hover:bg-surface-sunken"
+              >
+                <Pencil className="h-4 w-4" />
+              </button>
+            )}
+          </div>
+
+          {saved && (
+            <p className="mt-3 inline-flex items-center gap-1.5 text-sm text-settled-ink">
+              <Check className="h-4 w-4" /> Saved
+            </p>
+          )}
+          {/* A handle is how somebody adds you to a trip, which is the only
+              reason it is on this page at all. */}
+          {editing && (
+            <p className="mt-3 text-xs leading-relaxed text-ink-muted">
+              Your handle is how people find you to add you to a trip.
+            </p>
+          )}
+        </section>
+
+        {/* WHAT MONEY YOU THINK IN. Guessed from the browser until now, with
+            no way to disagree: somebody Nigerian living in London got the
+            wrong one and could do nothing about it. */}
+        <section className="mt-5 rounded-2xl border border-line bg-card p-5">
+          <h2 className="font-bold text-ink">Show prices in</h2>
+          <p className="mt-1 text-sm text-ink-muted">
+            Operators set their own prices. We convert them so you can compare.
+          </p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {CURRENCIES.map((c) => (
+              <button
+                key={c}
+                type="button"
+                onClick={() => pickCurrency(c)}
+                aria-pressed={currency === c}
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                  currency === c
+                    ? "bg-primary text-white"
+                    : "bg-surface-sunken text-ink-muted hover:text-ink"
+                }`}
+              >
+                {symbolForCurrency(c).trim()} {c}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => pickCurrency("")}
+              aria-pressed={!currency}
+              className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                !currency ? "bg-primary text-white" : "bg-surface-sunken text-ink-muted hover:text-ink"
+              }`}
+            >
+              Match my device
+            </button>
+          </div>
+        </section>
+
+        {/* WHERE YOUR FEED LEANS. The same choice the home page's sheet
+            writes, so changing it in either place changes it in both. */}
+        {cities.length > 0 && (
+          <section className="mt-5 rounded-2xl border border-line bg-card p-5">
+            <h2 className="font-bold text-ink">Your city</h2>
+            <p className="mt-1 text-sm text-ink-muted">
+              We go deep in a few places rather than thin everywhere.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {cities.filter((c) => !c.status || c.status === "live").map((c) => (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() => pickCity(c.id)}
+                  aria-pressed={city === c.id}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                    city === c.id ? "bg-primary text-white" : "bg-surface-sunken text-ink-muted hover:text-ink"
+                  }`}
+                >
+                  {flagFor(c.country) && <span aria-hidden="true">{flagFor(c.country)}</span>}
+                  {c.name}
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={() => pickCity(null)}
+                aria-pressed={!city}
+                className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                  !city ? "bg-primary text-white" : "bg-surface-sunken text-ink-muted hover:text-ink"
+                }`}
+              >
+                Everywhere
+              </button>
+            </div>
+          </section>
+        )}
+
+        <nav className="mt-5 overflow-hidden rounded-2xl border border-line bg-card">
           {[
-            { icon: Calendar, label: "My Bookings", href: "/bookings" },
-          ].map((item) => (
-            <Link key={item.label} href={item.href} className="flex items-center gap-4 px-6 py-4 border-b border-line last:border-0 hover:bg-surface-sunken transition-colors">
-              <item.icon size={20} className="text-text-muted" />
-              <span className="text-sm font-medium text-ink">{item.label}</span>
+            { icon: Calendar, label: "Your bookings", href: "/bookings", hint: "Codes, dates and receipts" },
+            { icon: MessageSquare, label: "Your trips", href: "/trips", hint: "Plan with the people coming" },
+            { icon: ShoppingBag, label: "Your basket", href: "/cart", hint: "Anything not paid for yet" },
+          ].map(({ icon: Icon, label, href, hint }) => (
+            <Link
+              key={href}
+              href={href}
+              className="flex items-center gap-4 border-b border-line px-5 py-4 last:border-0 hover:bg-surface-sunken"
+            >
+              <Icon className="h-5 w-5 shrink-0 text-primary" />
+              <span className="min-w-0 flex-1">
+                <span className="block font-semibold text-ink">{label}</span>
+                <span className="block text-sm text-ink-muted">{hint}</span>
+              </span>
             </Link>
           ))}
-        </div>
+        </nav>
 
-        {/* Logout */}
         <button
-          onClick={handleLogout}
-          className="w-full flex items-center justify-center gap-2 bg-alarm-bg text-alarm-ink border border-alarm-line font-semibold py-3.5 rounded-xl hover:brightness-95 transition-all"
+          type="button"
+          onClick={() => logout().then(() => router.push("/"))}
+          className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl border border-line bg-card px-5 py-4 font-semibold text-alarm-ink hover:bg-surface-sunken"
         >
-          <LogOut size={18} /> Log out
+          <LogOut className="h-4 w-4" /> Log out
         </button>
+
+        <p className="mt-6 text-center text-xs text-ink-faint">
+          <Link href="/terms" className="hover:text-ink">Terms</Link>
+          {" · "}
+          <Link href="/privacy" className="hover:text-ink">Privacy</Link>
+          {" · "}
+          <Link href="/contact" className="hover:text-ink">Contact</Link>
+        </p>
       </div>
-    </div>
+    </main>
   );
 }

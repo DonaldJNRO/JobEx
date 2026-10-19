@@ -115,8 +115,32 @@ export function useMoney(): { rates: Rates | null; ready: boolean; to: string } 
     // server, and reading it while rendering would make the server and client
     // markup differ and trip hydration.
     if (typeof navigator === "undefined") return;
-    setTo(guestCurrency(navigator.language));
+    // A CHOICE BEATS A GUESS. The browser's language is a decent first
+    // answer and a bad final one: somebody Nigerian living in London, or
+    // anybody on a borrowed laptop, gets the wrong money with no way to say
+    // so. The account page writes this; until they use it, the guess stands.
+    setTo(savedCurrency() || guestCurrency(navigator.language));
   }, []);
 
   return { rates, ready, to };
+}
+
+const CURRENCY_KEY = "sabie.currency";
+
+/** What they chose, if they chose. */
+export function savedCurrency(): string {
+  try {
+    return window.localStorage.getItem(CURRENCY_KEY) || "";
+  } catch {
+    // A private window, or storage blocked. The guess still works.
+    return "";
+  }
+}
+
+/** Remember it, or forget it and go back to the guess. */
+export function setSavedCurrency(code: string): void {
+  try {
+    if (code) window.localStorage.setItem(CURRENCY_KEY, code);
+    else window.localStorage.removeItem(CURRENCY_KEY);
+  } catch { /* the choice still applies to this page */ }
 }

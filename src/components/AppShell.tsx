@@ -20,7 +20,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Search, MessageSquare, ShoppingBag, User } from "lucide-react";
+import { Home, MessageSquare, ShoppingBag, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { watchMyTrips } from "@/lib/trips";
 import { showsShell, isChatRoute } from "@/lib/app-shell";
@@ -29,13 +29,13 @@ import { showsShell, isChatRoute } from "@/lib/app-shell";
 // screen, and Bookings is already one tap away inside Account
 // (account/page.tsx:59), where a record of what you have already paid for
 // belongs more than it does beside a basket you have not.
+// NO SEARCH TAB. The search box is ON the home feed, in the bar that also
+// carries the city and the categories, so a Search tab would be a second
+// door into a room you are already standing in. TikTok has one because its
+// home is a video you cannot search; ours is a list of places with a box
+// over it.
 const TABS = [
   { href: "/", label: "Home", icon: Home, exact: true },
-  // SEARCH, NOT EXPLORE. /explore was the home page with a search box on it,
-  // so it redirects here and the box came with it. The tab opens the one feed
-  // and puts the cursor in the box, which is the "two states of one screen"
-  // the app's own bar describes.
-  { href: "/?search=1", label: "Search", icon: Search },
   { href: "/trips", label: "Chat", icon: MessageSquare, needsAuth: true, badge: true },
   // The app's bottom bar ends on the bag, and so does this.
   { href: "/cart", label: "Trip", icon: ShoppingBag, needsAuth: true },
