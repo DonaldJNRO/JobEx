@@ -54,7 +54,16 @@ export interface Trip {
   primaryDestination?: string | null;
 }
 
-function memberOf(u: {
+/**
+ * A member object, the one shape every trip field stores them in.
+ *
+ * EXPORTED because pay.ts creates trips too, and wrote `selectedUsers: [uid]`
+ * as bare strings with createdBy.name hardcoded to "Guest". Both clients now
+ * list trips, so that shape is visible: it showed as a trip created by Guest,
+ * and the notification fan-out reads selectedUsers[].id, which a string does
+ * not have. One builder means the two paths cannot disagree again.
+ */
+export function memberOf(u: {
   uid: string;
   displayName?: string | null;
   photoURL?: string | null;

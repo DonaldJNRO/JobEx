@@ -25,6 +25,7 @@
 import { addDoc, collection, serverTimestamp } from "firebase/firestore";
 import { httpsCallable } from "firebase/functions";
 import { db, functions, ensureAnonymousAuth } from "./firebase";
+import { memberOf } from "./trips";
 
 export class PayError extends Error {}
 
@@ -43,12 +44,30 @@ export interface PayIntent {
  * allows: `create` needs `createdBy.id == request.auth.uid`, and an anonymous
  * sign-in is a real uid as far as that rule is concerned.
  */
-async function createTripOfOne(uid: string, name: string, destination: string): Promise<string> {
+async function createTripOfOne(
+  uid: string,
+  name: string,
+  destination: string,
+  // Who this is, when we know. A payment made while signed in should produce
+  // a trip with that person's name on it, not "Guest".
+  profile?: { fullName?: string; firstName?: string; lastName?: string; profileImage?: string; handle?: string } | null,
+  displayName?: string | null,
+): Promise<string> {
+  // THE SAME MEMBER SHAPE THE CHAT WRITES.
+  //
+  // This used to write `selectedUsers: [uid]` as bare strings and hardcode
+  // createdBy.name to "Guest". Now that both clients list trips that shape is
+  // visible, and it is wrong twice over: the trip reads as created by Guest,
+  // and the notification fan-out in functions/index.js collects recipients
+  // from selectedUsers[].id, which a string does not have. One trip in
+  // production carries the old shape.
+  const me = memberOf({ uid, displayName: displayName ?? null, photoURL: profile?.profileImage ?? null }, profile ?? null);
   const ref = await addDoc(collection(db, "trips"), {
     tripName: name,
-    createdBy: { id: uid, name: "Guest" },
+    createdBy: me,
     memberIds: [uid],
-    selectedUsers: [uid],
+    selectedUsers: [me],
+    travelBuddies: [me],
     primaryDestination: destination || "",
     destinations: destination ? [destination] : [],
     travelType: "solo",
@@ -80,6 +99,10 @@ export async function startPayment(opts: {
   totalPrice: number;
   /** The currency the guest was SHOWN. The server converts and charges it. */
   currency: string;
+  /** Who is paying, when they are signed in. Puts their name on the trip
+   *  instead of "Guest"; a guest booking still works without it. */
+  profile?: { fullName?: string; firstName?: string; lastName?: string; profileImage?: string; handle?: string } | null;
+  displayName?: string | null;
 }): Promise<PayIntent> {
   if (!(opts.totalPrice > 0)) throw new PayError("There is no price on this to pay.");
 
@@ -95,7 +118,7 @@ export async function startPayment(opts: {
 
   let tripId: string;
   try {
-    tripId = await createTripOfOne(uid, business, l.city || "");
+    tripId = await createTripOfOne(uid, business, l.city || "", opts.profile, opts.displayName);
   } catch {
     throw new PayError("Could not start your booking. Nothing has been charged.");
   }

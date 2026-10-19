@@ -19,6 +19,7 @@ import { X, Check, Loader2, AlertTriangle, ChevronDown, MapPin } from "lucide-re
 import { sendBookingRequest, BookingError } from "@/lib/book";
 import { offersOf, slotsFor, policyLines, addressOf, type Offer } from "@/lib/shop-window";
 import { offerTotal } from "@/lib/offer-total";
+import { useAuth } from "@/contexts/AuthContext";
 import { fetchBookingDecision, ASK, type BookingDecision } from "@/lib/booking-decision";
 import { buildDisplayPrice, formatPriceWithCurrency } from "@/lib/display-price";
 import PayStep, { canPay } from "./PayStep";
@@ -59,6 +60,9 @@ export default function BookingRequest({
   /** The row they tapped on the page, if they came in that way. */
   initialOffer?: string;
 }) {
+  // So a payment made while signed in puts that person's name on the trip
+  // rather than "Guest". A guest booking still works with neither.
+  const { user, userProfile } = useAuth();
   const offers = offersOf(listing);
   const [offer, setOffer] = useState<string>(initialOffer || offers[0]?.name || "");
   const [date, setDate] = useState("");
@@ -204,6 +208,8 @@ export default function BookingRequest({
           // The currency they were SHOWN. Charging a different one than the
           // page quoted is how a guest ends up disputing a correct charge.
           currency: to || listing.currency || "GBP",
+          profile: userProfile,
+          displayName: user?.displayName ?? null,
         });
         setIntent(got);
         setSending(false);
