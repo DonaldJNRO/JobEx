@@ -18,6 +18,7 @@
  * the surer ways to be ignored by a search engine. This ends that too.
  */
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import {
   resolveListing,
   getListingImage,
@@ -112,12 +113,26 @@ export default async function ListingPage(
 ) {
   const { id } = await params;
   let snapshot = null;
+  // A LISTING THAT DOES NOT EXIST IS NOT THE SAME AS A LOOKUP THAT THREW.
+  //
+  // Missing means notFound(): /listing/anything answered HTTP 200 with a
+  // client-rendered "not found" card, on the most indexed route shape on the
+  // site, so search engines kept dead URLs and a shared dead link still made
+  // a card. A throw means Firestore was unreachable, and that must NOT tell
+  // the world a listing is gone; the client renders and fetches it itself.
+  //
+  // The flag exists because notFound() works by THROWING. Calling it inside
+  // the try below would be caught by the very catch meant for network
+  // failures, and the page would quietly render empty instead of 404ing.
+  let missing = false;
   try {
     const resolved = await resolveListing(id);
-    snapshot = resolved ? toListingSnapshot({ ...resolved.listing, slug: resolved.slug }) : null;
+    if (!resolved) missing = true;
+    else snapshot = toListingSnapshot({ ...resolved.listing, slug: resolved.slug });
   } catch {
     // A first paint is never worth a 500. The client will fetch it.
     snapshot = null;
   }
+  if (missing) notFound();
   return <ListingClient snapshot={snapshot} />;
 }

@@ -104,5 +104,33 @@ is(guestCurrency('en-NG'), 'NGN', 'en-NG is naira')
 is(guestCurrency('en'), '', 'a language with no region buys nothing')
 is(guestCurrency(''), '', 'and neither does nothing at all')
 
+
+// ── PARITY WITH THE APP'S CURRENCY CHAIN ──────────────────────────────────
+//
+// This file calls itself a verbatim copy of
+// sabie-v53-main/utils/bookingRequestPayload.js. Its currency fallback had
+// drifted a leg short, dropping bookingDetails.rooms[0].currency, while
+// keeping the comment about the naira-labelled-as-pounds bug that leg exists
+// to prevent. Nothing noticed, because nothing read the other side.
+import { readFileSync } from "node:fs";
+
+const APP_FILE = "/Users/k9/Downloads/sabie-v53-main/utils/bookingRequestPayload.js";
+let appSrc = null;
+try { appSrc = readFileSync(APP_FILE, "utf8"); } catch { /* app repo not beside this one */ }
+
+if (!appSrc) {
+  console.log("\n  skip  the app repo is not checked out beside this one");
+} else {
+  console.log("\nthe currency chain matches the app, leg for leg");
+  const squash = (t) => t.replace(/\s+/g, " ");
+  const webSrc = readFileSync(new URL("./booking-request.ts", import.meta.url), "utf8");
+  const appChain = squash(appSrc).match(/const resolvedCurrency = \([^;]+;/)?.[0] || "";
+  const webChain = squash(webSrc).match(/const resolvedCurrency = \([^;]+;/)?.[0] || "";
+  is(appChain.length > 0, true, "the app still resolves a currency this way");
+  for (const leg of ["currency", "bookingDetails?.currency", "bookingDetails?.rooms?.[0]?.currency"]) {
+    is(appChain.includes(leg) ? webChain.includes(leg) : true, true, `falls back to ${leg}, as the app does`);
+  }
+}
+
 console.log(fails ? `\n${fails} FAILED` : '\nALL PASSED')
 process.exit(fails ? 1 : 0)

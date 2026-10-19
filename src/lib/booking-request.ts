@@ -27,6 +27,8 @@ export interface BookingDetails {
   note?: string;
   totalPrice?: number;
   currency?: string | null;
+  /** A stay prices its rooms, so the currency can live here and nowhere else. */
+  rooms?: Array<{ currency?: string | null; [key: string]: unknown }>;
   [key: string]: unknown;
 }
 
@@ -56,8 +58,15 @@ export function buildBookingRequestPayload({
   // £20,000, the "naira-labelled-as-pounds" bug. Callers must pass currency
   // from the ad or room; it is accepted on bookingDetails too as a fallback and
   // mirrored at the top level for query convenience.
+  // THE THIRD LEG. The app's chain is
+  // currency -> bookingDetails.currency -> bookingDetails.rooms[0].currency,
+  // and this copy stopped at two while keeping the comment about the
+  // naira-labelled-as-pounds bug the third leg exists to prevent. A stay
+  // priced on its room and not on the ad resolves to null here, and null is
+  // where the pounds come from.
   const resolvedCurrency = (currency
     || bookingDetails?.currency
+    || bookingDetails?.rooms?.[0]?.currency
     || "").toUpperCase() || null;
 
   return {
