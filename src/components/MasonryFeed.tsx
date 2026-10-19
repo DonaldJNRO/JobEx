@@ -24,8 +24,18 @@ import ListingCard from "./ListingCard";
 import { splitColumns } from "@/lib/masonry";
 import { getListingImage, type Listing } from "@/lib/listings";
 
-/** Two columns up to this width, three above it. Matches Tailwind's lg. */
-const WIDE = 1024;
+// COLUMNS FOLLOW THE WINDOW, not a fixed pair.
+//
+// Two on a phone, as the app has. Then more as there is room, because a
+// 1920px monitor showing three columns in a 1280px strip with white either
+// side is a page that does not know it is in a browser. Measured against the
+// rail: these are widths of the FEED, after the 224px sidebar is taken out.
+const BREAKS: [number, number][] = [
+  [1700, 5],
+  [1340, 4],
+  [980, 3],
+  [0, 2],
+];
 
 export default function MasonryFeed({ listings }: { listings: Listing[] }) {
   // Server-render two columns, which is the phone shape and the common case,
@@ -34,11 +44,13 @@ export default function MasonryFeed({ listings }: { listings: Listing[] }) {
   const [columns, setColumns] = useState(2);
 
   useEffect(() => {
-    const mq = window.matchMedia(`(min-width: ${WIDE}px)`);
-    const apply = () => setColumns(mq.matches ? 3 : 2);
+    const apply = () => {
+      const w = window.innerWidth;
+      setColumns(BREAKS.find(([min]) => w >= min)?.[1] ?? 2);
+    };
     apply();
-    mq.addEventListener("change", apply);
-    return () => mq.removeEventListener("change", apply);
+    window.addEventListener("resize", apply);
+    return () => window.removeEventListener("resize", apply);
   }, []);
 
   const shown = listings.filter((l) => getListingImage(l));
@@ -47,9 +59,13 @@ export default function MasonryFeed({ listings }: { listings: Listing[] }) {
   if (shown.length === 0) return null;
 
   return (
-    <div className="mx-auto flex max-w-7xl gap-3 px-4 sm:gap-5 sm:px-6 lg:px-8">
+    // FULL WIDTH, not a centred 1280px column. The rail already takes 224px
+    // out of the window; centring what is left inside another cap put the
+    // feed in a narrow strip with empty space on both sides of a large
+    // screen. An app fills its window.
+    <div className="flex gap-3 px-4 sm:gap-4 sm:px-6 lg:px-8">
       {split.map((column, i) => (
-        <div key={i} className="flex min-w-0 flex-1 flex-col gap-3 sm:gap-5">
+        <div key={i} className="flex min-w-0 flex-1 flex-col gap-3 sm:gap-4">
           {column.map((listing, j) => (
             <ListingCard
               key={listing.id}

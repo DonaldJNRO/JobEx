@@ -8,6 +8,49 @@ const TEAM = [
   { name: "Kanokwan Techathanapaiboon", role: "Brand Manager", image: "/images/team/Beam.JPG" },
 ];
 
+// Real beta-user testimonials, tightened from raw transcripts. `photo` is
+// optional and falls back to an initial avatar.
+//
+// THEIR WORDS ARE NOT OURS TO EDIT, and that rule decided what happened here.
+// Everything else on this page is copy we can make truer by rewriting it. A
+// testimonial is a different object: it is a claim that a NAMED person, under
+// their own photo, said a specific thing. Trimming a quote to fit the
+// positioning makes them say something they did not say, in public, and it is
+// the one thing on this page a reader could never check. So a quote that no
+// longer fits gets CUT, never shortened.
+//
+// CUT ON 2026-09-27: Tolu O. ("Chatted with Bie, planned my whole trip, booked
+// a place, and set up a shared wallet with the crew. UI's clean too, easy on
+// the eye."). It is a good quote and it is true of the iOS app. It came out
+// because it named the shared wallet three cards below a section that had just
+// stopped offering one, so the page contradicted itself in a reader's own
+// words. Put it back the day the website does wallets, or ask Tolu for a line
+// about finding and asking a place.
+//
+// KEPT DELIBERATELY: Seb's "plan a Croatia trip" survives although Croatia is
+// not a city we serve and "plan" is a word this site no longer uses. He is
+// describing the PROBLEM he had before Sabię, checking two sites and messaging
+// six friends, which is the same problem the section above now describes. He
+// is not claiming we sell Croatia.
+//
+// Their dashes stay for the same reason the quotes do: these are real people's
+// words, and editing them to fit a style guide is worse than the style miss.
+const TESTIMONIALS: { name: string; role: string; text: string; avatar: string; photo?: string }[] = [
+  {
+    name: "Maureen N.",
+    role: "Birmingham · originally from Nigeria",
+    text: "Honestly the app's amazing. Everything that needs to be done is done. Insane potential — feels like the start of something.",
+    avatar: "M",
+  },
+  {
+    name: "Seb F.",
+    role: "London",
+    text: "Trying to plan a Croatia trip in August, I had to check Airbnb and Booking.com, then message six friends about prices and dates. Sabię puts it all in one place. I was literally thinking 'someone should build this' a few weeks ago — and here it is.",
+    avatar: "S",
+    photo: "/images/testimonials/seb-finlan.jpg",
+  },
+];
+
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-surface">
@@ -77,6 +120,41 @@ export default function AboutPage() {
                 <h3 className="font-semibold text-sm text-ink">{t.name}</h3>
                 <p className="text-xs text-text-muted mt-0.5">{t.role}</p>
               </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* WHAT BETA USERS SAID, moved here from under the home feed.
+          They sat below every listing, so a visitor browsing hit a wall of
+          marketing in the middle of what they were doing, and anybody who
+          actually wanted to read them had to scroll past the whole
+          catalogue. This is the page people open to find out who we are.
+
+          Their words are not ours to edit; the note above the data says why
+          nothing here is rewritten. `photo` is optional and falls back to an
+          initial. */}
+      <section className="py-16 bg-card border-t border-line">
+        <div className="max-w-5xl mx-auto px-4">
+          <h2 className="text-2xl font-bold text-ink text-center mb-10">What people told us</h2>
+          <div className={`grid gap-6 ${TESTIMONIALS.length > 2 ? "sm:grid-cols-2 lg:grid-cols-3" : "sm:grid-cols-2"}`}>
+            {TESTIMONIALS.map((t) => (
+              <figure key={t.name} className="rounded-2xl border border-line bg-surface p-6">
+                <blockquote className="text-ink leading-relaxed">&ldquo;{t.text}&rdquo;</blockquote>
+                <figcaption className="mt-5 flex items-center gap-3">
+                  {t.photo ? (
+                    <Image src={t.photo} alt="" width={40} height={40} className="rounded-full object-cover" />
+                  ) : (
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 font-bold text-primary">
+                      {t.avatar}
+                    </span>
+                  )}
+                  <span className="min-w-0">
+                    <span className="block truncate font-semibold text-ink">{t.name}</span>
+                    <span className="block truncate text-sm text-text-muted">{t.role}</span>
+                  </span>
+                </figcaption>
+              </figure>
             ))}
           </div>
         </div>

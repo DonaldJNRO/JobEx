@@ -128,7 +128,11 @@ export default function AppShell({
       <div className={show ? "lg:pl-56" : undefined}>
         <div className={show ? "pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] lg:pb-0" : undefined}>
           {children}
-          {!isChat && footer}
+          {/* NO FOOTER ON AN APP SURFACE. A feed you scroll for ever does not
+              end in a sitemap, and TikTok, Snapchat and Amazon's own product
+              pages do not carry one. It stays on the marketing and legal
+              pages, which is where somebody looks for it. */}
+          {!show && footer}
         </div>
       </div>
 

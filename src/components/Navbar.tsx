@@ -7,11 +7,14 @@ import { usePathname } from "next/navigation";
 import { Menu, X, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
-const NAV_LINKS = [
-
-  { href: "/about", label: "About" },
-  { href: "/contact", label: "Contact" },
-];
+// ABOUT AND CONTACT MOVED OFF THE TOP BAR.
+//
+// The rail already carries where you can GO; these are where you read about
+// us, and having both one above the other gave the page two navigations
+// stacked on top of each other with nothing in common. They are in the
+// footer, on every page that has one, which is where a person looks for
+// them.
+const NAV_LINKS: { href: string; label: string }[] = [];
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
