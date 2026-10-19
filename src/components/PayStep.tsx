@@ -46,7 +46,20 @@ export default function PayStep(props: Props) {
       stripe={stripe()}
       options={{
         clientSecret: props.clientSecret,
-        appearance: { theme: "flat", variables: { colorPrimary: "#4c3a73", borderRadius: "12px" } },
+        // Stripe renders its own fields, so the brand has to be handed to it:
+        // a purple focus ring inside a charcoal page is the one element on
+        // the screen that belongs to somebody else. #4c3a73 was a third
+        // purple, matching neither the old token nor anything else.
+        appearance: {
+          theme: "flat",
+          variables: {
+            colorPrimary: "#2C2C2A",
+            colorBackground: "#ffffff",
+            colorText: "#2C2C2A",
+            colorDanger: "#9B2C1C",
+            borderRadius: "12px",
+          },
+        },
       }}
     >
       <CardForm {...props} />

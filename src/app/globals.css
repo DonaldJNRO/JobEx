@@ -1,13 +1,23 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #44366d;
-  --color-primary-light: #5a4a8a;
-  --color-primary-dark: #352a56;
-  /* PURPLE IS THE ACTION. GOLD IS NOT.
+  /* CHARCOAL IS THE ACTION. GOLD IS NOT.
+     This said PURPLE until today, and purple is the brand the app left.
+     contexts/ThemeContext.js in sabie-v53-main is explicit about it: "was
+     purple. Charcoal is the brand's own ink." So the website was wearing an
+     old brand on a white page, which is every SaaS template there has ever
+     been, while the product it belongs to is cream, charcoal and gold.
+
+     The RULE below is unchanged and still the point: one colour is the
+     action and gold is not it. Only the colour that fills has changed. */
+  --color-primary: #2C2C2A;
+  --color-primary-light: #44443F;
+  --color-primary-dark: #1A1A19;
+  /* THE ACTION IS ONE COLOUR. GOLD IS NOT IT.
      Every filled button, every selected state and every focus ring is
-     primary. Secondary is the bee's gold and it stays an accent: a star, a
-     highlight, artwork. It is never the fill of something you press.
+     primary, which is now the brand's charcoal. Secondary is the bee's gold
+     and it stays an accent: a star, a highlight, artwork. It is never the
+     fill of something you press.
 
      This is written down because it had already drifted. Sign up was gold in
      the header and purple on the page it led to, so the same act wore two
@@ -17,10 +27,14 @@
      with a pattern. One city filter also had a gold focus ring against
      thirteen purple ones.
 
-     Gold needs #0f0f13 text to be readable, which is the other tell: a colour
-     that cannot carry white text is a highlight, not a button. */
-  --color-secondary: #FFD369;
-  --color-secondary-dark: #e6be5e;
+     Gold needs charcoal text to be readable, which is the other tell: a
+     colour that cannot carry white text is a highlight, not a button. */
+  --color-secondary: #EF9F27;
+  --color-secondary-dark: #D08A1C;
+  /* THE SAME HUE WHEN IT HAS TO BE READ. #EF9F27 measures 2.02:1 on cream
+     and body copy needs 4.5:1, so gold FILLS and goldInk WRITES. The app
+     carries the same pair for the same reason. */
+  --color-secondary-ink: #8A5E0D;
   --color-neutral-light: #f8f7f4;
   --color-neutral-dark: #0f0f13;
   --color-text-primary: #3a3a42;
@@ -35,26 +49,36 @@
      white/opacity utilities scattered through 26 files; naming the roles is
      what makes the theme a decision in one place instead of a find and
      replace over the whole repo. */
-  --color-surface: #ffffff;
-  --color-surface-sunken: #f8f7f4;
+  /* CREAM IS THE PAGE AND WHITE IS THE CARD, the way round the app states
+     it: "a card sitting ON cream needs to be lighter than the page... Cream
+     cards on a cream page have no edges." This had white as both, so
+     nothing had an edge anywhere. */
+  --color-surface: #FAF6ED;
+  --color-surface-sunken: #F2ECDD;
   --color-card: #ffffff;
-  --color-ink: #1c1c22;
-  --color-ink-body: #3a3a42;
-  --color-ink-muted: #63636b;
+  --color-ink: #2C2C2A;
+  --color-ink-body: #3F3E3A;
+  --color-ink-muted: #5F5E5A;
   /* Darkened from #8a8a93, which was 3.19:1 at 12px on the sunken
      surface where the captions and the copyright line live. */
-  --color-ink-faint: #6e6e77;
-  --color-line: rgba(28, 28, 34, 0.10);
-  --color-line-strong: rgba(28, 28, 34, 0.16);
+  --color-ink-faint: #6B6A64;
+  /* WARM HAIRLINES. A cool grey rule on a cream page reads as dirt on it. */
+  --color-line: #D9D4C7;
+  --color-line-strong: #C4BDAB;
 
   /* FAILURE, and only failure. The site had no token for it, so the first
      thing that needed to say "this did not work" would have hardcoded a red.
      One treatment, so a booking that failed to send never looks like a
      different kind of trouble to anything else that fails. Same three values
      Scout uses, for the same reason. */
-  --color-alarm-bg: #fef2f2;
-  --color-alarm-line: rgba(185, 28, 28, 0.25);
-  --color-alarm-ink: #991b1b;
+  --color-alarm-bg: #F7E9E6;
+  --color-alarm-line: rgba(155, 44, 28, 0.25);
+  --color-alarm-ink: #9B2C1C;
+  /* Money received, the app's leaf. The site had no token for it, so paid
+     states reached for a Tailwind emerald that belongs to no brand. */
+  --color-settled-bg: #ECF1E6;
+  --color-settled-line: rgba(59, 109, 17, 0.22);
+  --color-settled-ink: #3B6D11;
   /* Supplied by next/font in layout.tsx, which self-hosts and preloads the
      files. The fallback stack is next/font's own, so this is only the name. */
   --font-sans: var(--font-sans-local), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;

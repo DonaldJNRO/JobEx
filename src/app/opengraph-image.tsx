@@ -31,10 +31,10 @@ export const contentType = "image/png";
 
 // From globals.css, not picked by eye. True Purple is the ground and the gold
 // carries the one line that matters.
-const PURPLE = "#44366d";
-const PURPLE_DARK = "#352a56";
+const CHARCOAL = "#2C2C2A";
+const CHARCOAL_DARK = "#1A1A19";
 const CREAM = "#f8f7f4";
-const GOLD = "#FFD369";
+const GOLD = "#EF9F27";
 
 // REAL FONT FILES, read off disk, not `fontFamily: "sans-serif"`.
 //
@@ -67,7 +67,7 @@ export default async function OpengraphImage() {
           flexDirection: "column",
           justifyContent: "space-between",
           padding: "72px 80px",
-          background: `linear-gradient(135deg, ${PURPLE} 0%, ${PURPLE_DARK} 100%)`,
+          background: `linear-gradient(135deg, ${CHARCOAL} 0%, ${CHARCOAL_DARK} 100%)`,
           fontFamily: "Instrument Sans",
         }}
       >
