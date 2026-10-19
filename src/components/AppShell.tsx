@@ -72,7 +72,18 @@ export default function AppShell({
   const show = showsShell(pathname);
   const isChat = isChatRoute(pathname);
 
-  const tabs = TABS.filter((t) => !t.needsAuth || user);
+  // EVERY TAB, SIGNED IN OR NOT.
+  //
+  // These used to be filtered out until somebody signed in, so a signed-out
+  // visitor saw a two-item rail and no evidence that Sabię has chat, a trip
+  // or an account at all. That is not what the apps this borrows from do:
+  // TikTok's signed-out sidebar still lists Following, Upload and Profile,
+  // and Snapchat Web still shows Chat. They show the door and ask for a key
+  // when you reach for it.
+  //
+  // A tab that needs an account sends you to sign in and comes back to where
+  // you were pointed, so the trip is not lost in the detour.
+  const tabs = TABS;
 
   return (
     <>
@@ -84,10 +95,13 @@ export default function AppShell({
           {tabs.map((t) => {
             const active = t.exact ? pathname === t.href : pathname.startsWith(t.href);
             const Icon = t.icon;
+            const href = t.needsAuth && !user
+              ? `/auth/login?next=${encodeURIComponent(t.href)}`
+              : t.href;
             return (
               <Link
                 key={t.href}
-                href={t.href}
+                href={href}
                 aria-current={active ? "page" : undefined}
                 className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] transition-colors ${
                   active ? "bg-primary/10 font-bold text-primary" : "font-medium text-ink-muted hover:bg-surface-sunken hover:text-ink"
@@ -126,10 +140,13 @@ export default function AppShell({
           {tabs.map((t) => {
             const active = t.exact ? pathname === t.href : pathname.startsWith(t.href);
             const Icon = t.icon;
+            const href = t.needsAuth && !user
+              ? `/auth/login?next=${encodeURIComponent(t.href)}`
+              : t.href;
             return (
               <Link
                 key={t.href}
-                href={t.href}
+                href={href}
                 aria-current={active ? "page" : undefined}
                 className={`flex flex-1 flex-col items-center gap-0.5 py-2.5 text-[10px] font-medium ${
                   active ? "text-primary" : "text-ink-muted"

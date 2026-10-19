@@ -67,5 +67,57 @@ console.log(`PASS  the flag survives every pricing unit`);
 is(priceParts({ customPrice: { price: 0 } }), { amount: null, unit: "", from: false },
   "no price is still no price");
 
+
+// ── PRICED ON THE TIER, NOT THE ROW ───────────────────────────────────────
+//
+// 25 of the 26 live listings that have services leave the row price
+// undefined and put the figure on a tier; anything Scout captured does.
+// hasRange read the row only, so "from" never appeared on a listing that
+// genuinely had a range — Rayfield Resort shows a ₦300 gate fee as if it
+// were the price of the whole resort. The app fixed exactly this in
+// GridCard.js:407 and its note says the bug reached three separate surfaces.
+console.log("\na range on the tiers counts as a range");
+{
+  // Rayfield's real shape, measured.
+  const rayfield = {
+    customPrice: { price: 300 },
+    currency: "NGN",
+    services: [
+      { name: "Gate fee adult", price: undefined, tiers: [{ price: 500 }] },
+      { name: "Gate fee child", price: undefined, tiers: [{ price: 300 }] },
+      { name: "Boat ride", price: undefined, tiers: [{ price: 1000 }] },
+    ],
+  };
+  is(priceParts(rayfield).from, true, "three tier prices is a range, so it says from");
+
+  is(priceParts({
+    customPrice: { price: 500 },
+    services: [{ name: "One thing", tiers: [{ price: 500 }] }],
+  }).from, false, "a single tier price is not a range");
+
+  is(priceParts({
+    customPrice: { price: 500 },
+    services: [{ name: "A", price: 500 }, { name: "B", tiers: [{ price: 900 }] }],
+  }).from, true, "a row price and a tier price together still make a range");
+
+  is(priceParts({
+    customPrice: { price: 500 },
+    services: [{ name: "A", tiers: [{ price: 0 }, { price: null }] }],
+  }).from, false, "zero and null tiers are not prices");
+}
+
+console.log("\npence matter when the number is small");
+{
+  // ₦300 at the real rate is about £0.14. Rounded to whole pounds it reads
+  // "from £0", which is the worst thing a price can say.
+  const money = { ready: true, to: "GBP", rates: { NGN: 2100, GBP: 1 } };
+  const out = priceParts({ customPrice: { price: 300 }, currency: "NGN" }, money);
+  is(out.amount !== "£0", true, `a 300 naira fee is not £0 (got ${out.amount})`);
+  is(/£0\.\d\d/.test(out.amount), true, `it keeps its pence (got ${out.amount})`);
+
+  const big = priceParts({ customPrice: { price: 440000 }, currency: "NGN" }, money);
+  is(/\./.test(big.amount), false, `a large figure drops the decimals (got ${big.amount})`);
+}
+
 console.log(fails ? `\n${fails} FAILED` : "\nALL PASSED");
 process.exit(fails ? 1 : 0);

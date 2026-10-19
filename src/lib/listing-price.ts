@@ -93,13 +93,24 @@ export function nativeCurrencyOf(listing: PriceableListing): string {
  */
 function hasRange(l: PriceableListing): boolean {
   const rows = [
-    ...((l as { services?: { price?: unknown }[] }).services ?? []),
-    ...((l as { packages?: { price?: unknown }[] }).packages ?? []),
+    ...((l as { services?: { price?: unknown; tiers?: { price?: unknown }[] }[] }).services ?? []),
+    ...((l as { packages?: { price?: unknown; tiers?: { price?: unknown }[] }[] }).packages ?? []),
   ];
   const prices = new Set<number>();
   for (const r of rows) {
     const n = typeof r?.price === "number" ? r.price : Number(r?.price);
     if (Number.isFinite(n) && n > 0) prices.add(n);
+    // PRICED ON THE TIER, NOT THE ROW. 25 of the 26 listings that have
+    // services leave the row price undefined and put the figure on a tier —
+    // anything Scout captured does. Reading the row alone saw one price or
+    // none, so "from" never appeared on a listing that genuinely had a range,
+    // and a gate fee of ₦300 read as the price of the whole place. The app
+    // fixed exactly this in GridCard.js:407 and the note there says it
+    // reached three separate surfaces.
+    for (const t of (r as { tiers?: { price?: unknown }[] })?.tiers ?? []) {
+      const tn = typeof t?.price === "number" ? t.price : Number(t?.price);
+      if (Number.isFinite(tn) && tn > 0) prices.add(tn);
+    }
   }
   return prices.size > 1;
 }
@@ -134,9 +145,15 @@ export function priceParts(
     // both of which look like real prices.
     if (fromRate && toRate && Number.isFinite(fromRate) && Number.isFinite(toRate)) {
       const converted = (price / fromRate) * toRate;
+      // PENCE MATTER WHEN THE NUMBER IS SMALL. Rounding to whole units turned
+      // Rayfield Resort's ₦300 gate fee into "from £0", which reads as free
+      // and is the worst thing a price can say. Under 100 of the target
+      // currency it keeps two decimals; above that they are noise beside a
+      // thousands separator. Same rule as the app's formatConvertedAmount.
+      const decimals = Math.abs(converted) < 100 ? 2 : 0;
       amount = `${symbolForCurrency(target)}${converted.toLocaleString("en-US", {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals,
       })}`;
     }
   }

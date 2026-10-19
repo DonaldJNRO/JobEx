@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { safeNext } from "@/lib/safe-next";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -8,6 +9,9 @@ import { Mail, Lock, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function LoginPage() {
+  const next = typeof window !== "undefined"
+    ? new URLSearchParams(window.location.search).get("next")
+    : null;
   const router = useRouter();
   const { login, loginWithGoogle } = useAuth();
   const [email, setEmail] = useState("");
@@ -22,7 +26,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login(email, password);
-      router.push("/");
+      router.push(safeNext(next));
     } catch (err: any) {
       setError(err.code === "auth/invalid-credential" ? "Invalid email or password" : err.message || "Login failed");
     } finally {
@@ -35,7 +39,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await loginWithGoogle();
-      router.push("/");
+      router.push(safeNext(next));
     } catch (err: any) {
       setError(err.message || "Google login failed");
     } finally {
