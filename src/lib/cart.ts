@@ -19,10 +19,12 @@
 // quietly cheaper than the trip it belongs to.
 
 import {
-  collection, getDocs, query, where, orderBy,
+  collection, getDocs, query, where, orderBy, limit,
 } from "firebase/firestore";
 import { httpsCallable } from "firebase/functions";
 import { db, functions } from "./firebase";
+import { createTrip } from "./trips";
+import { sendBookingRequest } from "./book";
 
 /** Statuses that are paid for and done with, as far as a basket is concerned. */
 const SETTLED = ["confirmed_paid", "partially_paid", "refunded", "partially_refunded", "cancelled_by_user", "declined", "expired", "cancelled_split_expired"];
@@ -124,4 +126,48 @@ export async function payCart(cart: Cart, currency: string): Promise<CartIntent>
   const res = await call({ tripId: cart.tripId, currency: currency.toLowerCase(), bookingRequestIds: ids });
   if (!res?.data?.clientSecret) throw new Error("Sabię could not start that payment. Nothing has been charged.");
   return { clientSecret: res.data.clientSecret, paymentIntentId: String(res.data.paymentIntentId || "") };
+}
+
+/**
+ * Put a listing in somebody's basket.
+ *
+ * A basket item IS a bookingRequest with a tripId on it, so this writes the
+ * same document the Send button writes and attaches it to a trip. There is no
+ * separate cart to keep in step, which is the whole reason the basket is a
+ * trip in the first place.
+ *
+ * REUSES THE MOST RECENT TRIP, rather than starting one per listing.
+ * Somebody adding three places is planning one trip; three baskets of one
+ * would be three payments and three chats, which is the thing a basket exists
+ * to avoid. Starting a new one is a deliberate act on the trips page.
+ */
+export async function addToTrip(
+  uid: string,
+  profile: Parameters<typeof createTrip>[1],
+  displayName: string | null | undefined,
+  listing: Parameters<typeof sendBookingRequest>[0],
+  ask: Parameters<typeof sendBookingRequest>[1],
+): Promise<string> {
+  const mine = await getDocs(query(
+    collection(db, "trips"),
+    where("memberIds", "array-contains", uid),
+    orderBy("createdAt", "desc"),
+    limit(1),
+  ));
+
+  const tripId = mine.docs[0]?.id
+    ?? await createTrip(
+      { uid, displayName: displayName ?? null, photoURL: profile?.profileImage ?? null },
+      profile,
+      // Named after the place, because "New trip" tells somebody nothing
+      // about which of their trips this is.
+      (listing as { businessName?: string; title?: string }).businessName
+        || (listing as { title?: string }).title
+        || "My trip",
+    );
+
+  // A fresh key per add, or the second thing somebody adds is swallowed as a
+  // duplicate of the first.
+  await sendBookingRequest(listing, ask, `web-cart-${uid}-${Date.now()}`, tripId);
+  return tripId;
 }

@@ -44,6 +44,12 @@ export async function sendBookingRequest(
   listing: Listing,
   ask: BookingAsk,
   idempotencyKey: string,
+  // THE TRIP THIS BELONGS TO, when there is one.
+  //
+  // Without it a request belongs to nobody's basket: /cart reads a trip's
+  // unpaid requests, so a booking written with no tripId can never appear in
+  // one. That is why the website could only ever sell one thing at a time.
+  tripId?: string | null,
 ): Promise<string> {
   const problem = validateBookingForm(ask);
   if (problem) throw new BookingError(problem);
@@ -79,6 +85,7 @@ export async function sendBookingRequest(
     role: listing.role || null,
     currency: listing.currency || null,
     idempotencyKey,
+    tripId: tripId || null,
     bookingDetails: {
       package: ask.offer,
       date: ask.date,

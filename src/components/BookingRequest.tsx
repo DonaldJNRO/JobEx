@@ -20,6 +20,7 @@ import { sendBookingRequest, BookingError } from "@/lib/book";
 import { offersOf, slotsFor, policyLines, addressOf, type Offer } from "@/lib/shop-window";
 import { offerTotal } from "@/lib/offer-total";
 import { useAuth } from "@/contexts/AuthContext";
+import { addToTrip } from "@/lib/cart";
 import { fetchBookingDecision, ASK, type BookingDecision } from "@/lib/booking-decision";
 import { buildDisplayPrice, formatPriceWithCurrency } from "@/lib/display-price";
 import PayStep, { canPay } from "./PayStep";
@@ -74,6 +75,11 @@ export default function BookingRequest({
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sentId, setSentId] = useState<string | null>(null);
+  // Declared HERE, with the rest, not beside the handler that uses it. A
+  // useState after `if (!open) return null` is a hook that runs on some
+  // renders and not others, which is the rule-of-hooks break the guard in
+  // hooksAfterReturn caught before this shipped.
+  const [adding, setAdding] = useState(false);
   // The card step. intent holds the server's client secret once it has said
   // yes; paid is only ever set by Stripe confirming the charge succeeded.
   const [intent, setIntent] = useState<PayIntent | null>(null);
@@ -188,6 +194,32 @@ export default function BookingRequest({
   // listings and nobody pressed Book on either, which is its own finding. The
   // moment the gate came off, the first guest to try it hit this.
   if (!open) return null;
+
+  // ADD TO TRIP, rather than book this one thing and start again.
+  //
+  // Writes the same bookingRequest the Send button writes, with a tripId on
+  // it, which is the only difference between a booking and a basket item:
+  // /cart reads a trip's unpaid requests. The server groups them per operator
+  // and charges once when you pay.
+  const addToBasket = async () => {
+    if (adding || !user) return;
+    setAdding(true);
+    try {
+      const tripId = await addToTrip(
+        user.uid,
+        userProfile,
+        user.displayName,
+        listing,
+        { offer, date, time, guests, name, contact, note, totalPrice: total },
+      );
+      // Straight to the basket, because the point of adding is to add more
+      // and then see what it comes to.
+      window.location.href = `/cart?trip=${tripId}`;
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not add that to your trip.");
+      setAdding(false);
+    }
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -588,6 +620,22 @@ export default function BookingRequest({
                 ? (willCharge ? "Starting payment" : "Sending")
                 : (willCharge ? "Continue to payment" : "Send request")}
             </button>
+
+            {/* ADD TO TRIP, for somebody buying more than one thing.
+                Only when they are signed in: a basket belongs to a trip, and
+                a trip belongs to a person. A signed-out visitor still books
+                the single thing above, which is what they could do before. */}
+            {user && (
+              <button
+                type="button"
+                onClick={addToBasket}
+                disabled={adding || sending}
+                className="mt-2.5 w-full h-13 min-h-[52px] rounded-2xl border border-line bg-card text-ink font-semibold inline-flex items-center justify-center gap-2 disabled:opacity-60"
+              >
+                {adding && <Loader2 size={16} className="animate-spin" />}
+                {adding ? "Adding" : "Add to my trip"}
+              </button>
+            )}
             <p className="mt-3 text-xs text-ink-faint text-center">
               {/* THREE STATES, NOT TWO. `instant` says the server would
                   take money for this; willCharge says this site actually
