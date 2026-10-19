@@ -59,8 +59,16 @@ const rates = { GBP: 1, NGN: 1761.53, USD: 1.3249, EUR: 1.163 };
     'an EMPTY rate table invents nothing rather than dividing by undefined');
 
   // The actual conversion. 8000 NGN / 1761.53 = £4.54.
-  is(getListingPriceParts(lagos, { rates, ready: true, to: 'GBP' }).amount, '£5',
-    'a UK visitor sees pounds');
+  //
+  // THIS USED TO ASSERT '£5', rounding a figure the comment above it already
+  // knew was £4.54. Whole units are right for a large number and wrong for a
+  // small one: the same rounding turned Rayfield Resort's ₦300 gate fee into
+  // "from £0", and £5 for a £4.54 item overstates it by nearly ten per cent.
+  // Under 100 of the target currency the pence stay, above it they are noise
+  // beside a thousands separator. Same rule as the app's
+  // formatConvertedAmount.
+  is(getListingPriceParts(lagos, { rates, ready: true, to: 'GBP' }).amount, '£4.54',
+    'a UK visitor sees pounds, to the penny on a small figure');
 
   // Same currency both ends is not a conversion.
   is(getListingPriceParts(lagos, { rates, ready: true, to: 'NGN' }).amount, '₦8,000',
