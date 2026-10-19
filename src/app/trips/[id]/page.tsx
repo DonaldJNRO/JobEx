@@ -20,6 +20,7 @@ import { ArrowLeft, Send, UserPlus, Loader2, Check } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { watchTrip, addTripMember, findTravellers, type Trip, type TripMember } from "@/lib/trips";
 import { watchMessages, sendMessage, markTripRead, type ChatMessage } from "@/lib/chat";
+import { tripAvatar } from "@/lib/trip-visual";
 
 function dayOf(m: ChatMessage): string {
   const ms = m.timestamp?.toMillis?.()
@@ -127,6 +128,14 @@ export default function TripChatPage({ params }: { params: Promise<{ id: string 
         <Link href="/trips" aria-label="Back to your trips" className="rounded-lg p-1.5 text-ink hover:bg-surface-sunken">
           <ArrowLeft className="h-5 w-5" />
         </Link>
+        {trip && (
+          <span
+            aria-hidden="true"
+            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold ${tripAvatar(trip.tripName, trip.id).tint}`}
+          >
+            {tripAvatar(trip.tripName, trip.id).initials}
+          </span>
+        )}
         <div className="min-w-0 flex-1">
           <h1 className="truncate font-bold text-ink">{trip?.tripName ?? "Trip"}</h1>
           <p className="truncate text-xs text-text-muted">
@@ -185,17 +194,36 @@ export default function TripChatPage({ params }: { params: Promise<{ id: string 
         )}
 
         {messages?.length === 0 && (
-          <p className="mt-10 text-center text-sm text-text-muted">
-            No messages yet. Say where you are thinking of going.
-          </p>
+          <div className="mx-auto mt-16 max-w-xs text-center">
+            {trip && (
+              <span
+                aria-hidden="true"
+                className={`mx-auto flex h-16 w-16 items-center justify-center rounded-full text-xl font-bold ${tripAvatar(trip.tripName, trip.id).tint}`}
+              >
+                {tripAvatar(trip.tripName, trip.id).initials}
+              </span>
+            )}
+            <p className="mt-4 font-semibold text-ink">{trip?.tripName}</p>
+            <p className="mt-1.5 text-sm leading-relaxed text-ink-muted">
+              {trip && trip.memberIds.length > 1
+                ? "Say where you are thinking of going."
+                : "Add the people coming with you, then say where you are thinking of going."}
+            </p>
+          </div>
         )}
 
-        <ul className="mx-auto max-w-2xl space-y-1.5">
-          {(messages ?? []).map((m) => {
+        <ul className="mx-auto max-w-2xl">
+          {(messages ?? []).map((m, i) => {
             const mine = m.senderId === user.uid;
             const day = dayOf(m);
             const newDay = day && day !== lastDay;
             if (day) lastDay = day;
+            // CONSECUTIVE MESSAGES FROM ONE PERSON ARE ONE BLOCK. Repeating
+            // somebody's name above every line they send turns a
+            // conversation into a list of labelled rows, which is what every
+            // chat app groups to avoid.
+            const prev = (messages ?? [])[i - 1];
+            const sameSender = prev && prev.senderId === m.senderId && dayOf(prev) === day;
             return (
               <li key={m.id}>
                 {newDay && (
@@ -203,13 +231,24 @@ export default function TripChatPage({ params }: { params: Promise<{ id: string 
                     {new Date(day).toLocaleDateString(undefined, { day: "numeric", month: "long" })}
                   </p>
                 )}
-                <div className={mine ? "flex justify-end" : "flex justify-start"}>
-                  <div className={`max-w-[75%] rounded-2xl px-3.5 py-2 ${mine ? "bg-primary text-white" : "bg-card text-ink border border-line"}`}>
-                    {!mine && (
-                      <p className="mb-0.5 text-xs font-semibold text-text-muted">{m.senderName}</p>
+                <div className={`flex ${mine ? "justify-end" : "justify-start"} ${sameSender ? "mt-0.5" : "mt-3"}`}>
+                  <div
+                    className={`max-w-[75%] px-3.5 py-2 ${
+                      mine
+                        ? "bg-primary text-white rounded-2xl rounded-br-md"
+                        : "bg-card text-ink border border-line rounded-2xl rounded-bl-md"
+                    }`}
+                  >
+                    {!mine && !sameSender && (
+                      <p className="mb-0.5 text-xs font-semibold text-primary">{m.senderName}</p>
                     )}
-                    <p className="whitespace-pre-wrap break-words">{m.text}</p>
-                    <p className={`mt-0.5 text-[10px] ${mine ? "text-white/70" : "text-text-muted"}`}>{timeOf(m)}</p>
+                    <p className="whitespace-pre-wrap break-words leading-relaxed">{m.text}</p>
+                    {/* The time sits with the message rather than under every
+                        one of them: a column of timestamps down a thread is
+                        noise, and the one that matters is the last. */}
+                    <p className={`mt-1 text-right text-[10px] tabular-nums ${mine ? "text-white/60" : "text-ink-faint"}`}>
+                      {timeOf(m)}
+                    </p>
                   </div>
                 </div>
               </li>

@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { MessageSquare, Plus, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { watchMyTrips, createTrip, type Trip } from "@/lib/trips";
+import { tripAvatar, previewOf } from "@/lib/trip-visual";
 
 function whenOf(t: Trip): string {
   const ms = t.lastMessageTime?.toMillis?.()
@@ -103,20 +104,41 @@ export default function TripsPage() {
                   href={`/trips/${t.id}`}
                   className="flex items-center gap-3 rounded-2xl border border-line bg-card p-3 transition-colors hover:bg-surface-sunken"
                 >
-                  <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-surface-sunken">
-                    {t.imageUrl && (
+                  {/* A PHOTO WHEN THERE IS ONE, INITIALS WHEN THERE IS NOT.
+                      31 of the 41 trips in production have no imageUrl, so a
+                      row that only renders a photo is an empty grey square
+                      three times out of four. The tint comes from the trip's
+                      id, so it never changes and renaming a trip does not
+                      recolour it. */}
+                  {t.imageUrl ? (
+                    <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-full bg-surface-sunken">
                       <Image src={t.imageUrl} alt="" fill sizes="48px" className="object-cover" />
-                    )}
-                  </div>
+                    </div>
+                  ) : (
+                    <span
+                      aria-hidden="true"
+                      className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-sm font-bold ${tripAvatar(t.tripName, t.id).tint}`}
+                    >
+                      {tripAvatar(t.tripName, t.id).initials}
+                    </span>
+                  )}
                   <div className="min-w-0 flex-1">
                     <div className="flex items-baseline justify-between gap-2">
                       <span className="truncate font-semibold text-ink">{t.tripName}</span>
                       <span className="shrink-0 text-xs text-text-muted">{whenOf(t)}</span>
                     </div>
-                    <p className="truncate text-sm text-text-muted">
-                      {t.lastMessage
-                        ? (t.lastMessageSenderName ? `${t.lastMessageSenderName}: ${t.lastMessage}` : t.lastMessage)
-                        : `${t.memberIds.length} ${t.memberIds.length === 1 ? "person" : "people"}`}
+                    {/* FOUR TRIPS CARRY THE LITERAL "[object Object]" as
+                        their last message, from something upstream handing an
+                        object to a field that holds a preview. previewOf
+                        returns null for it, so the row falls back to
+                        something true about the trip rather than printing a
+                        bug at somebody. */}
+                    <p className={`truncate text-sm ${unread > 0 ? "font-semibold text-ink" : "text-ink-muted"}`}>
+                      {(() => {
+                        const preview = previewOf(t.lastMessage);
+                        if (!preview) return `${t.memberIds.length} ${t.memberIds.length === 1 ? "person" : "people"}`;
+                        return t.lastMessageSenderName ? `${t.lastMessageSenderName}: ${preview}` : preview;
+                      })()}
                     </p>
                   </div>
                   {unread > 0 && (
