@@ -138,6 +138,16 @@ export interface KnownCity {
   name: string;
   /** The neighbourhoods inside it. "Ikeja" is one of these, not a city. */
   areas?: string[];
+  /** "Nigeria", "UK". For the flag beside the name. */
+  country?: string | null;
+  /** What is actually live there: ["stays","food","experiences"]. The app's
+   *  city sheet shows these as chips, so a person sees what a place has
+   *  before they pick it rather than after. */
+  categories?: string[];
+  /** The order the office put them in. Lagos is 1. */
+  order?: number;
+  /** "live" is the only one that should be offered. */
+  status?: string | null;
 }
 
 /**

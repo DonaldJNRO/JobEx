@@ -33,6 +33,8 @@ import AppStrip from "@/components/AppStrip";
 import ListingRow from "@/components/ListingRow";
 import { getFeaturedListings, listingPlace, categoryOf, categoryLabelOf, CATEGORY_IDS, CATEGORY_LABELS, Listing } from "@/lib/listings";
 import { rowsFrom } from "@/lib/home-rows";
+import { getKnownCities, inCity, areaIndexFrom, type KnownCity } from "@/lib/listings";
+import CityPicker from "@/components/CityPicker";
 import { useReveal } from "@/lib/useReveal";
 
 // Built from the one table, not typed out again. A pill whose id no filter
@@ -97,10 +99,48 @@ export default function HomePage() {
       .finally(() => setLoading(false));
   }, []);
 
+  // THE CITY, like the app's header.
+  //
+  // Read from the shared `cities` collection, the same source Scout's area
+  // picker and the app's sheet read, so a city going live is one edit in one
+  // place and never a deploy here.
+  //
+  // Remembered per browser: somebody who picks Lagos should not have to pick
+  // it again every visit, which is the first thing that makes this read as an
+  // app rather than a page. localStorage can throw in a private window, so
+  // both ends are wrapped and the feed simply starts everywhere.
+  const [cities, setCities] = useState<KnownCity[]>([]);
+  const [city, setCity] = useState<string | null>(null);
+
+  useEffect(() => { getKnownCities().then(setCities).catch(() => {}); }, []);
+
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem("sabie.city");
+      if (saved) setCity(saved);
+    } catch { /* private window, or storage blocked */ }
+  }, []);
+
+  const pickCity = (id: string | null) => {
+    setCity(id);
+    try {
+      if (id) window.localStorage.setItem("sabie.city", id);
+      else window.localStorage.removeItem("sabie.city");
+    } catch { /* the choice still applies to this visit */ }
+  };
+
   // The place is resolved here, so home-rows.ts imports nothing and stays
   // loadable by plain node for its test.
   const rows = useMemo(() => {
-    const placed = listings.map((l) => {
+    // inCity understands that Lekki and Ikeja are Lagos, but ONLY when it is
+    // given the city list and the learned area index. Called with neither it
+    // compares bare slugs, so every listing stored by its neighbourhood drops
+    // out of its own city's feed: Lagos would lose most of its 31. Explore
+    // passes both and so does this.
+    const forCity = city
+      ? listings.filter((l) => inCity(l, city, cities, areaIndexFrom(listings)))
+      : listings;
+    const placed = forCity.map((l) => {
       const place = listingPlace(l);
       return {
         ...l,
@@ -117,7 +157,7 @@ export default function HomePage() {
       ...r,
       items: r.items as unknown as Listing[],
     }));
-  }, [listings]);
+  }, [listings, city, cities]);
 
   return (
     <div ref={revealRef} className="min-h-screen bg-surface">
@@ -131,6 +171,17 @@ export default function HomePage() {
         <p className="mt-2.5 text-[15px] sm:text-base text-ink-muted max-w-md leading-relaxed">
           Stays, experiences and places to eat, from the people who run them.
         </p>
+        {/* THE CITY, where the app puts it. The feed leans toward one place
+            rather than pretending to cover everywhere, and the sheet says so
+            in Sabię's own words. Rendered only once the cities have loaded,
+            so there is no control that answers "Everywhere" for a moment and
+            then changes its mind. */}
+        {cities.length > 0 && (
+          <div className="mt-5 flex items-center gap-2 text-ink-muted">
+            <span className="text-sm">Showing</span>
+            <CityPicker cities={cities} selected={city} onSelect={pickCity} />
+          </div>
+        )}
       </div>
 
       {/* Same pills as explore, and they go to explore. The home page shows

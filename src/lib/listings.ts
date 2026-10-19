@@ -431,13 +431,26 @@ export async function getKnownCities(): Promise<KnownCity[]> {
   try {
     const snap = await getDocs(collection(db, "cities"));
     return snap.docs.map((d) => {
-      const data = d.data() as { name?: string; areas?: unknown };
+      const data = d.data() as {
+        name?: string; areas?: unknown; country?: string;
+        categories?: unknown; order?: number; status?: string;
+      };
       return {
         id: d.id,
         name: data.name || d.id,
         areas: Array.isArray(data.areas) ? (data.areas as string[]) : [],
+        country: data.country || null,
+        // What is live there. The office keeps this in sync from the
+        // listings, so it is read and never derived here.
+        categories: Array.isArray(data.categories) ? (data.categories as string[]) : [],
+        order: typeof data.order === "number" ? data.order : 99,
+        status: data.status || null,
       };
-    });
+    })
+      // The office's own order, Lagos first. Falling back to name keeps it
+      // stable when two share a number, which they do: Bamako and Jos are
+      // both 4.
+      .sort((a, b) => (a.order ?? 99) - (b.order ?? 99) || a.name.localeCompare(b.name));
   } catch {
     return [];
   }
