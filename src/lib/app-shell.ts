@@ -8,9 +8,11 @@
 /** Routes that are a website, not the app. */
 export const MARKETING_PREFIXES = ["/about", "/contact", "/terms", "/privacy", "/blog", "/auth"];
 
-/** One trip's chat. Full height, own composer, no room for a bar under it. */
+/** The trips screen. Full height, its own composer, no room for a bar under
+ *  it — and now BOTH panes live at /trips, with ?t= choosing the thread, so
+ *  this matches the one route rather than a child of it. */
 export function isChatRoute(pathname: string): boolean {
-  return /^\/trips\/[^/]+$/.test(pathname || "");
+  return (pathname || "") === "/trips";
 }
 
 export function isMarketingRoute(pathname: string): boolean {
