@@ -6,9 +6,11 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "echo 'next lint was removed in Next 16 and there is no ESLint config here. Use: npm run verify' && exit 1",
     "check:tokens": "node scripts/token-collision-check.mjs",
-    "test": "node --experimental-strip-types src/lib/slug.test.mjs && node --experimental-strip-types src/lib/one-word-slug.test.mjs && node --experimental-strip-types src/lib/booking-shape.test.mjs && node --experimental-strip-types src/lib/booking-hooks.test.mjs && node --experimental-strip-types src/lib/listing-place.test.mjs && node --experimental-strip-types src/lib/booking-request.test.mjs && node --experimental-strip-types src/lib/booking-time.test.mjs && node --experimental-strip-types src/lib/booking-detail.test.mjs && node --experimental-strip-types src/lib/listing-menu.test.mjs && node --experimental-strip-types src/lib/profile-sections.test.mjs && node --experimental-strip-types src/lib/gallery.test.mjs && node --experimental-strip-types src/lib/no-doubled-sentence.test.mjs && node --experimental-strip-types src/lib/guest-currency.test.mjs && node --experimental-strip-types src/lib/region-currency.test.mjs && node --experimental-strip-types src/lib/currency-base.test.mjs && node --experimental-strip-types src/lib/booking-sheet-ui.test.mjs && node --experimental-strip-types src/lib/pay.test.mjs && node --experimental-strip-types src/lib/privacy-truth.test.mjs && node --experimental-strip-types src/lib/listing-snapshot.test.mjs && node --experimental-strip-types src/lib/instant-book.test.mjs && node --experimental-strip-types src/lib/home-rows.test.mjs && node --experimental-strip-types src/lib/verified-badge.test.mjs && node --experimental-strip-types src/lib/currency.test.mjs && node --experimental-strip-types src/lib/from-price.test.mjs && node --experimental-strip-types src/lib/operator-info.test.mjs"
+    "test": "for f in src/lib/*.test.mjs; do printf \"\\n\u2014 %s\\n\" \"$f\"; tsx \"$f\" || exit 1; done",
+    "typecheck": "tsc --noEmit",
+    "verify": "npm run typecheck && npm test && npm run check:tokens"
   },
   "dependencies": {
     "@stripe/react-stripe-js": "^7.0.0",
@@ -25,6 +27,10 @@
   "devDependencies": {
     "@types/node": "^25.5.0",
     "@types/react": "^19.2.14",
+    "tsx": "^4.23.15",
     "typescript": "^6.0.2"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

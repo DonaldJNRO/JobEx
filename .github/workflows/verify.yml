@@ -1,0 +1,35 @@
+# sabieapp.com had no CI, and both of its own check scripts were dead.
+#
+# `npm test` chained 25 files with `node --experimental-strip-types`, a flag
+# that needs Node >= 22.6 against a repo pinning nothing, so it exited
+# immediately on "bad option" and had never run on any machine. `next lint`
+# was removed in Next 16 and there is no ESLint config to fall back on.
+#
+# So 489 assertions covering slugs, currency, the booking payload, instant
+# booking and the payment sheet had never executed, and the only gate between
+# a commit and production was `next build` succeeding on Vercel.
+name: verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Tests
+        run: npm test
+      - name: Design tokens
+        run: npm run check:tokens
+      - name: Build
+        run: npm run build
