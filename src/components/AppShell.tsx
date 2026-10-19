@@ -20,7 +20,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Compass, MessageSquare, ShoppingBag, User } from "lucide-react";
+import { Home, Search, MessageSquare, ShoppingBag, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { watchMyTrips } from "@/lib/trips";
 import { showsShell, isChatRoute } from "@/lib/app-shell";
@@ -31,7 +31,11 @@ import { showsShell, isChatRoute } from "@/lib/app-shell";
 // belongs more than it does beside a basket you have not.
 const TABS = [
   { href: "/", label: "Home", icon: Home, exact: true },
-  { href: "/explore", label: "Explore", icon: Compass },
+  // SEARCH, NOT EXPLORE. /explore was the home page with a search box on it,
+  // so it redirects here and the box came with it. The tab opens the one feed
+  // and puts the cursor in the box, which is the "two states of one screen"
+  // the app's own bar describes.
+  { href: "/?search=1", label: "Search", icon: Search },
   { href: "/trips", label: "Chat", icon: MessageSquare, needsAuth: true, badge: true },
   // The app's bottom bar ends on the bag, and so does this.
   { href: "/cart", label: "Trip", icon: ShoppingBag, needsAuth: true },

@@ -24,7 +24,7 @@ export default function SignupPage() {
     setLoading(true);
     try {
       await signup(email, password, name);
-      router.push("/explore");
+      router.push("/");
     } catch (err: any) {
       setError(err.code === "auth/email-already-in-use" ? "Email already in use" : err.message || "Signup failed");
     } finally {
@@ -37,7 +37,7 @@ export default function SignupPage() {
     setLoading(true);
     try {
       await loginWithGoogle();
-      router.push("/explore");
+      router.push("/");
     } catch (err: any) {
       setError(err.message || "Google signup failed");
     } finally {

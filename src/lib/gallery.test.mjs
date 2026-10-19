@@ -30,7 +30,15 @@ for (const dead of ["toggleLike", "copyLink", "savingLike", "setLiked", "booking
 }
 ck(/AMENITY_ICONS\[a\.toLowerCase\(\)\] \|\| Check/.test(live),
   "but Check stays: it is the amenity fallback icon, not share furniture");
-ck(/<Link href="\/explore"/.test(live), "and the back button survives");
+// Asserted as a PROPERTY, not an address. This matched href="/explore"
+// exactly, and went red the day /explore was folded into the home page and
+// the button started pointing at "/" — a correct change failing a guard that
+// was watching a spelling. What matters is that a way back exists.
+// A Link whose CONTENT is the chevron, not merely one somewhere near it.
+// The looser version matched the gallery's own previous-photo chevron 40
+// lines up and passed with the back button deleted.
+ck(/<Link href="\/[^"]*"[^>]*>\s*<(ChevronLeft|ArrowLeft)\b/.test(live),
+  "and the back button survives");
 
 console.log(fails ? `\n${fails} FAILED` : "\nALL PASSED");
 process.exit(fails ? 1 : 0);

@@ -130,7 +130,7 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
           </div>
           <h2 className="text-2xl font-bold text-ink">Listing not found</h2>
           <p className="text-text-muted mt-2">This listing may have been removed.</p>
-          <Link href="/explore" className="inline-flex items-center gap-2 mt-6 bg-primary text-white px-6 py-3 rounded-full font-semibold hover:bg-primary-dark transition-colors">
+          <Link href="/" className="inline-flex items-center gap-2 mt-6 bg-primary text-white px-6 py-3 rounded-full font-semibold hover:bg-primary-dark transition-colors">
             Browse Listings
           </Link>
         </div>
@@ -360,7 +360,7 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
                 share sheet does better, from a button that cost a corner of
                 the photo. Back only. */}
             <div className="absolute top-4 left-4">
-              <Link href="/explore" className="w-10 h-10 rounded-full glass flex items-center justify-center text-ink hover:bg-line-strong transition-all">
+              <Link href="/" className="w-10 h-10 rounded-full glass flex items-center justify-center text-ink hover:bg-line-strong transition-all">
                 <ChevronLeft size={20} />
               </Link>
             </div>
@@ -623,7 +623,7 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
                 <p className="text-xs font-bold text-primary uppercase tracking-[0.2em] mb-2">More to explore</p>
                 <h2 className="text-2xl font-extrabold text-ink">Similar Listings</h2>
               </div>
-              <Link href="/explore" className="text-sm font-bold text-primary hover:underline underline-offset-4">
+              <Link href="/" className="text-sm font-bold text-primary hover:underline underline-offset-4">
                 View all <ChevronRight size={14} className="inline" />
               </Link>
             </div>

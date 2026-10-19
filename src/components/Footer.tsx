@@ -36,11 +36,11 @@ export default function Footer() {
           <div>
             <h4 className="text-sm font-semibold text-ink mb-4 uppercase tracking-wider">Product</h4>
             <ul className="space-y-2.5 text-sm">
-              <li><Link href="/explore" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">Explore</Link></li>
-              <li><Link href="/explore?category=stays" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">Stays</Link></li>
-              <li><Link href="/explore?category=experiences" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">Experiences</Link></li>
-              <li><Link href="/explore?category=events" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">Events</Link></li>
-              <li><Link href="/explore?category=food" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">Food & Drink</Link></li>
+              <li><Link href="/" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">Explore</Link></li>
+              <li><Link href="/?category=stays" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">Stays</Link></li>
+              <li><Link href="/?category=experiences" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">Experiences</Link></li>
+              <li><Link href="/?category=events" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">Events</Link></li>
+              <li><Link href="/?category=food" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">Food & Drink</Link></li>
             </ul>
           </div>
 

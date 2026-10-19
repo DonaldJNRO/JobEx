@@ -22,7 +22,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login(email, password);
-      router.push("/explore");
+      router.push("/");
     } catch (err: any) {
       setError(err.code === "auth/invalid-credential" ? "Invalid email or password" : err.message || "Login failed");
     } finally {
@@ -35,7 +35,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await loginWithGoogle();
-      router.push("/explore");
+      router.push("/");
     } catch (err: any) {
       setError(err.message || "Google login failed");
     } finally {

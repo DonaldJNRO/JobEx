@@ -28,12 +28,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, Sparkles, MapPin } from "lucide-react";
+import { ArrowRight, Sparkles, MapPin, Search, X } from "lucide-react";
 import AppStrip from "@/components/AppStrip";
 import MasonryFeed from "@/components/MasonryFeed";
 import { getFeaturedListings, listingPlace, categoryOf, categoryLabelOf, getListingImage, getListingPriceParts, CATEGORY_IDS, CATEGORY_LABELS, Listing } from "@/lib/listings";
 import { getKnownCities, inCity, areaIndexFrom, type KnownCity } from "@/lib/listings";
 import CityPicker from "@/components/CityPicker";
+import { matchesSearch } from "@/lib/listing-search";
 import { useReveal } from "@/lib/useReveal";
 
 // Built from the one table, not typed out again. A pill whose id no filter
@@ -109,6 +110,15 @@ export default function HomePage() {
   // app rather than a page. localStorage can throw in a private window, so
   // both ends are wrapped and the feed simply starts everywhere.
   const [tab, setTab] = useState<string>("all");
+  const [term, setTerm] = useState("");
+
+  // ?category= comes from /explore, which redirects here and keeps its filter
+  // so an old bookmark lands on the feed already narrowed rather than on a
+  // fresh one. Read once on mount: after that the tabs own it.
+  useEffect(() => {
+    const c = new URLSearchParams(window.location.search).get("category");
+    if (c) setTab(c);
+  }, []);
   const [cities, setCities] = useState<KnownCity[]>([]);
   const [city, setCity] = useState<string | null>(null);
 
@@ -157,6 +167,9 @@ export default function HomePage() {
     // These used to be links to /explore: a page load, and a scroll position
     // lost. The app filters in place and so does this.
     const forTab = tab === "all" ? placed : placed.filter((l) => l.category === tab);
+    // /explore was this page with a search box on it, so the box moved here
+    // and /explore now points at it. One feed, one place to look.
+    const found = term.trim() ? forTab.filter((l) => matchesSearch(l, term)) : forTab;
 
     // "FOR YOU" IS NOT A SHUFFLE. The app ranks it by how complete a listing
     // is (useForYouData.js:382), the point being that a listing with a price
@@ -168,8 +181,8 @@ export default function HomePage() {
       (getListingImage(l) ? 2 : 0) +
       (listingPlace(l).city ? 1 : 0);
 
-    return [...forTab].sort((a, b) => score(b) - score(a));
-  }, [listings, city, cities, tab]);
+    return [...found].sort((a, b) => score(b) - score(a));
+  }, [listings, city, cities, tab, term]);
 
   return (
     <div ref={revealRef} className="min-h-screen bg-surface">
@@ -194,6 +207,32 @@ export default function HomePage() {
             <CityPicker cities={cities} selected={city} onSelect={pickCity} />
           </div>
         )}
+
+        {/* THE SEARCH BOX THAT USED TO BE A SEPARATE PAGE.
+            /explore was this page with a box on it: the same listings, the
+            same pills, the same cards. Two addresses for one screen is two
+            places to keep right, and a visitor choosing between Home and
+            Explore is choosing between a thing and itself. */}
+        <div className="relative mt-4 max-w-md">
+          <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-faint" />
+          <input
+            value={term}
+            onChange={(e) => setTerm(e.target.value)}
+            placeholder="Search places, food, experiences"
+            aria-label="Search places"
+            className="w-full rounded-xl border border-line bg-card py-3 pl-10 pr-10 text-[15px] text-ink placeholder:text-ink-faint"
+          />
+          {term && (
+            <button
+              type="button"
+              onClick={() => setTerm("")}
+              aria-label="Clear search"
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-ink-muted hover:bg-surface-sunken"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
       </div>
 
       {/* THE TABS FILTER WHERE YOU STAND.
@@ -274,11 +313,6 @@ export default function HomePage() {
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-4">
-        <Link href="/explore" className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline underline-offset-4">
-          See everything <ArrowRight size={16} />
-        </Link>
-      </div>
 
       {/* ── The crew story, below the listings rather than instead of them ── */}
       <section className="mt-6 bg-surface-sunken border-y border-line">
@@ -305,12 +339,14 @@ export default function HomePage() {
               The good spots live on Instagram and in someone&apos;s chat. Find them here,
               ask the business, and stop running the trip across six group chats.
             </p>
-            <Link
-              href="/explore"
+            {/* Pointed at /explore, which is now this page. It scrolls back
+                to the feed instead of reloading the screen you are on. */}
+            <a
+              href="#feed"
               className="mt-7 inline-flex items-center gap-2.5 bg-primary hover:bg-primary-dark text-white font-bold px-7 py-3.5 rounded-full transition-colors"
             >
               See what&apos;s live <ArrowRight size={17} />
-            </Link>
+            </a>
           </div>
         </div>
       </section>

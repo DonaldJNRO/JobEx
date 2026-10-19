@@ -8,7 +8,7 @@ import { Menu, X, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 const NAV_LINKS = [
-  { href: "/explore", label: "Explore" },
+
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
 ];

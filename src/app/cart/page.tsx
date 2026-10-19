@@ -81,7 +81,7 @@ function CartContents() {
             <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-text-muted">
               A trip is where everything you book lives, on your own or with the people coming with you.
             </p>
-            <Link href="/explore" className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white">
+            <Link href="/" className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white">
               Browse places <ArrowRight className="h-4 w-4" />
             </Link>
           </div>

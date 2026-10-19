@@ -12,7 +12,6 @@ export const revalidate = 3600;
 // back the day it has something to read.
 const STATIC_PAGES: MetadataRoute.Sitemap = [
   { url: BASE_URL, changeFrequency: "weekly", priority: 1 },
-  { url: `${BASE_URL}/explore`, changeFrequency: "daily", priority: 0.9 },
   { url: `${BASE_URL}/about`, changeFrequency: "monthly", priority: 0.7 },
   { url: `${BASE_URL}/contact`, changeFrequency: "monthly", priority: 0.6 },
   { url: `${BASE_URL}/privacy`, changeFrequency: "yearly", priority: 0.3 },

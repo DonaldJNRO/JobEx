@@ -78,7 +78,7 @@ export default function BookingsPage() {
               the code you need at the door.
             </p>
             <Link
-              href="/explore"
+              href="/"
               className="mt-6 inline-block rounded-full bg-primary px-6 py-3 font-semibold text-white transition-colors hover:bg-primary-dark"
             >
               Browse listings
