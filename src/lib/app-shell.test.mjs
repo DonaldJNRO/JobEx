@@ -2,7 +2,7 @@
 //
 // Run: tsx src/lib/app-shell.test.mjs
 
-import { showsShell, isChatRoute, isMarketingRoute } from "./app-shell.ts";
+import { showsShell, showsBottomBar, showsFooter, isChatRoute, isMarketingRoute } from "./app-shell.ts";
 
 let fails = 0;
 const ok = (cond, label) => {
@@ -10,8 +10,16 @@ const ok = (cond, label) => {
 };
 
 console.log("\nthe app surfaces get the shell");
-for (const p of ["/", "/explore", "/listing/arrows-den", "/cart", "/bookings", "/account"]) {
+for (const p of ["/", "/explore", "/listing/arrows-den", "/trips", "/cart", "/bookings", "/account"]) {
   ok(showsShell(p), p);
+}
+
+console.log("\nand the footer is on the website pages only");
+for (const p of ["/about", "/terms", "/privacy", "/contact", "/auth/login"]) {
+  ok(showsFooter(p), `${p} has a footer`);
+}
+for (const p of ["/", "/trips", "/cart", "/bookings", "/account", "/listing/x"]) {
+  ok(!showsFooter(p), `${p} does not`);
 }
 
 console.log("\nthe website does not");
@@ -28,7 +36,16 @@ console.log("\nthe trips screen has no room for a bar");
 // It is h-[calc(100vh-4rem)] with a composer pinned to the bottom, so a bar
 // under it would be two bars fighting for the same sixty pixels.
 ok(isChatRoute("/trips"), "/trips is the whole screen");
-ok(!showsShell("/trips"), "and gets no shell");
+// IT KEEPS THE RAIL. LinkedIn keeps its nav on Messaging, and dropping it
+// here left no way back to the feed or the basket from inside a
+// conversation. Only the PHONE bar steps aside, because the composer is
+// pinned to the same sixty pixels.
+ok(showsShell("/trips"), "it keeps the rail, so there is a way out");
+ok(!showsBottomBar("/trips"), "but not the phone bar, which the composer needs");
+// AND NO FOOTER. This is the bug that made the message "shift up": /trips
+// dropping the shell also GAVE it a footer, and a full-height chat with a
+// footer under it scrolls the page instead of the thread.
+ok(!showsFooter("/trips"), "and no footer under a conversation");
 ok(!isChatRoute("/trips/anything"), "a child route is not it, and there are none");
 ok(!isChatRoute("/"), "nor is the feed");
 

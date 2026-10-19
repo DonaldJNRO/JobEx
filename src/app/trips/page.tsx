@@ -16,7 +16,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
-import { Plus, Loader2, ArrowLeft, UserPlus, Check } from "lucide-react";
+import { Plus, Loader2, ArrowLeft, UserPlus, Check, Search } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { watchMyTrips, createTrip, addTripMember, findTravellers, type Trip, type TripMember } from "@/lib/trips";
 import { tripAvatar, previewOf } from "@/lib/trip-visual";
@@ -41,6 +41,7 @@ function TripsInner() {
   const [trips, setTrips] = useState<Trip[] | null>(null);
   const [creating, setCreating] = useState(false);
   const [adding, setAdding] = useState(false);
+  const [filter, setFilter] = useState("");
   const [term, setTerm] = useState("");
   const [found, setFound] = useState<TripMember[]>([]);
 
@@ -69,10 +70,14 @@ function TripsInner() {
   };
 
   return (
-    // The shell's rail is 224px and the navbar is 64px; this fills what is
-    // left so the thread's composer sits on the bottom of the window rather
-    // than below the fold.
-    <div className="flex h-[calc(100vh-4rem)] min-h-0">
+    // THE WINDOW MINUS THE NAVBAR, and overflow-hidden so the PAGE cannot
+    // scroll. Without that last part the thread grew the document, the
+    // composer went below the fold and tapping the box scrolled the whole
+    // page, which reads as the conversation jumping away from you.
+    //
+    // The rail is fixed and the layout is already inset past it by the
+    // shell, so this is only the height.
+    <div className="flex h-[calc(100vh-4rem)] min-h-0 overflow-hidden">
       {/* THE LIST. Full width on a phone until a trip is picked, then it
           steps aside; always there from lg up. */}
       <aside
@@ -92,6 +97,23 @@ function TripsInner() {
           </button>
         </div>
 
+        {/* SEARCH, which every messaging list has and this one did not.
+            LinkedIn, Studio and WhatsApp Web all put it directly under the
+            title: with more than a handful of trips, scrolling to find one is
+            the only way to open it. */}
+        <div className="border-b border-line px-3 py-2">
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-faint" />
+            <input
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              placeholder="Search trips"
+              aria-label="Search your trips"
+              className="w-full rounded-xl border border-line bg-surface py-2 pl-9 pr-3 text-sm text-ink placeholder:text-ink-faint"
+            />
+          </div>
+        </div>
+
         <div className="min-h-0 flex-1 overflow-y-auto">
           {trips === null && (
             <div className="space-y-2 p-3" aria-busy="true">
@@ -108,7 +130,15 @@ function TripsInner() {
             </div>
           )}
 
-          {(trips ?? []).map((t) => {
+          {(trips ?? [])
+            .filter((t) => {
+              const q = filter.trim().toLowerCase();
+              if (!q) return true;
+              // The name, and whoever last spoke, which is how somebody
+              // actually remembers a conversation.
+              return `${t.tripName} ${t.lastMessageSenderName ?? ""}`.toLowerCase().includes(q);
+            })
+            .map((t) => {
             const unread = t.unreadCounts?.[user.uid] || 0;
             const a = tripAvatar(t.tripName, t.id);
             const preview = previewOf(t.lastMessage);

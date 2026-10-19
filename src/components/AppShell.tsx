@@ -23,7 +23,7 @@ import { usePathname } from "next/navigation";
 import { Home, MessageSquare, ShoppingBag, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { watchMyTrips } from "@/lib/trips";
-import { showsShell, isChatRoute } from "@/lib/app-shell";
+import { showsShell, showsBottomBar, showsFooter } from "@/lib/app-shell";
 
 // FIVE, like the app's bar. A sixth would put six 65px targets on a 390px
 // screen, and Bookings is already one tap away inside Account
@@ -69,8 +69,12 @@ export default function AppShell({
   // version of it was inline and matched prefixes with startsWith, so
   // "/aboutface" counted as "/about" and would have lost its bar; the test
   // caught that before this shipped.
+  // Three questions, not one. See src/lib/app-shell.ts: conflating them is
+  // what put a footer under the chat and scrolled the page instead of the
+  // thread.
   const show = showsShell(pathname);
-  const isChat = isChatRoute(pathname);
+  const bar = showsBottomBar(pathname);
+  const withFooter = showsFooter(pathname);
 
   // EVERY TAB, SIGNED IN OR NOT.
   //
@@ -126,17 +130,17 @@ export default function AppShell({
           bottom padding is the phone bar plus the home indicator under it;
           the footer sits inside this, or the bar covers its last rows. */}
       <div className={show ? "lg:pl-56" : undefined}>
-        <div className={show ? "pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] lg:pb-0" : undefined}>
+        <div className={bar ? "pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] lg:pb-0" : undefined}>
           {children}
           {/* NO FOOTER ON AN APP SURFACE. A feed you scroll for ever does not
               end in a sitemap, and TikTok, Snapchat and Amazon's own product
               pages do not carry one. It stays on the marketing and legal
               pages, which is where somebody looks for it. */}
-          {!show && footer}
+          {withFooter && footer}
         </div>
       </div>
 
-      {show && (
+      {bar && (
         <nav
           aria-label="Sabię"
           className="fixed inset-x-0 bottom-0 z-30 flex border-t border-line bg-card pb-[env(safe-area-inset-bottom,0px)] lg:hidden"
