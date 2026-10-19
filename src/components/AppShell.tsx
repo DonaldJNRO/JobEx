@@ -20,16 +20,21 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Compass, MessageSquare, Ticket, User } from "lucide-react";
+import { Home, Compass, MessageSquare, ShoppingBag, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { watchMyTrips } from "@/lib/trips";
 import { showsShell, isChatRoute } from "@/lib/app-shell";
 
+// FIVE, like the app's bar. A sixth would put six 65px targets on a 390px
+// screen, and Bookings is already one tap away inside Account
+// (account/page.tsx:59), where a record of what you have already paid for
+// belongs more than it does beside a basket you have not.
 const TABS = [
   { href: "/", label: "Home", icon: Home, exact: true },
   { href: "/explore", label: "Explore", icon: Compass },
   { href: "/trips", label: "Chat", icon: MessageSquare, needsAuth: true, badge: true },
-  { href: "/bookings", label: "Bookings", icon: Ticket, needsAuth: true },
+  // The app's bottom bar ends on the bag, and so does this.
+  { href: "/cart", label: "Trip", icon: ShoppingBag, needsAuth: true },
   { href: "/account", label: "Account", icon: User, needsAuth: true },
 ];
 
