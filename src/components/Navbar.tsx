@@ -81,6 +81,17 @@ export default function Navbar() {
           {/* Auth CTA */}
           <div className="hidden md:flex items-center gap-3">
             {!loading && user ? (
+              <>
+              {/* SIGNED-IN DESTINATIONS, on desktop too. /bookings lived only
+                  in the mobile menu, so a desktop visitor reached their own
+                  bookings through Account or not at all; /trips would have
+                  had the same problem the day it shipped. */}
+              <Link href="/trips" className="text-sm font-medium text-ink-muted hover:text-ink px-3 py-2 transition-colors">
+                Trips
+              </Link>
+              <Link href="/bookings" className="text-sm font-medium text-ink-muted hover:text-ink px-3 py-2 transition-colors">
+                Bookings
+              </Link>
               <Link href="/account" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
                 {userProfile?.profileImage ? (
                   <Image src={userProfile.profileImage} alt="" width={32} height={32} className="rounded-full border border-line" />
@@ -93,6 +104,7 @@ export default function Navbar() {
                   {userProfile?.fullName?.split(" ")[0] || "Account"}
                 </span>
               </Link>
+              </>
             ) : !loading ? (
               <>
                 <Link href="/auth/login" className="text-sm font-medium text-ink-muted hover:text-ink px-4 py-2 transition-colors">
@@ -141,6 +153,7 @@ export default function Navbar() {
           {user ? (
             <>
               <Link href="/account" className="block text-sm font-medium py-2.5 px-3 text-ink-muted hover:text-ink" onClick={() => setMobileOpen(false)}>My Account</Link>
+              <Link href="/trips" className="block text-sm font-medium py-2.5 px-3 text-ink-muted hover:text-ink" onClick={() => setMobileOpen(false)}>Trips</Link>
               <Link href="/bookings" className="block text-sm font-medium py-2.5 px-3 text-ink-muted hover:text-ink" onClick={() => setMobileOpen(false)}>My Bookings</Link>
             </>
           ) : (
