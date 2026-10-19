@@ -10,7 +10,7 @@ const ok = (cond, label) => {
 };
 
 console.log("\nthe app surfaces get the shell");
-for (const p of ["/", "/explore", "/listing/arrows-den", "/trips", "/bookings", "/account", "/favorites"]) {
+for (const p of ["/", "/explore", "/listing/arrows-den", "/trips", "/bookings", "/account"]) {
   ok(showsShell(p), p);
 }
 

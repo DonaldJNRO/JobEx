@@ -30,9 +30,8 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, Sparkles, MapPin } from "lucide-react";
 import AppStrip from "@/components/AppStrip";
-import ListingRow from "@/components/ListingRow";
-import { getFeaturedListings, listingPlace, categoryOf, categoryLabelOf, CATEGORY_IDS, CATEGORY_LABELS, Listing } from "@/lib/listings";
-import { rowsFrom } from "@/lib/home-rows";
+import MasonryFeed from "@/components/MasonryFeed";
+import { getFeaturedListings, listingPlace, categoryOf, categoryLabelOf, getListingImage, getListingPriceParts, CATEGORY_IDS, CATEGORY_LABELS, Listing } from "@/lib/listings";
 import { getKnownCities, inCity, areaIndexFrom, type KnownCity } from "@/lib/listings";
 import CityPicker from "@/components/CityPicker";
 import { useReveal } from "@/lib/useReveal";
@@ -109,6 +108,7 @@ export default function HomePage() {
   // it again every visit, which is the first thing that makes this read as an
   // app rather than a page. localStorage can throw in a private window, so
   // both ends are wrapped and the feed simply starts everywhere.
+  const [tab, setTab] = useState<string>("all");
   const [cities, setCities] = useState<KnownCity[]>([]);
   const [city, setCity] = useState<string | null>(null);
 
@@ -129,9 +129,9 @@ export default function HomePage() {
     } catch { /* the choice still applies to this visit */ }
   };
 
-  // The place is resolved here, so home-rows.ts imports nothing and stays
-  // loadable by plain node for its test.
-  const rows = useMemo(() => {
+  // The place and the category are resolved here so the feed can be filtered
+  // and ranked without every card working it out again.
+  const feed = useMemo(() => {
     // inCity understands that Lekki and Ikeja are Lagos, but ONLY when it is
     // given the city list and the learned area index. Called with neither it
     // compares bare slugs, so every listing stored by its neighbourhood drops
@@ -146,18 +146,30 @@ export default function HomePage() {
         ...l,
         city: place.city,
         citySlug: place.citySlug,
-        // Resolved here for the same reason the place is: home-rows.ts imports
-        // nothing, so plain node can load it for its test. It also means the
-        // row heading and the filter it links to read the one table.
+        // From the one role-to-category table, so the tab a visitor presses
+        // and the category a card belongs to can never disagree.
         category: categoryOf(l.role, l.subCategory),
         categoryLabel: categoryLabelOf(l.role, l.subCategory),
       };
     });
-    return rowsFrom(placed).map((r) => ({
-      ...r,
-      items: r.items as unknown as Listing[],
-    }));
-  }, [listings, city, cities]);
+    // THE TAB, applied where you stand.
+    //
+    // These used to be links to /explore: a page load, and a scroll position
+    // lost. The app filters in place and so does this.
+    const forTab = tab === "all" ? placed : placed.filter((l) => l.category === tab);
+
+    // "FOR YOU" IS NOT A SHUFFLE. The app ranks it by how complete a listing
+    // is (useForYouData.js:382), the point being that a listing with a price
+    // and photos is a better first impression than one without. This is that
+    // idea in its simplest honest form: a price, a photo and a place each
+    // count, newest breaks the tie. No pretend personalisation.
+    const score = (l: Listing) =>
+      (getListingPriceParts(l, { rates: {}, ready: false, to: "" }).amount ? 2 : 0) +
+      (getListingImage(l) ? 2 : 0) +
+      (listingPlace(l).city ? 1 : 0);
+
+    return [...forTab].sort((a, b) => score(b) - score(a));
+  }, [listings, city, cities, tab]);
 
   return (
     <div ref={revealRef} className="min-h-screen bg-surface">
@@ -184,27 +196,39 @@ export default function HomePage() {
         )}
       </div>
 
-      {/* Same pills as explore, and they go to explore. The home page shows
-          what is here; explore is where you narrow it down. Same scrolling
-          behaviour too: snap-mandatory so a flick lands on a chip rather than
-          between two, and scroll-pl-4 because scroll-snap-align: start snaps
-          to the SCROLLPORT edge and ignores padding. Explore worked this out
-          first and there is no reason for two answers to one problem.
+      {/* THE TABS FILTER WHERE YOU STAND.
+          These were links to /explore: a page load, and the scroll position
+          gone. The app filters the feed in place, and the first tab is "For
+          you" rather than "All" because it is not everything in no order, it
+          is everything with the most complete listings first.
 
-          FILLED, NOT OUTLINED. Once the cards lost their borders these were the
-          only drawn edges above the fold, and a row of outlined pills over a
-          page of borderless photographs looks like two designs meeting. A
-          filled pill still reads as tappable without drawing a line to say so. */}
+          Scrolling behaviour is explore's, which worked it out first:
+          snap-mandatory so a flick lands on a chip rather than between two,
+          and scroll-pl-4 because scroll-snap-align: start snaps to the
+          SCROLLPORT edge and ignores padding.
+
+          FILLED, NOT OUTLINED, and the active one is PURPLE. globals.css is
+          explicit that purple is the action and gold is an accent that never
+          fills something you press. */}
       <div className="flex justify-start sm:justify-center gap-2 overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-pl-4 px-4 sm:px-6 lg:px-8 sm:scroll-pl-0 pb-10">
-        {CATEGORIES.map((c) => (
-          <Link
-            key={c.id}
-            href={c.id === "all" ? "/explore" : `/explore?category=${c.id}`}
-            className="snap-start shrink-0 px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap bg-surface-sunken text-ink-muted hover:bg-line/40 hover:text-ink transition-colors"
-          >
-            {c.label}
-          </Link>
-        ))}
+        {CATEGORIES.map((c) => {
+          const active = tab === c.id;
+          return (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => setTab(c.id)}
+              aria-pressed={active}
+              className={`snap-start shrink-0 px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-colors ${
+                active
+                  ? "bg-primary text-white"
+                  : "bg-surface-sunken text-ink-muted hover:bg-line/40 hover:text-ink"
+              }`}
+            >
+              {c.id === "all" ? "For you" : c.label}
+            </button>
+          );
+        })}
       </div>
 
       {loading ? (
@@ -215,26 +239,27 @@ export default function HomePage() {
         // jump is the other half of "it glitches a bit when it loads". Three is
         // the honest middle: close to what usually arrives, and never a promise
         // of rows that do not exist, because it carries no headings.
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {Array.from({ length: 3 }).map((_, row) => (
-            <div key={row} className="mb-14 sm:mb-16">
-              <div className="h-6 w-40 rounded-lg bg-surface-sunken animate-pulse mb-5" />
-              <div className="flex gap-5 sm:gap-6 overflow-hidden">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="shrink-0 w-[70%] sm:w-[45%] lg:w-[23%] animate-pulse">
-                    <div className="aspect-[4/3] rounded-2xl bg-surface-sunken" />
-                    <div className="pt-3 space-y-2">
-                      <div className="h-4 w-3/4 rounded-lg bg-surface-sunken" />
-                      <div className="h-3 w-1/2 rounded-lg bg-surface-sunken" />
-                    </div>
+        // A SKELETON THE SHAPE OF THE WALL, with varied heights, because a
+        // grid of identical rectangles that resolves into a ragged wall is
+        // its own small jump. The ratios are the app's own skeleton pair
+        // (GridSkeleton.js:33), so both surfaces wait in the same shape.
+        <div className="mx-auto flex max-w-7xl gap-3 px-4 sm:gap-5 sm:px-6 lg:px-8">
+          {[[1.33, 0.75, 1.5, 1.0], [0.75, 1.33, 1.21, 1.75]].map((column, c) => (
+            <div key={c} className="flex min-w-0 flex-1 flex-col gap-3 sm:gap-5">
+              {column.map((ratio, i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="rounded-2xl bg-surface-sunken" style={{ aspectRatio: `1 / ${ratio}` }} />
+                  <div className="space-y-2 pt-3">
+                    <div className="h-4 w-3/4 rounded-lg bg-surface-sunken" />
+                    <div className="h-3 w-1/2 rounded-lg bg-surface-sunken" />
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           ))}
         </div>
-      ) : rows.length ? (
-        rows.map((r) => <ListingRow key={r.key} title={r.title} href={r.href} items={r.items} />)
+      ) : feed.length ? (
+        <MasonryFeed listings={feed} />
       ) : (
         // Nothing to show is a thing to say plainly, not a thing to hide behind
         // an empty row with a heading over it.

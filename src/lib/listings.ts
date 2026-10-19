@@ -26,6 +26,26 @@ export interface Listing {
   description?: string;
   imageUrls?: { url: string }[];
   coverImage?: string;
+  /**
+   * The cover photo's width over its height, backfilled onto the listings and
+   * present on 60 of the 61 live ones.
+   *
+   * It is what lets the masonry reserve a tile's box BEFORE the image loads,
+   * so the page never jumps. The type simply never read it, which is why the
+   * website had nothing to size a tile from and the app did.
+   */
+  coverAspectRatio?: number;
+  /**
+   * How many people have liked this, denormalised onto the document.
+   *
+   * 59 of 61 carry one and 58 of those agree exactly with their `likes`
+   * subcollection, so a count on a card costs no extra read. Three spellings
+   * exist in the wild; see likeCountOf in listing-likes.ts, which also bounds
+   * the figure because one listing claims 1,000,002.
+   */
+  likesCount?: number;
+  likes?: number;
+  fireCount?: number;
   customPrice?: { price: number; model?: string };
   pricingUnit?: string;
   currency?: string;
