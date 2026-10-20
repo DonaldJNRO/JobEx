@@ -27,6 +27,9 @@ import type { Listing } from "./listings";
 export interface BookingAsk extends BookingFormInput {
   /** What the offer costs, so the operator sees what was agreed to. */
   totalPrice?: number;
+  /** A stay's departure day, and how many nights that is. */
+  checkOut?: string;
+  nights?: number;
   note?: string;
 }
 
@@ -97,6 +100,12 @@ export async function sendBookingRequest(
       time: ask.time,
       guests: ask.guests,
       totalPrice: ask.totalPrice,
+      // A STAY HAS TWO DATES. `date` is the arrival, and without a
+      // departure an operator receives a request for a room on the 8th and
+      // no idea whether that is one night or ten. Written only when there
+      // IS one, so a haircut's request is unchanged.
+      ...(ask.checkOut ? { checkOut: ask.checkOut } : {}),
+      ...(ask.nights ? { nights: ask.nights } : {}),
       // A phone number has nowhere else to go: userEmail is for addresses, and
       // an operator who cannot reach the guest cannot accept the booking.
       note: [ask.note?.trim(), isEmail ? "" : `Phone: ${contact}`]

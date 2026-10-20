@@ -20,6 +20,7 @@ import { sendBookingRequest, BookingError } from "@/lib/book";
 import { offersOf, slotsFor, policyLines, addressOf, type Offer } from "@/lib/shop-window";
 import { offerTotal } from "@/lib/offer-total";
 import { breakdownOf, feeLabel, TRAVELLER_FEE_PERCENT } from "@/lib/traveller-fee";
+import { nightsBetween } from "@/lib/stay";
 import { useAuth } from "@/contexts/AuthContext";
 import { addToTrip } from "@/lib/cart";
 import { fetchBookingDecision, ASK, type BookingDecision } from "@/lib/booking-decision";
@@ -57,12 +58,15 @@ export default function BookingRequest({
   open,
   onClose,
   initialOffer,
+  initialStay,
 }: {
   listing: Listing;
   open: boolean;
   onClose: () => void;
   /** The row they tapped on the page, if they came in that way. */
   initialOffer?: string;
+  /** Nights already chosen on the room screen, so this does not ask again. */
+  initialStay?: { checkIn: string; checkOut: string } | null;
 }) {
   // So a payment made while signed in puts that person's name on the trip
   // rather than "Guest". A guest booking still works with neither.
@@ -71,6 +75,9 @@ export default function BookingRequest({
   const [offer, setOffer] = useState<string>(initialOffer || offers[0]?.name || "");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
+  // A STAY'S SECOND DATE. Empty for everything that is not a stay, which
+  // is most of this catalogue: a haircut has a date and a time.
+  const [checkOut, setCheckOut] = useState("");
   const [guests, setGuests] = useState(1);
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
@@ -103,10 +110,17 @@ export default function BookingRequest({
   useEffect(() => {
     if (!open) return;
     if (initialOffer && offers.some((o) => o.name === initialOffer)) setOffer(initialOffer);
+    // THE NIGHTS THEY ALREADY CHOSE. Arriving here from a room screen with
+    // check in and check out already picked, and being asked for a date,
+    // is what makes a flow feel like separate pages stapled together.
+    if (initialStay?.checkIn) {
+      setDate(initialStay.checkIn);
+      setCheckOut(initialStay.checkOut);
+    }
     // AND BACK TO THE FIRST STEP. Closing on the review and reopening would
     // otherwise land somebody on a summary of a booking they had abandoned.
     setStep("when");
-  }, [open, initialOffer, offers]);
+  }, [open, initialOffer, initialStay, offers]);
 
   useEffect(() => {
     if (!open) return;
@@ -158,7 +172,23 @@ export default function BookingRequest({
   // quoted three guests three nights — and since `totalPrice: dueNow ?? total`
   // is what gets sent, that figure could reach the card. The rule and its
   // reasoning are in src/lib/offer-total.ts, where they are tested.
-  const { amount: total, isRate } = offerTotal(chosen?.name, unit, guests);
+  // THE STAY, where there is one. nights is what makes a nightly rate
+  // totalable at all: offer-total.ts refuses without it, and correctly, so
+  // every room before today produced a request with no night count.
+  const stayNights = checkOut ? nightsBetween(date, checkOut) : 0;
+  const stayBits = stayNights > 0 ? { checkOut, nights: stayNights } : {};
+
+  const { amount: rawTotal, isRate } = offerTotal(chosen?.name, unit, guests);
+  // A NIGHTLY RATE TIMES THE NIGHTS, now that there are nights.
+  //
+  // offerTotal returns undefined for a per-night price, and it was right to:
+  // its comment says the form "has a date and no checkout, so there is no
+  // stay length to total". There is one now, so the rate becomes a bill.
+  // Only when the stay is real: with no checkout this is still undefined and
+  // the sheet shows the rate with its unit beside it, exactly as before.
+  const total = isRate && stayNights > 0 && typeof unit === "number"
+    ? Math.round(unit * stayNights * 100) / 100
+    : rawTotal;
   // What the SERVER says is taken at booking. Null until it has answered,
   // so nothing is promised before it has.
   const dueNow = decision.payNow > 0 ? decision.payNow : null;
@@ -239,7 +269,7 @@ export default function BookingRequest({
         userProfile,
         user.displayName,
         listing,
-        { offer, date, time, guests, name, contact, note, totalPrice: total },
+        { offer, date, time, guests, name, contact, note, totalPrice: total, ...stayBits },
       );
       // Straight to the basket, because the point of adding is to add more
       // and then see what it comes to.
@@ -266,6 +296,7 @@ export default function BookingRequest({
           listing: listing as unknown as Record<string, unknown>,
           offer, date, time, guests, name, contact, note,
           totalPrice: dueNow ?? total,
+          ...stayBits,
           // The currency they were SHOWN. Charging a different one than the
           // page quoted is how a guest ends up disputing a correct charge.
           currency: to || listing.currency || "GBP",
@@ -279,7 +310,7 @@ export default function BookingRequest({
 
       const id = await sendBookingRequest(
         listing,
-        { offer, date, time, guests, name, contact, note, totalPrice: total },
+        { offer, date, time, guests, name, contact, note, totalPrice: total, ...stayBits },
         idempotencyKey.current,
       );
       setSentId(id);

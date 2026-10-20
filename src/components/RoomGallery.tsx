@@ -7,6 +7,7 @@ import Button from "./ui/Button";
 import Overlay from "./Overlay";
 import { roomPhotos, roomVideos, type Room } from "@/lib/rooms";
 import { ROOM_HERO } from "@/lib/screen-open";
+import { quoteStay, stayLine, todayISO, dayAfter } from "@/lib/stay";
 
 /**
  * What a room looks like, the way Airbnb shows one.
@@ -39,10 +40,16 @@ export default function RoomGallery({
   room: Room;
   money: (amount: number | null, currency?: string | null) => string;
   onClose: () => void;
-  onBook: () => void;
+  onBook: (checkIn: string, checkOut: string) => void;
 }) {
   const photos = roomPhotos(room);
   const videos = roomVideos(room);
+  const [checkIn, setCheckIn] = useState("");
+  const [checkOut, setCheckOut] = useState("");
+  const quote = quoteStay(checkIn, checkOut, {
+    rate: room.priceAmount ?? null,
+    minStay: room.minStay,
+  });
 
   const close = useCallback(() => onClose(), [onClose]);
 
@@ -144,11 +151,9 @@ export default function RoomGallery({
 
       <footer className="shrink-0 border-t border-line bg-card px-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] pt-4">
         {/* THE TERMS THAT ARE ACTUALLY FIELDS, said in the viewer's own
-            money. Four rooms carry settings.cautionFee: 20000 with
+            money. Four rooms carry settings.cautionFee with
             cautionFeeRefundable, and the only way a traveller had ever seen
-            that was as "20k" buried in a sentence, beside a price in
-            pounds. A deposit you learn about at the door is the worst
-            possible moment to learn about it. */}
+            that was as "20k" buried in a sentence beside a price in pounds. */}
         {(room.cautionFee || room.checkIn || room.minStay) && (
           <div className="mb-3 flex flex-wrap gap-x-4 gap-y-1 text-caption text-ink-muted">
             {room.cautionFee ? (
@@ -161,24 +166,89 @@ export default function RoomGallery({
             {room.minStay && room.minStay > 1 ? <span>{room.minStay} nights minimum</span> : null}
           </div>
         )}
-        {room.description && (
-          <p className="mb-3 line-clamp-2 text-small leading-relaxed text-ink-muted">{room.description}</p>
+
+        {/* TWO DATES, BECAUSE A STAY HAS TWO. The sheet this used to open
+            asked one date and a time, which is right for a haircut and
+            cannot describe a night. */}
+        <div className="mb-3 grid grid-cols-2 gap-2.5">
+          <label className="block">
+            <span className="mb-1 block text-caption font-semibold text-ink">Check in</span>
+            <input
+              type="date"
+              value={checkIn}
+              min={todayISO()}
+              onChange={(e) => {
+                setCheckIn(e.target.value);
+                // Moving the arrival past the departure leaves an
+                // impossible pair on screen that the guest did not create.
+                if (checkOut && e.target.value && checkOut <= e.target.value) setCheckOut(dayAfter(e.target.value));
+              }}
+              className="w-full rounded-xl border border-line bg-surface px-3 py-2.5 text-small text-ink"
+            />
+          </label>
+          <label className="block">
+            <span className="mb-1 block text-caption font-semibold text-ink">Check out</span>
+            <input
+              type="date"
+              value={checkOut}
+              min={checkIn ? dayAfter(checkIn) : todayISO()}
+              onChange={(e) => setCheckOut(e.target.value)}
+              className="w-full rounded-xl border border-line bg-surface px-3 py-2.5 text-small text-ink"
+            />
+          </label>
+        </div>
+
+        {quote.problem && (
+          <p className="mb-3 rounded-xl border border-alarm-line bg-alarm-bg px-3 py-2 text-caption text-alarm-ink" role="alert">
+            {quote.problem}
+          </p>
         )}
+
+        {/* WHAT IT COMES TO, ITEMISED. The deposit is listed and NOT added:
+            no Cloud Function reads cautionFee, so Sabię never charges it. It
+            is money the property takes and gives back, and putting it in the
+            total would take it off a card nobody intended to. */}
+        {quote.subtotal !== null && (
+          <div className="mb-3 space-y-1 border-t border-line pt-3 text-small">
+            <div className="flex justify-between">
+              <span className="text-ink-muted">
+                {money(room.priceAmount ?? null, room.priceCurrency)} × {quote.nights} {quote.nights === 1 ? "night" : "nights"}
+              </span>
+              <span className="text-ink">{money(quote.subtotal, room.priceCurrency)}</span>
+            </div>
+            {room.cautionFee ? (
+              <div className="flex justify-between">
+                <span className="text-ink-muted">
+                  Deposit, paid at the property
+                  {room.cautionRefundable ? " and refunded" : ""}
+                </span>
+                <span className="text-ink-muted">{money(room.cautionFee, room.priceCurrency)}</span>
+              </div>
+            ) : null}
+          </div>
+        )}
+
         <div className="flex items-center justify-between gap-4">
           <div className="min-w-0">
             <p className="text-heading font-extrabold text-ink">
-              {money(room.priceAmount ?? null, room.priceCurrency)}
+              {quote.subtotal !== null
+                ? money(quote.subtotal, room.priceCurrency)
+                : money(room.priceAmount ?? null, room.priceCurrency)}
             </p>
             <p className="mt-0.5 flex items-center gap-2.5 text-caption text-ink-muted">
-              {room.maxGuests ? (
-                <span className="inline-flex items-center gap-1"><Users size={11} /> Sleeps {room.maxGuests}</span>
-              ) : null}
-              {videos.length > 0 && (
-                <span className="inline-flex items-center gap-1"><Play size={10} /> {videos.length}</span>
-              )}
+              {quote.nights > 0
+                ? stayLine(checkIn, checkOut)
+                : (
+                  <>
+                    {room.maxGuests ? <span className="inline-flex items-center gap-1"><Users size={11} /> Sleeps {room.maxGuests}</span> : null}
+                    {videos.length > 0 && <span className="inline-flex items-center gap-1"><Play size={10} /> {videos.length}</span>}
+                  </>
+                )}
             </p>
           </div>
-          <Button size="lg" onClick={onBook}>Book this room</Button>
+          <Button size="lg" onClick={() => onBook(checkIn, checkOut)} disabled={!quote.ok || quote.nights === 0}>
+            {quote.nights > 0 ? "Book this room" : "Pick your dates"}
+          </Button>
         </div>
       </footer>
     </div>

@@ -29,7 +29,8 @@ export default function RoomList({
   docId: string;
   /** The listing's currency, for a room that does not name its own. */
   fallbackCurrency: string;
-  onPick: (name: string) => void;
+  /** The room, and the nights, so the sheet does not ask for a date again. */
+  onPick: (name: string, stay?: { checkIn: string; checkOut: string }) => void;
   /** The names found, so the services list can drop its copies of them. */
   onRooms?: (names: string[]) => void;
 }) {
@@ -161,7 +162,11 @@ export default function RoomList({
           room={showing}
           money={money}
           onClose={() => setShowing(null)}
-          onBook={() => { const n = showing.name; setShowing(null); onPick(n); }}
+          onBook={(checkIn, checkOut) => {
+            const n = showing.name;
+            setShowing(null);
+            onPick(n, checkIn && checkOut ? { checkIn, checkOut } : undefined);
+          }}
         />
       )}
     </section>
