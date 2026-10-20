@@ -648,13 +648,31 @@ export default function BookingRequest({
                     ))}
                   </select>
                 ) : (
-                  <input
-                    type="time"
-                    required
-                    value={time}
-                    onChange={(e) => setTime(e.target.value)}
-                    className={fieldClass()}
-                  />
+                  // THE SAME HINT THE DATE GOT, AND DID NOT. An empty
+                  // <input type="time"> renders as NOTHING on iOS: no
+                  // placeholder, no hh:mm, just a box. So a filled date sat
+                  // beside a blank rectangle and the pair read as broken. I
+                  // fixed this for the date this morning and left its
+                  // neighbour, which is the same miss as the squashed
+                  // fields one component over.
+                  <span className="relative block w-full min-w-0">
+                    <input
+                      type="time"
+                      required
+                      value={time}
+                      data-empty={time ? undefined : "true"}
+                      onChange={(e) => setTime(e.target.value)}
+                      className={fieldClass()}
+                    />
+                    {!time && (
+                      <span
+                        aria-hidden="true"
+                        className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint"
+                      >
+                        Add a time
+                      </span>
+                    )}
+                  </span>
                 )}
               </label>
             </div>

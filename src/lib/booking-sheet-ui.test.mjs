@@ -33,8 +33,12 @@ ck(/buildDisplayPrice\(\{[\s\S]{0,200}selectedCurrency: to/.test(SHEET),
 // draws nothing at all, so it read as broken beside "Pick a time".
 ck(/data-empty=\{date \? undefined : "true"\}/.test(SHEET),
   "an empty date input is marked as empty");
-ck(/input\[type="date"\]\[data-empty="true"\]::-webkit-datetime-edit \{ opacity: 0/.test(CSS),
+// BOTH CONTROLS, not just the date. An empty time input is blank on iOS
+// too, and a filled date beside a blank rectangle reads as broken. I fixed
+// the date this morning and left its neighbour.
+ck(/input\[type="date"\]\[data-empty="true"\]::-webkit-datetime-edit,\s*\n?input\[type="time"\]\[data-empty="true"\]::-webkit-datetime-edit \{ opacity: 0/.test(CSS),
   "so the native placeholder is hidden and both platforms match");
+ck(/Add a time/.test(SHEET), "and the time field says what it wants, as the date does");
 ck(/Pick a date/.test(SHEET), "and the form draws its own hint, like the Time field does");
 ck(/pointer-events-none/.test(SHEET),
   "which does not swallow the tap that opens the native picker");
@@ -64,8 +68,10 @@ ck(/export function fieldClass/.test(RECIPE), "there is one definition of a fiel
 ck(/"w-full min-w-0 text-ink/.test(RECIPE), "and it can shrink to its track");
 ck((SHEET.match(/fieldClass\(/g) || []).length >= 3,
   "and so can the date input, the time select and the time input");
-ck(/input\[type="date"\], input\[type="time"\] \{ min-width: 0/.test(CSS),
+ck(/input\[type="date"\], input\[type="time"\] \{[\s\S]{0,400}min-width: 0;/.test(CSS),
   "with a CSS backstop, because iOS gives them an intrinsic width w-full does not beat");
+ck(/input\[type="date"\], input\[type="time"\] \{[\s\S]{0,400}box-sizing: border-box;/.test(CSS),
+  "and a pinned width, so a native control cannot widen its own grid track");
 
 
 // ── THE SHEET SAYS WHAT THE BUTTON DOES ─────────────────────────────────
