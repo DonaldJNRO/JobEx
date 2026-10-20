@@ -13,7 +13,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import OfferScreen from "./OfferScreen";
-import { ChevronDown } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { ROW_ACTION } from "@/lib/ui-recipes";
 import { openAsScreen, OFFER_HERO } from "@/lib/screen-open";
 import { useMoney as useGuestRates } from "@/lib/useRates";
@@ -109,15 +109,7 @@ export default function ProfileServices({ listing, currency, onPick, hideNames }
                   {cat.name}
                 </p>
               )}
-              {showing && (
-        <OfferScreen
-          group={showing}
-          money={money}
-          onClose={() => setShowing(null)}
-          onPick={(n) => { setShowing(null); onPick(n); }}
-        />
-      )}
-      <ul className="rounded-2xl border border-line bg-card divide-y divide-line overflow-hidden">
+              <ul className="rounded-2xl border border-line bg-card divide-y divide-line overflow-hidden">
                 {(cat.items ?? []).map((it, j) => (
                   <li key={`${it?.name ?? j}`} className="flex items-baseline justify-between gap-4 px-4 py-2.5">
                     <span className="text-sm text-ink">{it?.name}</span>
@@ -144,6 +136,19 @@ export default function ProfileServices({ listing, currency, onPick, hideNames }
   const heading = shape === "rooms" ? "Pick a room" : "Pick what you want";
   return (
     <section className="reveal">
+      {/* IN THE BRANCH WITH TAPPABLE ROWS. This was rendered inside the
+          `shape === "menu"` branch, which returns above and whose rows are
+          not buttons, so nothing in there ever opened it and nothing out
+          here could. Tapping a service played the view transition, set the
+          state and showed nothing. 97 of 159 services carry a photo. */}
+      {showing && (
+        <OfferScreen
+          group={showing}
+          money={money}
+          onClose={() => setShowing(null)}
+          onPick={(n) => { setShowing(null); onPick(n); }}
+        />
+      )}
       <h2 className="text-heading font-bold text-ink mb-3">{heading}</h2>
       <ul className="rounded-2xl border border-line bg-card divide-y divide-line overflow-hidden">
         {groups.map((g) => (
@@ -172,7 +177,6 @@ function ServiceRow(
   { group, money, cta, onPick, onOpen }:
     { group: ServiceGroup; money: (n: number | null) => string; cta: string; onPick: (n: string) => void; onOpen: (g: ServiceGroup) => void },
 ) {
-  const [open, setOpen] = useState(false);
 
   // A row with one price books it. A row with a choice opens first, because
   // booking "Gel nails" without saying Short or Medium is not a booking.
@@ -188,7 +192,7 @@ function ServiceRow(
       const thumb = (e.currentTarget as HTMLElement).querySelector<HTMLElement>("[data-offer-thumb]");
       return openAsScreen(thumb, OFFER_HERO, () => onOpen(group));
     }
-    return group.hasChoices ? setOpen((v) => !v) : onPick(group.name);
+    return onPick(group.name);
   };
 
   return (
@@ -218,36 +222,19 @@ function ServiceRow(
               and a visitor cannot tell which of the two is the booking.
               "Choose" on a row that opens, the action word on one that
               books straight through. */}
-          {group.hasChoices ? (
-            <span className={ROW_ACTION}>
-              {open ? "Close" : "Choose"}
-              <ChevronDown size={13} className={`transition-transform ${open ? "rotate-180" : ""}`} />
-            </span>
-          ) : (
-            <span className={ROW_ACTION}>{cta}</span>
-          )}
+          {/* ONE WORD, BECAUSE THERE IS NOW ONE BEHAVIOUR. The row used to
+              expand its tiers inline, and worthAScreen made that branch
+              unreachable the moment a tiered row started opening a screen
+              instead: tiers.length > 1 is itself enough to be worth one. So
+              "Choose" sat above a chevron that never rotated over a list
+              that never opened. The screen shows the tiers and books them. */}
+          <span className={ROW_ACTION}>
+            {group.hasChoices ? "Choose" : cta}
+            <ChevronRight size={13} />
+          </span>
         </span>
       </button>
 
-      {open && group.tiers.length > 0 && (
-        <ul className="bg-surface-sunken border-t border-line">
-          {group.tiers.map((t) => (
-            <li key={t.label}>
-              <button
-                type="button"
-                onClick={() => onPick(`${group.name} (${t.label})`)}
-                className="group w-full flex items-baseline justify-between gap-4 pl-7 pr-4 py-2.5 text-left hover:bg-line/40 transition-colors"
-              >
-                <span className="text-sm text-ink-muted">{t.label}</span>
-                <span className="flex items-center gap-2 whitespace-nowrap">
-                  <span className="text-sm font-semibold text-ink">{money(t.price)}</span>
-                  <span className={ROW_ACTION}>{cta}</span>
-                </span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
     </li>
   );
 }

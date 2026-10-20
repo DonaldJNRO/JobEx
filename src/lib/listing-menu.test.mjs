@@ -30,7 +30,15 @@ ck(/resolveProfileSections\(listing\)/.test(live(SECTION)),
 // A MENU, NOT A PRICE LIST. Tapping a row has to carry the choice through.
 ck(/setPickedOffer\(name\); setBooking\(true\)/.test(live(PAGE)),
   "tapping a row opens the sheet on that row");
-ck(/onPick\(`\$\{group\.name\} \(\$\{t\.label\}\)`\)/.test(live(SECTION)),
+// WHEREVER THE TIERS ARE SHOWN. They used to expand inline on the row and
+// now open on the offer screen, because worthAScreen counts tiers: the
+// inline branch became unreachable the moment a tiered row started opening
+// a screen, so "Choose" sat above a chevron that never rotated over a list
+// that never opened. The rule is unchanged, and it is the rule that
+// matters: a tier books under its OWN label, or the wrong price is charged.
+const TIER_PICK = /onPick\(`\$\{group\.name\} \(\$\{t\.label\}\)`\)/;
+ck(
+  TIER_PICK.test(live(SECTION)) || TIER_PICK.test(readFileSync("src/components/OfferScreen.tsx", "utf8")),
   "and a tier carries its own label, so the right price is booked");
 ck(/initialOffer=\{pickedOffer\}/.test(live(PAGE)), "and hands it over");
 ck(/initialOffer \|\| offers\[0\]\?\.name \|\| ""/.test(live(SHEET)),

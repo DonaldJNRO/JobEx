@@ -390,19 +390,6 @@ export default function BookingRequest({
             <div className="w-12 h-12 rounded-full bg-primary/10 text-primary inline-flex items-center justify-center mb-3">
               <Check size={22} />
             </div>
-
-              <label className="block mb-4">
-                <span className="block text-sm font-semibold text-ink mb-1.5">How many</span>
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  min={1}
-                  required
-                  value={guests}
-                  onChange={(e) => setGuests(Number(e.target.value))}
-                  className="w-full h-12 px-3 rounded-2xl bg-card border border-line text-ink focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-colors"
-                />
-              </label>
             <h2 className="text-xl text-ink mb-2">You are booked</h2>
             <p className="text-sm text-ink-muted mb-1">
               {business} has your booking for {date}{time ? ` at ${time}` : ""}.
@@ -656,8 +643,27 @@ export default function BookingRequest({
                   />
                 )}
               </label>
-
             </div>
+
+            {/* HOW MANY, BACK ON THE FORM. This field was inside the `paid`
+                branch, so it rendered on the SUCCESS screen, after the money
+                had gone, and never on the form at all. guests was therefore
+                permanently 1: every per-person offer was quoted and charged
+                for one person, and a party of four had no way to say so.
+                Mine, from wrapping the steps. */}
+            <label className="block mb-4">
+              <span className="block text-sm font-semibold text-ink mb-1.5">How many</span>
+              <input
+                type="number"
+                inputMode="numeric"
+                min={1}
+                max={99}
+                required
+                value={guests}
+                onChange={(e) => setGuests(Math.max(1, Number(e.target.value) || 1))}
+                className="w-full min-w-0 h-12 px-3 rounded-2xl bg-card border border-line text-ink focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-colors"
+              />
+            </label>
 
             {date && (
               <p className="-mt-2 mb-4 text-xs text-ink-faint">{readableDate(date)}</p>

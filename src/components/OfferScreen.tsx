@@ -42,7 +42,20 @@ export default function OfferScreen({
   ];
   const [at, setAt] = useState(0);
   const track = useRef<HTMLDivElement | null>(null);
-  const close = useCallback(() => onClose(), [onClose]);
+  // THE SCREEN WAS CLOSING ITSELF. This effect pushes a history entry on
+  // mount and pops it on cleanup, and `close` depended on `onClose`, which
+  // both parents pass as an inline arrow: a new function every render. So
+  // every parent re-render tore the effect down, ran history.back(), armed
+  // it again, and the queued popstate fired the fresh handler and closed
+  // the screen. The parents re-render when the exchange rates land, when
+  // the booking decision resolves and when the sticky bar appears, so a
+  // room shut itself a moment after opening.
+  //
+  // In a ref, so the effect depends on nothing that changes and runs once
+  // per mount, which is what it was always meant to do.
+  const onCloseRef = useRef(onClose);
+  useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
+  const close = useCallback(() => onCloseRef.current(), []);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") close(); };
