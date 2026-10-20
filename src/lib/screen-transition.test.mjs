@@ -66,5 +66,36 @@ console.log("\nand a browser without the API is unharmed");
 ok(!/startViewTransition/.test(CARD), "no hand-rolled call that would need guarding");
 ok(!/navigator\.|userAgent/i.test(CSS.slice(CSS.indexOf("THE SCREEN COMES OUT"))), "and no sniffing");
 
+console.log("\na room opens the same way, and it is not a navigation");
+// Next wraps PAGE navigations. A room is a state change putting an overlay
+// up, so nothing wraps it and it appeared from nowhere.
+const ROOMS = readFileSync("src/components/RoomList.tsx", "utf8");
+const GALLERY = readFileSync("src/components/RoomGallery.tsx", "utf8");
+const OPEN = readFileSync("src/lib/screen-open.ts", "utf8");
+ok(/openAsScreen\(/.test(ROOMS), "the row opens the room as a screen");
+ok(/startViewTransition/.test(OPEN), "through the same browser API, called by hand");
+ok(/ROOM_HERO/.test(ROOMS) && /ROOM_HERO/.test(GALLERY), "with one name on both ends");
+ok(/i === 0 \? \{ viewTransitionName: ROOM_HERO \}/.test(GALLERY),
+  "on the FIRST photo only, since several elements claiming one name name none of them");
+ok(/viewTransitionName = ""/.test(OPEN), "and the name is released afterwards");
+// A browser without the API must still open the room.
+ok(/if \(!doc\?\.startViewTransition\) \{\s*\n\s*change\(\);/.test(OPEN),
+  "where the API is absent the state change still runs, so the screen opens as before");
+ok(/\.finally\(/.test(OPEN), "released even when the transition is skipped or rejected");
+
+console.log("\nand the booking is steps, not one long form");
+// Seven fields at once put the total below the fold of the phone keyboard,
+// so the figure being agreed to was the one thing not visible while
+// agreeing to it.
+const SHEET = readFileSync("src/components/BookingRequest.tsx", "utf8");
+ok(/"when" \| "you" \| "review"/.test(SHEET), "three steps");
+ok(/setStep\("when"\);/.test(SHEET), "reopening starts at the first, not on an abandoned summary");
+ok(/Step \{step === "when" \? 1/.test(SHEET), "and the step is announced, not only drawn");
+
+// THE REVIEW STEP IS AIRBNB'S: the choices already made, each with a Change
+// beside it. Nothing on a review step is typing.
+ok(/Change\s*\n\s*<\/button>/.test(SHEET) || /> *Change *</.test(SHEET), "the review lists what was chosen with a Change on each row");
+ok((SHEET.match(/type="button"/g) || []).length >= 4, "and those are type=button, or each one submits the form it sits in");
+
 console.log(fails ? `\n${fails} FAILED` : "\nALL PASSED");
 process.exit(fails ? 1 : 0);

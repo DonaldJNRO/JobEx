@@ -6,6 +6,7 @@ import { X, Users, Play } from "lucide-react";
 import Button from "./ui/Button";
 import Overlay from "./Overlay";
 import { roomPhotos, roomVideos, type Room } from "@/lib/rooms";
+import { ROOM_HERO } from "@/lib/screen-open";
 
 /**
  * What a room looks like, the way Airbnb shows one.
@@ -112,7 +113,15 @@ export default function RoomGallery({
             />
           ))}
           {photos.map((src, i) => (
-            <div key={src} className="relative w-full overflow-hidden rounded-xl bg-white/5">
+            <div
+              key={src}
+              className="relative w-full overflow-hidden rounded-xl bg-white/5"
+              // THE OTHER END. The first photo is the one that travelled up
+              // from the row, so it alone carries the name; giving it to
+              // every photo would be several elements claiming one name,
+              // which names none of them.
+              style={i === 0 ? { viewTransitionName: ROOM_HERO } : undefined}
+            >
               <Image
                 src={src}
                 alt=""

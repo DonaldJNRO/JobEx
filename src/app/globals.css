@@ -426,6 +426,22 @@ input[type="date"], input[type="time"] { min-width: 0; max-width: 100%; }
   object-fit: cover;
 }
 
+/* A ROOM TRAVELS THE SAME WAY A LISTING DOES. Same timing, same reason:
+   one photo moving reads as the same photo, two photos dissolving through
+   each other mid-move reads as a glitch. */
+::view-transition-group(room-hero) {
+  animation-duration: 380ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+::view-transition-old(room-hero),
+::view-transition-new(room-hero) {
+  animation: none;
+  mix-blend-mode: normal;
+  height: 100%;
+  object-fit: cover;
+}
+
 @keyframes sabie-screen-in {
   from { opacity: 0; transform: translateY(18px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -453,7 +469,8 @@ input[type="date"], input[type="time"] { min-width: 0; max-width: 100%; }
   ::view-transition-old(root) {
     animation: none !important;
   }
-  ::view-transition-group(listing-hero) {
+  ::view-transition-group(listing-hero),
+  ::view-transition-group(room-hero) {
     animation-duration: 200ms;
   }
 }

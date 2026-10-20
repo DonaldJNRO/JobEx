@@ -5,6 +5,7 @@ import Image from "next/image";
 import { ChevronRight, Play, Users } from "lucide-react";
 import { fetchRooms, roomCover, roomPhotos, roomVideos, hasMedia, stayFacts, type Room } from "@/lib/rooms";
 import { ROW_ACTION } from "@/lib/ui-recipes";
+import { openAsScreen, ROOM_HERO } from "@/lib/screen-open";
 import { useMoney as useGuestRates } from "@/lib/useRates";
 import { buildDisplayPrice } from "@/lib/display-price";
 import RoomGallery from "./RoomGallery";
@@ -100,13 +101,21 @@ export default function RoomList({
             <li key={room.id}>
               <button
                 type="button"
-                onClick={() => (hasMedia(room) ? setShowing(room) : onPick(room.name))}
+                // THE ROOM COMES OUT OF ITS ROW, the same way the listing
+                // comes out of its card. This is a state change rather than
+                // a navigation, so nothing wraps it automatically and it
+                // used to appear from nowhere.
+                onClick={(e) => {
+                  if (!hasMedia(room)) return onPick(room.name);
+                  const thumb = (e.currentTarget as HTMLElement).querySelector<HTMLElement>("[data-room-thumb]");
+                  openAsScreen(thumb, ROOM_HERO, () => setShowing(room));
+                }}
                 className="group flex w-full items-center gap-3 p-3 text-left transition-colors hover:bg-surface-sunken"
               >
                 {/* THE PICTURE, which is the whole point. A room with only a
                     film has no still to show, so it gets the play mark on
                     its own rather than a grey box pretending to be a photo. */}
-                <span className="relative h-16 w-20 shrink-0 overflow-hidden rounded-xl bg-surface-sunken">
+                <span data-room-thumb className="relative h-16 w-20 shrink-0 overflow-hidden rounded-xl bg-surface-sunken">
                   {cover ? (
                     <Image src={cover} alt="" fill sizes="80px" className="object-cover" />
                   ) : null}

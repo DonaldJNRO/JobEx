@@ -25,6 +25,8 @@ import { addToTrip } from "@/lib/cart";
 import { fetchBookingDecision, ASK, type BookingDecision } from "@/lib/booking-decision";
 import { buildDisplayPrice, formatPriceWithCurrency } from "@/lib/display-price";
 import PayStep, { canPay } from "./PayStep";
+import Button from "./ui/Button";
+import { ROW_ACTION } from "@/lib/ui-recipes";
 import { startPayment, PayError, type PayIntent } from "@/lib/pay";
 import { useMoney } from "@/lib/useRates";
 import { nativeCurrencyOf } from "@/lib/listing-price";
@@ -73,8 +75,13 @@ export default function BookingRequest({
   const [name, setName] = useState("");
   const [contact, setContact] = useState("");
   const [note, setNote] = useState("");
+  // THREE SHORT SCREENS INSTEAD OF ONE LONG ONE. Seven fields at once put
+  // the total below the fold of the phone keyboard, so the figure somebody
+  // is agreeing to was the one thing they could not see while agreeing.
+  const [step, setStep] = useState<"when" | "you" | "review">("when");
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
   const [sentId, setSentId] = useState<string | null>(null);
   // Declared HERE, with the rest, not beside the handler that uses it. A
   // useState after `if (!open) return null` is a hook that runs on some
@@ -96,6 +103,9 @@ export default function BookingRequest({
   useEffect(() => {
     if (!open) return;
     if (initialOffer && offers.some((o) => o.name === initialOffer)) setOffer(initialOffer);
+    // AND BACK TO THE FIRST STEP. Closing on the review and reopening would
+    // otherwise land somebody on a summary of a booking they had abandoned.
+    setStep("when");
   }, [open, initialOffer, offers]);
 
   useEffect(() => {
@@ -195,6 +205,12 @@ export default function BookingRequest({
   // The headline figure is what leaves the card: subtotal PLUS fee.
   const money = show(fee.fee > 0 ? fee.total : (typeof total === "number" ? total : 0));
   const feeMoney = { sub: show(fee.subtotal).display, fee: show(fee.fee).display };
+
+  // A DATE IS THE ONE THING THE NEXT STEP CANNOT INVENT. Everything else
+  // on the first screen has a sensible default; without a date the request
+  // reaching the operator says nothing about when, which is the question
+  // they have to answer.
+  const canLeaveWhen = Boolean(date);
 
   // EVERY HOOK IS ABOVE THIS LINE, and that is the whole point of where it
   // sits. `if (!open) return null` used to be ~16 lines higher, above
@@ -384,7 +400,27 @@ export default function BookingRequest({
           </div>
         ) : (
           <form onSubmit={submit} className="pt-4">
-            <h2 className="text-xl text-ink mb-1">{instant ? "Book now" : "Ask to book"}</h2>
+            <h2 className="text-xl text-ink mb-1">
+              {step === "when" ? (instant ? "Book now" : "Ask to book")
+                : step === "you" ? "Who is coming"
+                : "Check and confirm"}
+            </h2>
+            {/* WHERE YOU ARE IN IT. Three screens with no sense of how many
+                there are is just a form that keeps changing, and somebody
+                two fields in cannot tell whether they are nearly done. */}
+            <div className="mb-3 flex items-center gap-1.5" aria-hidden="true">
+              {(["when", "you", "review"] as const).map((s2) => (
+                <span
+                  key={s2}
+                  className={`h-1 flex-1 rounded-full transition-colors ${
+                    s2 === step ? "bg-action" : "bg-line"
+                  }`}
+                />
+              ))}
+            </div>
+            <p className="sr-only">
+              Step {step === "when" ? 1 : step === "you" ? 2 : 3} of 3
+            </p>
             <p className="text-sm text-ink-muted mb-1.5">
               {instant
                 // `why` ONLY WHEN IT ADDS SOMETHING. For an instant listing
@@ -408,6 +444,14 @@ export default function BookingRequest({
             )}
             {!address && <div className="mb-5" />}
 
+            {/* ── step 1 of 3: what, and when ──────────────────────
+                SEVEN FIELDS AT ONCE was the whole form, and on a phone the
+                total sat below the fold of the keyboard. Airbnb asks for
+                dates, then guests, then shows you what you chose with a
+                Change beside each line. Same idea: three short screens
+                instead of one long one, and the last is a REVIEW rather
+                than more typing. */}
+            {step === "when" && (<>
             {offers.length > 1 ? (
               <label className="block mb-4">
                 <span className="block text-sm font-semibold text-ink mb-1.5">What are you booking?</span>
@@ -525,6 +569,10 @@ export default function BookingRequest({
               <p className="-mt-2 mb-4 text-xs text-ink-faint">{readableDate(date)}</p>
             )}
 
+            </>)}
+
+            {/* ── step 2 of 3: who you are ─────────────────────────── */}
+            {step === "you" && (<>
             <label className="block mb-4">
               <span className="block text-sm font-semibold text-ink mb-1.5">Your name</span>
               <input
@@ -563,6 +611,38 @@ export default function BookingRequest({
                 operator on a deposit says the balance is due at the venue,
                 and a guest reading one number beside that sentence cannot
                 tell which number it is. */}
+            </>)}
+
+            {/* ── step 3 of 3: what you chose, then what it costs ───
+                AIRBNB'S "Review and continue": the choices already made,
+                each with a Change beside it, rather than a form to fill
+                again. The point of a review step is that nothing on it is
+                typing. */}
+            {step === "review" && (<>
+              <div className="mb-5 overflow-hidden rounded-2xl border border-line">
+                {[
+                  { label: "What", value: chosen?.name || offers[0]?.name || listing.businessName, to: "when" as const },
+                  { label: "When", value: [date, time].filter(Boolean).join(" at ") || "Not set", to: "when" as const },
+                  { label: "Who", value: name ? `${name}${guests > 1 ? `, ${guests} people` : ""}` : "Not set", to: "you" as const },
+                  { label: "Reply to", value: contact || "Not set", to: "you" as const },
+                ].map((row) => (
+                  <div key={row.label} className="flex items-center gap-3 border-b border-line px-4 py-3 last:border-0">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-caption text-ink-muted">{row.label}</p>
+                      <p className="truncate text-small font-semibold text-ink">{row.value}</p>
+                    </div>
+                    {/* type="button", or it submits the form it sits in. */}
+                    <button
+                      type="button"
+                      onClick={() => setStep(row.to)}
+                      className={`${ROW_ACTION} shrink-0`}
+                    >
+                      Change
+                    </button>
+                  </div>
+                ))}
+              </div>
+
             {money.display && dueNow !== null && dueNow !== total && (
               <div className="mb-2 flex items-baseline justify-between">
                 <span className="text-sm text-ink">Pay now</span>
@@ -690,6 +770,29 @@ export default function BookingRequest({
                   ? "They hold your slot and confirm it. You pay them at the studio."
                   : "No payment now. Nothing is charged until they accept."}
             </p>
+            </>)}
+
+            {/* NEXT AND BACK, on the two steps that are not the last.
+                A step you cannot leave is a trap, and Back must not submit
+                the form, which is what a bare <button> inside one does. */}
+            {step !== "review" && (
+              <div className="flex items-center gap-2.5">
+                {step === "you" && (
+                  <Button type="button" variant="secondary" size="lg" onClick={() => setStep("when")}>
+                    Back
+                  </Button>
+                )}
+                <Button
+                  type="button"
+                  size="lg"
+                  block
+                  onClick={() => setStep(step === "when" ? "you" : "review")}
+                  disabled={step === "when" && !canLeaveWhen}
+                >
+                  Next
+                </Button>
+              </div>
+            )}
           </form>
         )}
       </div>
