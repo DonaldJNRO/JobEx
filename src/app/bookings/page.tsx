@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/Skeleton";
 import EmptyState from "@/components/ui/EmptyState";
-import { cardClass } from "@/lib/ui-recipes";
+import { cardClass, pillClass } from "@/lib/ui-recipes";
 import LoadError from "@/components/ui/LoadError";
 import { useMoney } from "@/lib/useRates";
 import { buildDisplayPrice, formatPriceWithCurrency } from "@/lib/display-price";
@@ -19,17 +19,20 @@ import BookingFields from "@/components/BookingFields";
 // The chips a traveller can actually act on. Anything unrecognised falls
 // through to the raw status rather than being hidden, because a status nobody
 // mapped is still information.
-const STATUS_TONE: Record<string, { label: string; className: string }> = {
+// THE TONE, NOT THE CLASSES. This map carried its own colour pairs, which
+// is a sixteenth spelling of a badge: the pill already knows what settled
+// and alarm look like, and a status only has to say which of them it is.
+const STATUS_TONE: Record<string, { label: string; tone: "settled" | "alarm" | "gold" | "neutral" }> = {
   // THE BRAND'S OWN THREE, not Tailwind's. leaf for money received, gold for
   // waiting, danger for refused, which is the set the app and Scout use.
   // Tailwind's emerald, amber and red belong to no product and were putting
   // five foreign colours into the stylesheet.
-  confirmed_paid: { label: "Confirmed", className: "bg-settled-bg text-settled-ink" },
-  confirmed: { label: "Confirmed", className: "bg-settled-bg text-settled-ink" },
-  pending: { label: "Awaiting operator", className: "bg-secondary/15 text-secondary-ink" },
-  declined: { label: "Declined", className: "bg-alarm-bg text-alarm-ink" },
-  cancelled: { label: "Cancelled", className: "bg-surface-sunken text-ink-muted" },
-  refunded: { label: "Refunded", className: "bg-surface-sunken text-ink-muted" },
+  confirmed_paid: { label: "Confirmed", tone: "settled" },
+  confirmed: { label: "Confirmed", tone: "settled" },
+  pending: { label: "Awaiting operator", tone: "gold" },
+  declined: { label: "Declined", tone: "alarm" },
+  cancelled: { label: "Cancelled", tone: "neutral" },
+  refunded: { label: "Refunded", tone: "neutral" },
 };
 
 // A PRIVATE FOUR ENTRY SYMBOL TABLE USED TO LIVE HERE, with no rate lookup
@@ -142,9 +145,7 @@ export default function BookingsPage() {
                           labels are short by design, so nowrap is the whole
                           fix and truncation only had something to break. */}
                       <span
-                        className={`inline-block whitespace-nowrap rounded-full px-2.5 py-1 text-caption font-semibold ${
-                          tone?.className || "bg-line-strong text-text-muted"
-                        }`}
+                        className={`whitespace-nowrap ${pillClass({ tone: tone?.tone ?? "neutral" })}`}
                       >
                         {tone?.label || booking.status}
                       </span>

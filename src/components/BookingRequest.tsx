@@ -28,7 +28,7 @@ import { fetchBookingDecision, ASK, type BookingDecision } from "@/lib/booking-d
 import { buildDisplayPrice, formatPriceWithCurrency } from "@/lib/display-price";
 import PayStep, { canPay } from "./PayStep";
 import Button from "./ui/Button";
-import { ROW_ACTION, fieldClass } from "@/lib/ui-recipes";
+import { ROW_ACTION, ROW, fieldClass } from "@/lib/ui-recipes";
 import { startPayment, PayError, type PayIntent } from "@/lib/pay";
 import { useMoney } from "@/lib/useRates";
 import { nativeCurrencyOf } from "@/lib/listing-price";
@@ -740,7 +740,7 @@ export default function BookingRequest({
                   { label: "Who", value: name ? `${name}${guests > 1 ? `, ${guests} people` : ""}` : "Not set", to: "you" as const },
                   { label: "Reply to", value: contact || "Not set", to: "you" as const },
                 ].map((row) => (
-                  <div key={row.label} className="flex items-center gap-3 border-b border-line px-4 py-3 last:border-0">
+                  <div key={row.label} className={`${ROW.base} items-center border-b border-line last:border-0`}>
                     <div className="min-w-0 flex-1">
                       <p className="text-caption text-ink-muted">{row.label}</p>
                       <p className="truncate text-small font-semibold text-ink">{row.value}</p>

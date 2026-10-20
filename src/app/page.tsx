@@ -26,6 +26,7 @@
  */
 
 import Link from "next/link";
+import { pillClass } from "@/lib/ui-recipes";
 import EmptyState from "@/components/ui/EmptyState";
 import LoadError from "@/components/ui/LoadError";
 import { useEffect, useMemo, useState, useCallback } from "react";
@@ -214,11 +215,7 @@ export default function HomePage() {
               type="button"
               onClick={() => setTab(c.id)}
               aria-pressed={active}
-              className={`snap-start shrink-0 px-5 py-2.5 rounded-full text-small font-semibold whitespace-nowrap transition-colors ${
-                active
-                  ? "bg-primary text-white"
-                  : "bg-surface-sunken text-ink-muted hover:bg-line/40 hover:text-ink"
-              }`}
+              className={`snap-start whitespace-nowrap ${pillClass({ size: "md", chosen: active })}`}
             >
               {c.id === "all" ? "For you" : c.label}
             </button>

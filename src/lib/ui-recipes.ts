@@ -88,6 +88,38 @@ export const PILL = {
   size: { sm: "px-2.5 py-1 text-caption", md: "px-3.5 py-1.5 text-small" },
 } as const;
 
+/**
+ * A pill, as a string, for the same reason the card and the field are.
+ *
+ * SIXTEEN BADGE TREATMENTS existed across eight padding recipes, four type
+ * sizes and two radii, for three different jobs that were never told apart:
+ *
+ *   a STATEMENT   a status, a count of photos, "Open now"
+ *   a CHOICE      a category filter, a currency, a city you can pick
+ *   a COUNT       an unread badge
+ *
+ * A choice is the one that matters, because a chosen filter is charcoal and
+ * an action is gold, and keeping those apart is what stops a page having
+ * four gold things on it.
+ */
+export function pillClass(opts: { tone?: keyof typeof PILL.tone; size?: keyof typeof PILL.size; chosen?: boolean } = {}): string {
+  const tone = opts.chosen !== undefined
+    ? (opts.chosen ? "selected" : "neutral")
+    : (opts.tone ?? "neutral");
+  return cx(
+    PILL.base,
+    PILL.tone[tone],
+    PILL.size[opts.size ?? "sm"],
+    opts.chosen !== undefined && "transition-colors",
+    opts.chosen === false && "hover:text-ink",
+  );
+}
+
+/** An unread count: never gold, because it is news and not an action. */
+export const COUNT_BADGE = cx(
+  "shrink-0 rounded-full bg-primary px-1.5 py-0.5 text-caption font-bold text-white",
+);
+
 export const CARD = {
   base: RADIUS.card,
   tone: {

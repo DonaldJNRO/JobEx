@@ -18,6 +18,7 @@
 // signed-in person lives in.
 
 import { useEffect, useState } from "react";
+import { COUNT_BADGE } from "@/lib/ui-recipes";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, MessageSquare, ShoppingBag, User } from "lucide-react";
@@ -114,7 +115,7 @@ export default function AppShell({
                 <span className="relative">
                   <Icon className="h-[22px] w-[22px]" />
                   {t.badge && unread > 0 && (
-                    <span className="absolute -right-1.5 -top-1.5 min-w-[16px] rounded-full bg-primary px-1 text-center text-caption font-bold leading-4 text-white">
+                    <span className={`absolute -right-1.5 -top-1.5 min-w-[16px] text-center leading-4 ${COUNT_BADGE}`}>
                       {unread > 9 ? "9+" : unread}
                     </span>
                   )}
@@ -167,7 +168,7 @@ export default function AppShell({
                 <span className="relative">
                   <Icon className="h-[22px] w-[22px]" />
                   {t.badge && unread > 0 && (
-                    <span className="absolute -right-2 -top-1.5 min-w-[16px] rounded-full bg-primary px-1 text-center text-caption font-bold leading-4 text-white">
+                    <span className={`absolute -right-2 -top-1.5 min-w-[16px] text-center leading-4 ${COUNT_BADGE}`}>
                       {unread > 9 ? "9+" : unread}
                     </span>
                   )}

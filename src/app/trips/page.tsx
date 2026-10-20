@@ -14,7 +14,7 @@
 
 import { useEffect, useState } from "react";
 import EmptyState from "@/components/ui/EmptyState";
-import { fieldClass } from "@/lib/ui-recipes";
+import { fieldClass, pillClass, COUNT_BADGE } from "@/lib/ui-recipes";
 import LoadError from "@/components/ui/LoadError";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -153,11 +153,7 @@ function TripsInner() {
                 type="button"
                 onClick={() => setOnlyUnread(id === "unread")}
                 aria-pressed={onlyUnread === (id === "unread")}
-                className={`rounded-full px-3 py-1 text-caption font-semibold transition-colors ${
-                  onlyUnread === (id === "unread")
-                    ? "bg-primary text-white"
-                    : "bg-surface-sunken text-ink-muted hover:text-ink"
-                }`}
+                className={pillClass({ chosen: onlyUnread === (id === "unread") })}
               >
                 {label}
               </button>
@@ -244,7 +240,7 @@ function TripsInner() {
                     </span>
                   </span>
                   {c.unread > 0 && (
-                    <span className="shrink-0 rounded-full bg-primary px-1.5 py-0.5 text-caption font-bold text-white">
+                    <span className={COUNT_BADGE}>
                       {c.unread > 99 ? "99+" : c.unread}
                     </span>
                   )}

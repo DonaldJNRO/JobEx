@@ -15,7 +15,7 @@
 
 import { useEffect, useState } from "react";
 import Button from "@/components/ui/Button";
-import { cardClass, fieldClass } from "@/lib/ui-recipes";
+import { cardClass, fieldClass, pillClass, ROW } from "@/lib/ui-recipes";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -197,11 +197,7 @@ export default function AccountPage() {
                 type="button"
                 onClick={() => pickCurrency(c)}
                 aria-pressed={currency === c}
-                className={`rounded-full px-4 py-2 text-small font-semibold transition-colors ${
-                  currency === c
-                    ? "bg-primary text-white"
-                    : "bg-surface-sunken text-ink-muted hover:text-ink"
-                }`}
+                className={pillClass({ size: "md", chosen: currency === c })}
               >
                 {symbolForCurrency(c).trim()} {c}
               </button>
@@ -210,9 +206,7 @@ export default function AccountPage() {
               type="button"
               onClick={() => pickCurrency("")}
               aria-pressed={!currency}
-              className={`rounded-full px-4 py-2 text-small font-semibold transition-colors ${
-                !currency ? "bg-primary text-white" : "bg-surface-sunken text-ink-muted hover:text-ink"
-              }`}
+              className={pillClass({ size: "md", chosen: !currency })}
             >
               Match my device
             </button>
@@ -234,9 +228,7 @@ export default function AccountPage() {
                   type="button"
                   onClick={() => pickCity(c.id)}
                   aria-pressed={city === c.id}
-                  className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-small font-semibold transition-colors ${
-                    city === c.id ? "bg-primary text-white" : "bg-surface-sunken text-ink-muted hover:text-ink"
-                  }`}
+                  className={pillClass({ size: "md", chosen: city === c.id })}
                 >
                   {flagFor(c.country) && <span aria-hidden="true">{flagFor(c.country)}</span>}
                   {c.name}
@@ -246,9 +238,7 @@ export default function AccountPage() {
                 type="button"
                 onClick={() => pickCity(null)}
                 aria-pressed={!city}
-                className={`rounded-full px-4 py-2 text-small font-semibold transition-colors ${
-                  !city ? "bg-primary text-white" : "bg-surface-sunken text-ink-muted hover:text-ink"
-                }`}
+                className={pillClass({ size: "md", chosen: !city })}
               >
                 Everywhere
               </button>
@@ -265,7 +255,7 @@ export default function AccountPage() {
             <Link
               key={href}
               href={href}
-              className="flex items-center gap-4 border-b border-line px-5 py-4 last:border-0 hover:bg-surface-sunken"
+              className={`${ROW.base} ${ROW.interactive} items-center gap-4 border-b border-line last:border-0`}
             >
               <Icon className="h-5 w-5 shrink-0 text-primary" />
               <span className="min-w-0 flex-1">

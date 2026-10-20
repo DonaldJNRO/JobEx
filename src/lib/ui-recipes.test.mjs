@@ -176,5 +176,34 @@ for (const f of all) {
 }
 ok(rogueField.length === 0, rogueField.length ? `${rogueField[0]} still spells its own focus ring` : "and none spells its own");
 
+console.log("\nand a pill has one definition, not sixteen");
+// 16 badge treatments across 8 padding recipes, 4 type sizes and 2 radii,
+// for three jobs that were never told apart: a STATEMENT (a status, a
+// photo count, "Open now"), a CHOICE (a filter, a currency, a city) and a
+// COUNT (unread).
+ok(/export function pillClass/.test(RECIPE_SRC), "there is one");
+const pillCalls = all.reduce((n, f) => n + (readFileSync(f, "utf8").match(/pillClass\(|COUNT_BADGE/g) || []).length, 0);
+ok(pillCalls >= 8, `${pillCalls} badges go through it`);
+
+// THE CHOICE IS THE ONE THAT MATTERS. A chosen filter is charcoal and an
+// action is gold; keeping those apart is what stops a page having four
+// gold things on it.
+ok(/chosen \? "selected" : "neutral"/.test(RECIPE_SRC), "a chosen pill takes the selection colour, not the action's");
+// THE FILL, NOT THE WASH. bg-action-wash is the deliberate gold CHIP, the
+// one that is not pressable, and my first version of this matched it
+// because /bg-action/ matches bg-action-wash too. What must never appear
+// on a pill is the action's FILL, which is what a button wears.
+const PILL_BLOCK = RECIPE_SRC.slice(RECIPE_SRC.indexOf("export const PILL"));
+const PILL_TONES = PILL_BLOCK.slice(0, PILL_BLOCK.indexOf("} as const"));
+ok(/bg-action-wash/.test(PILL_TONES), "the non-pressable gold chip is a tone");
+ok(!/bg-action(?![\w-])/.test(PILL_TONES), "and no pill tone is ever the action's FILL, which is a button's");
+
+let roguePill = [];
+for (const f of all) {
+  const src = readFileSync(f, "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
+  if (/\? "bg-primary text-white"\s*\n?\s*: "bg-surface-sunken/.test(src)) roguePill.push(f.replace("src/", ""));
+}
+ok(roguePill.length === 0, roguePill.length ? `${roguePill[0]} still spells a chosen pill by hand` : "and none spells its own");
+
 console.log(fails ? `\n${fails} FAILED` : "\nALL PASSED");
 process.exit(fails ? 1 : 0);
