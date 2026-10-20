@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Button from "@/components/ui/Button";
 import { safeNext } from "@/lib/safe-next";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -135,13 +136,9 @@ export default function LoginPage() {
                 </button>
               </div>
             </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 rounded-xl transition-colors disabled:opacity-50"
-            >
-              {loading ? "Logging in..." : "Log in"}
-            </button>
+            <Button type="submit" size="lg" block loading={loading}>
+              {loading ? "Logging in" : "Log in"}
+            </Button>
           </form>
         </div>
 

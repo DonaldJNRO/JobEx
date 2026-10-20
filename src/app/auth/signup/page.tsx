@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Button from "@/components/ui/Button";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -115,9 +116,9 @@ export default function SignupPage() {
                 At least 6 characters.
               </p>
             </div>
-            <button type="submit" disabled={loading} className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 rounded-xl transition-colors disabled:opacity-50">
-              {loading ? "Creating account..." : "Create account"}
-            </button>
+            <Button type="submit" size="lg" block loading={loading}>
+              {loading ? "Creating account" : "Create account"}
+            </Button>
           </form>
 
           <p className="text-xs text-text-muted text-center mt-4">

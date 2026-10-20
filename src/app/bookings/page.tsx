@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Button from "@/components/ui/Button";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -81,12 +82,9 @@ export default function BookingsPage() {
               When you book a stay, an experience or an event, it shows up here with
               the code you need at the door.
             </p>
-            <Link
-              href="/"
-              className="mt-6 inline-block rounded-full bg-primary px-6 py-3 font-semibold text-white transition-colors hover:bg-primary-dark"
-            >
+            <Button href="/" className="mt-6">
               Browse listings
-            </Link>
+            </Button>
           </div>
         )}
 

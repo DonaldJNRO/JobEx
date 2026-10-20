@@ -15,6 +15,7 @@
 // when Stripe confirms the intent succeeded, not when the form submits.
 
 import { useState } from "react";
+import Button from "./ui/Button";
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { loadStripe, type Stripe } from "@stripe/stripe-js";
 
@@ -118,13 +119,9 @@ function CardForm({ amountLabel, onPaid, onCancel }: Props) {
         </p>
       )}
 
-      <button
-        type="submit"
-        disabled={!stripeJs || busy}
-        className="w-full bg-primary text-white font-semibold rounded-xl py-3.5 disabled:opacity-60"
-      >
-        {busy ? "Paying…" : `Pay ${amountLabel}`}
-      </button>
+      <Button type="submit" size="lg" block disabled={!stripeJs} loading={busy}>
+        {busy ? "Paying" : `Pay ${amountLabel}`}
+      </Button>
 
       <button
         type="button"

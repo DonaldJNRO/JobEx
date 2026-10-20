@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Button from "@/components/ui/Button";
 import { MapPin, Mail, Send, CheckCircle, AlertTriangle } from "lucide-react";
 import {
   CONTACT_EMAIL,
@@ -137,13 +138,9 @@ export default function ContactPage() {
                     </p>
                   </div>
                 )}
-                <button
-                  type="submit"
-                  disabled={sending}
-                  className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary-dark text-white font-bold py-3.5 rounded-xl transition-colors disabled:opacity-50"
-                >
-                  {sending ? "Sending" : <><Send size={16} /> Send message</>}
-                </button>
+                <Button type="submit" size="lg" block loading={sending} iconLeft={<Send size={16} />}>
+                  {sending ? "Sending" : "Send message"}
+                </Button>
               </form>
             )}
           </div>

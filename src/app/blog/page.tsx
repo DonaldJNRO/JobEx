@@ -1,4 +1,5 @@
 import { Newspaper } from "lucide-react";
+import Button from "@/components/ui/Button";
 import Link from "next/link";
 
 export default function BlogPage() {
@@ -12,9 +13,9 @@ export default function BlogPage() {
         <p className="text-text-muted max-w-md mx-auto">
           Travel tips, destination guides, and behind-the-scenes at Sabię. Stay tuned.
         </p>
-        <Link href="/" className="inline-block mt-8 bg-primary hover:bg-primary-dark text-white font-semibold px-6 py-3 rounded-full transition-colors">
+        <Button href="/" className="mt-8">
           Back to Home
-        </Link>
+        </Button>
       </div>
     </div>
   );

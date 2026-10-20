@@ -13,6 +13,7 @@
 // them at the till.
 
 import { Suspense, useEffect, useState } from "react";
+import Button from "@/components/ui/Button";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2, ShoppingBag, Clock3, ArrowRight } from "lucide-react";
@@ -81,9 +82,9 @@ function CartContents() {
             <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-text-muted">
               A trip is where everything you book lives, on your own or with the people coming with you.
             </p>
-            <Link href="/" className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 font-semibold text-white">
+            <Button href="/" className="mt-6">
               Browse places <ArrowRight className="h-4 w-4" />
-            </Link>
+            </Button>
           </div>
         )}
 
@@ -103,7 +104,7 @@ function CartContents() {
                   </p>
                 )}
               </div>
-              <button
+              <Button
                 type="button"
                 disabled={busy || cart.total <= 0 || !canPay()}
                 onClick={async () => {
@@ -121,10 +122,12 @@ function CartContents() {
                     setBusy(false);
                   }
                 }}
-                className="shrink-0 rounded-xl bg-primary px-5 py-3 font-bold text-white disabled:opacity-40"
+                size="lg"
+                loading={busy}
+                className="shrink-0"
               >
-                {busy ? <Loader2 className="h-5 w-5 animate-spin" /> : "Pay now"}
-              </button>
+                Pay now
+              </Button>
             </div>
 
             {payError && (
@@ -139,9 +142,9 @@ function CartContents() {
                 <p className="mt-1 text-sm text-ink-muted">
                   Sabię holds the money until after you have been. Your booking codes are in Bookings.
                 </p>
-                <Link href="/bookings" className="mt-4 inline-block rounded-xl bg-primary px-5 py-2.5 font-semibold text-white">
+                <Button href="/bookings" className="mt-4">
                   See your bookings
-                </Link>
+                </Button>
               </div>
             ) : secret ? (
               <div className="mt-4 rounded-2xl border border-line bg-card p-4">
