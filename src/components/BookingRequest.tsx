@@ -630,13 +630,20 @@ export default function BookingRequest({
               <label className="block min-w-0">
                 <span className="block text-small font-semibold text-ink mb-1.5">Time</span>
                 {slots.length > 0 ? (
+                  // THE DAY DECIDES THE HOURS, so it cannot be asked for
+                  // second. Which slots are open depends on the date: a
+                  // Saturday-only experience runs none on a Tuesday, and
+                  // today's 10am has gone while tomorrow's has not. The
+                  // control offered a list before it could know any of
+                  // that, and let somebody pick 10pm for no day at all.
                   <select
                     required
+                    disabled={!date}
                     value={time}
                     onChange={(e) => setTime(e.target.value)}
-                    className={fieldClass()}
+                    className={`${fieldClass()} disabled:cursor-not-allowed disabled:bg-surface-sunken disabled:text-ink-faint`}
                   >
-                    <option value="">Pick a time</option>
+                    <option value="">{date ? "Pick a time" : "Pick a date first"}</option>
                     {/* EVERY SLOT, WITH THE GONE ONES DISABLED. A list that
                         silently shortens as the day goes on reads as a
                         service losing its times; a greyed row reads as a
@@ -645,7 +652,7 @@ export default function BookingRequest({
                         Saturday-only experience accepted a Tuesday. */}
                     {takeable.map((c) => (
                       <option key={c.slot} value={c.slot} disabled={!c.available}>
-                        {c.slot}{c.reason ? ` · ${c.reason}` : ""}
+                        {c.slot}
                       </option>
                     ))}
                   </select>
@@ -685,7 +692,22 @@ export default function BookingRequest({
                 the bottom of a number box. Mine, from moving the guest
                 count onto the form above it. */}
             {date && (
-              <p className="-mt-2.5 mb-4 text-caption text-ink-faint">{readableDate(date)}</p>
+              <p className="-mt-2.5 mb-4 text-caption text-ink-faint">
+                {readableDate(date)}
+                {/* WHY A SLOT IS GREY, said once underneath rather than
+                    appended to every option. A native select cannot style
+                    an option, so "10:00 AM · Already gone" was both the
+                    only way to explain it and the thing that made the
+                    dropdown wider than its column. */}
+                {takeable.some((c) => !c.available) && (
+                  <span className="text-ink-faint">
+                    {" · "}
+                    {takeable.find((c) => !c.available)?.reason === "Not on this day"
+                      ? "Not running this day"
+                      : "Greyed times have gone"}
+                  </span>
+                )}
+              </p>
             )}
 
             {/* HOW MANY, BACK ON THE FORM. This field was inside the `paid`

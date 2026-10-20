@@ -391,7 +391,12 @@ input[type="date"][data-empty="true"]::-moz-placeholder-shown { opacity: 0; }
 /* iOS gives date and time inputs an intrinsic width that w-full does not
    beat, so in a two-column grid the cell grows past its track and the two
    boxes end up touching. This lets them shrink to the track they are in. */
-input[type="date"], input[type="time"] {
+/* AND A SELECT, which is what the Time control is on the 17 listings that
+   carry their own hours. The backstop covered the two inputs and not the
+   dropdown, and a native select is sized by its LONGEST OPTION, which I
+   made longer by appending "Already gone" to the ones that have passed. So
+   the fix for the two boxes touching made the third case worse. */
+input[type="date"], input[type="time"], select {
   /* Safari gives these an intrinsic width of their own and will widen a
      grid track to fit it, which is what pushed the two boxes together and
      ran the second off the right edge. */

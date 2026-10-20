@@ -68,10 +68,19 @@ ck(/export function fieldClass/.test(RECIPE), "there is one definition of a fiel
 ck(/"w-full min-w-0 text-ink/.test(RECIPE), "and it can shrink to its track");
 ck((SHEET.match(/fieldClass\(/g) || []).length >= 3,
   "and so can the date input, the time select and the time input");
-ck(/input\[type="date"\], input\[type="time"\] \{[\s\S]{0,400}min-width: 0;/.test(CSS),
+ck(/input\[type="date"\], input\[type="time"\], select \{[\s\S]{0,400}min-width: 0;/.test(CSS),
   "with a CSS backstop, because iOS gives them an intrinsic width w-full does not beat");
-ck(/input\[type="date"\], input\[type="time"\] \{[\s\S]{0,400}box-sizing: border-box;/.test(CSS),
+ck(/input\[type="date"\], input\[type="time"\], select \{[\s\S]{0,400}box-sizing: border-box;/.test(CSS),
   "and a pinned width, so a native control cannot widen its own grid track");
+// A SELECT IS SIZED BY ITS LONGEST OPTION, and the Time control IS a select
+// on the 17 listings carrying their own hours. The backstop covered the
+// two inputs and not the dropdown.
+ck(/, select \{/.test(CSS), "including the dropdown, which is what Time is when a listing has slots");
+
+// THE DAY DECIDES THE HOURS. Which slots are open depends on the date, so
+// offering the list first let somebody pick 10pm for no day at all.
+ck(/disabled=\{!date\}/.test(SHEET), "the time cannot be chosen before the day");
+ck(/date \? "Pick a time" : "Pick a date first"/.test(SHEET), "and says so rather than sitting there greyed");
 
 
 // ── THE SHEET SAYS WHAT THE BUTTON DOES ─────────────────────────────────

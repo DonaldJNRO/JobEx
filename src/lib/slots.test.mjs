@@ -80,7 +80,13 @@ const SHEET = readFileSync("src/components/BookingRequest.tsx", "utf8")
 ok(/slotChoices\(/.test(SHEET), "the booking sheet asks which slots can be taken");
 ok(/hasSlots\(\{ slots \}\)/.test(SHEET), "and only where there are some, so a haircut keeps its clock");
 ok(/disabled=\{!c\.available\}/.test(SHEET), "a gone slot is greyed, not removed");
-ok(/c\.reason \? ` · \$\{c\.reason\}` : ""/.test(SHEET), "and says why it has gone");
+// ONCE, UNDERNEATH, not appended to every option. A native select cannot
+// style an option, so putting the reason inside the label was both the only
+// way to explain a grey row AND the thing that made the dropdown wider than
+// its column, which is what pushed Date and Time into each other.
+ok(/takeable\.some\(\(c\) => !c\.available\)/.test(SHEET), "the sheet knows when something has gone");
+ok(/Greyed times have gone/.test(SHEET), "and says why, once, in words");
+ok(!/` · \$\{c\.reason\}`/.test(SHEET), "rather than inside every option, where it sets the control's width");
 // Pick 10am for tomorrow, move the date to today after 10, and the request
 // would carry a time the operator cannot honour.
 ok(/setTime\(""\)/.test(SHEET), "a chosen time that stops being takeable clears itself");
