@@ -57,13 +57,15 @@ function useMoney(nativeCurrency: string) {
 interface Props {
   /** Names already shown as real rooms, to drop from this list. */
   hideNames?: string[];
+  /** True when the rooms were drawn above, so this list is everything else. */
+  roomsShown?: boolean;
   listing: Record<string, unknown>;
   currency: string;
   /** Opens the booking sheet on a chosen row. */
-  onPick: (offerName: string) => void;
+  onPick: (offerName: string, slot?: string) => void;
 }
 
-export default function ProfileServices({ listing, currency, onPick, hideNames }: Props) {
+export default function ProfileServices({ listing, currency, onPick, hideNames, roomsShown }: Props) {
   const { services: shape, bookCta } = resolveProfileSections(listing);
   // The same word the button at the top of the page uses.
   // A ROW IS NOT THE PAGE. CTA_LABEL is the word for the ONE button at the
@@ -133,7 +135,16 @@ export default function ProfileServices({ listing, currency, onPick, hideNames }
   // THE HEADING SAYS WHAT TO DO WITH IT. "What they offer" reads as a
   // brochure next to a Book button at the top of the page, and a visitor
   // cannot tell which one is the booking. This says the list IS the booking.
-  const heading = shape === "rooms" ? "Pick a room" : "Pick what you want";
+  // "PICK A ROOM" OVER A BONFIRE, A LIGHTHOUSE AND A TENT.
+  //
+  // On a lodging this heading says rooms, and it was right while this list
+  // WAS the rooms. The real rooms now come from the roomTypes
+  // subcollection and are drawn above, so what is left here is everything
+  // else the place offers: a bonfire, a walk to the lighthouse, a pitched
+  // tent. Calling those rooms is worse than not labelling them.
+  const heading = roomsShown
+    ? "Also here"
+    : shape === "rooms" ? "Pick a room" : "Pick what you want";
   return (
     <section className="reveal">
       {/* IN THE BRANCH WITH TAPPABLE ROWS. This was rendered inside the
@@ -146,7 +157,7 @@ export default function ProfileServices({ listing, currency, onPick, hideNames }
           group={showing}
           money={money}
           onClose={() => setShowing(null)}
-          onPick={(n) => { setShowing(null); onPick(n); }}
+          onPick={(n, slot) => { setShowing(null); onPick(n, slot); }}
         />
       )}
       <h2 className="text-heading font-bold text-ink mb-3">{heading}</h2>

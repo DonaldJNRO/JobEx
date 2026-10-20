@@ -60,6 +60,7 @@ export default function BookingRequest({
   onClose,
   initialOffer,
   initialStay,
+  initialSlot,
 }: {
   listing: Listing;
   open: boolean;
@@ -68,6 +69,8 @@ export default function BookingRequest({
   initialOffer?: string;
   /** Nights already chosen on the room screen, so this does not ask again. */
   initialStay?: { checkIn: string; checkOut: string } | null;
+  /** And the hour chosen on an offer screen, for the same reason. */
+  initialSlot?: string | null;
 }) {
   // So a payment made while signed in puts that person's name on the trip
   // rather than "Guest". A guest booking still works with neither.
@@ -129,6 +132,7 @@ export default function BookingRequest({
     // THE NIGHTS THEY ALREADY CHOSE. Arriving here from a room screen with
     // check in and check out already picked, and being asked for a date,
     // is what makes a flow feel like separate pages stapled together.
+    if (initialSlot) setTime(initialSlot);
     if (initialStay?.checkIn) {
       setDate(initialStay.checkIn);
       setCheckOut(initialStay.checkOut);
@@ -136,7 +140,7 @@ export default function BookingRequest({
     // AND BACK TO THE FIRST STEP. Closing on the review and reopening would
     // otherwise land somebody on a summary of a booking they had abandoned.
     setStep("when");
-  }, [open, initialOffer, initialStay, offers]);
+  }, [open, initialOffer, initialStay, initialSlot, offers]);
 
   useEffect(() => {
     if (!open) return;

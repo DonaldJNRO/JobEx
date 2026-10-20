@@ -28,7 +28,9 @@ ck(/resolveProfileSections\(listing\)/.test(live(SECTION)),
   "whose shape is decided the same way the app decides it");
 
 // A MENU, NOT A PRICE LIST. Tapping a row has to carry the choice through.
-ck(/setPickedOffer\(name\); setBooking\(true\)/.test(live(PAGE)),
+// THE RULE, not the argument list. The handler grew a slot so an hour
+// chosen on the offer screen is not asked for again in a dropdown.
+ck(/setPickedOffer\(name\);/.test(live(PAGE)) && /setBooking\(true\)/.test(live(PAGE)),
   "tapping a row opens the sheet on that row");
 // WHEREVER THE TIERS ARE SHOWN. They used to expand inline on the row and
 // now open on the offer screen, because worthAScreen counts tiers: the
@@ -36,7 +38,7 @@ ck(/setPickedOffer\(name\); setBooking\(true\)/.test(live(PAGE)),
 // a screen, so "Choose" sat above a chevron that never rotated over a list
 // that never opened. The rule is unchanged, and it is the rule that
 // matters: a tier books under its OWN label, or the wrong price is charged.
-const TIER_PICK = /onPick\(`\$\{group\.name\} \(\$\{t\.label\}\)`\)/;
+const TIER_PICK = /onPick\(`\$\{group\.name\} \(\$\{t\.label\}\)`/;
 ck(
   TIER_PICK.test(live(SECTION)) || TIER_PICK.test(readFileSync("src/components/OfferScreen.tsx", "utf8")),
   "and a tier carries its own label, so the right price is booked");

@@ -91,5 +91,30 @@ const SLOTS = readFileSync("src/lib/slots.ts", "utf8");
 ok(!/services\?:/.test(SLOTS), "this module never reads a listing's services itself");
 ok(/AVAILABILITY LAYER/.test(SLOTS), "and says so where the next person will look");
 
+console.log("\nand the hours are a picker, not a notice board");
+// They were read-only pills: the screen listed sixteen times a guest could
+// not choose between, and the NEXT screen then asked them to pick one from
+// a dropdown anyway.
+const OFFER = readFileSync("src/components/OfferScreen.tsx", "utf8")
+  .replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
+ok(/role="radiogroup"/.test(OFFER), "the hours are a group of choices");
+ok(/aria-checked=\{chosen\}/.test(OFFER), "each one says whether it is the chosen one");
+ok(/setSlot\(chosen \? "" : t\)/.test(OFFER), "and tapping the chosen one clears it, so a pick is reversible");
+ok(/onPick\(group\.name, slot \|\| undefined\)/.test(OFFER), "the hour travels with the booking");
+
+const SHEET2 = readFileSync("src/components/BookingRequest.tsx", "utf8");
+ok(/initialSlot/.test(SHEET2), "and the sheet starts from it rather than asking again");
+
+console.log("\nand a bonfire is not a room");
+// On a lodging the services heading said "Pick a room", which was right
+// while that list WAS the rooms. The real rooms now come from the
+// roomTypes subcollection and are drawn above, so what is left is a
+// bonfire, a walk to the lighthouse and a pitched tent.
+const SECTION2 = readFileSync("src/components/ProfileServices.tsx", "utf8")
+  .replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
+ok(/roomsShown\s*\n?\s*\? "Also here"/.test(SECTION2), "the heading changes when the rooms were drawn above");
+ok(/roomsShown=\{roomNames\.length > 0\}/.test(readFileSync("src/app/listing/[id]/ListingClient.tsx", "utf8")),
+  "and the page tells it whether they were");
+
 console.log(fails ? `\n${fails} FAILED` : "\nALL PASSED");
 process.exit(fails ? 1 : 0);

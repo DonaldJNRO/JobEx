@@ -34,13 +34,15 @@ export default function OfferScreen({
   group: ServiceGroup;
   money: (n: number | null) => string;
   onClose: () => void;
-  onPick: (name: string) => void;
+  /** The service, and the hour they chose, so the sheet does not ask again. */
+  onPick: (name: string, slot?: string) => void;
 }) {
   const media = [
     ...(group.videoUrl ? [{ kind: "video" as const, src: group.videoUrl }] : []),
     ...(group.imageUrl ? [{ kind: "photo" as const, src: group.imageUrl }] : []),
   ];
   const [at, setAt] = useState(0);
+  const [slot, setSlot] = useState("");
   const track = useRef<HTMLDivElement | null>(null);
   // THE SCREEN WAS CLOSING ITSELF. This effect pushes a history entry on
   // mount and pops it on cleanup, and `close` depended on `onClose`, which
@@ -134,14 +136,35 @@ export default function OfferScreen({
                 <h3 className="mb-2.5 flex items-center gap-2 text-heading font-bold text-ink">
                   <Clock size={16} /> When it runs
                 </h3>
-                <div className="flex flex-wrap gap-2">
-                  {group.timeSlots!.map((t) => (
-                    <span key={t} className="rounded-full bg-ink-wash px-3 py-1.5 text-small font-semibold text-ink">
-                      {t}
-                    </span>
-                  ))}
+                {/* A PICKER, NOT A NOTICE BOARD. These were read-only
+                    pills: the screen listed sixteen times a guest could
+                    not choose between, and then the next screen asked them
+                    to pick one from a dropdown anyway. Tapping the hour you
+                    want is the whole point of showing the hours. */}
+                <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="When it runs">
+                  {group.timeSlots!.map((t) => {
+                    const chosen = slot === t;
+                    return (
+                      <button
+                        key={t}
+                        type="button"
+                        role="radio"
+                        aria-checked={chosen}
+                        onClick={() => setSlot(chosen ? "" : t)}
+                        className={`rounded-full px-3.5 py-2 text-small font-semibold transition-colors ${
+                          chosen
+                            ? "bg-primary text-white"
+                            : "bg-ink-wash text-ink hover:bg-line"
+                        }`}
+                      >
+                        {t}
+                      </button>
+                    );
+                  })}
                 </div>
-                <p className="mt-2 text-caption text-ink-muted">You pick the day on the next screen.</p>
+                <p className="mt-2 text-caption text-ink-muted">
+                  {slot ? "You pick the day on the next screen." : "Pick an hour, then the day on the next screen."}
+                </p>
               </div>
             )}
 
@@ -155,7 +178,7 @@ export default function OfferScreen({
                     <li key={t.label}>
                       <button
                         type="button"
-                        onClick={() => onPick(`${group.name} (${t.label})`)}
+                        onClick={() => onPick(`${group.name} (${t.label})`, slot || undefined)}
                         className="group flex w-full items-center justify-between gap-4 px-4 py-3.5 text-left hover:bg-surface-sunken"
                       >
                         <span className="min-w-0 text-ink">{t.label}</span>
@@ -179,7 +202,7 @@ export default function OfferScreen({
           <footer className="shrink-0 border-t border-line bg-card px-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] pt-4">
             <div className="flex items-center justify-between gap-4">
               <p className="text-heading font-extrabold text-ink">{money(group.fromPrice)}</p>
-              <Button size="lg" onClick={() => onPick(group.name)}>Book this</Button>
+              <Button size="lg" onClick={() => onPick(group.name, slot || undefined)}>Book this</Button>
             </div>
           </footer>
         )}

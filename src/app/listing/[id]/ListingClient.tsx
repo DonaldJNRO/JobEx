@@ -57,6 +57,9 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
   // kind of thing that makes a flow feel like separate pages stapled
   // together rather than one product.
   const [pickedStay, setPickedStay] = useState<{ checkIn: string; checkOut: string } | null>(null);
+  // THE HOUR THEY ALREADY CHOSE on the offer screen, so the sheet does not
+  // make them pick it again from a dropdown.
+  const [pickedSlot, setPickedSlot] = useState<string | null>(null);
   const [showAllDescription, setShowAllDescription] = useState(false);
   // THE PRICE NEVER LEAVES THE SCREEN. Airbnb keeps "£466 total" and
   // Reserve pinned the whole way down a listing, because the two questions
@@ -630,7 +633,8 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
                 listing={listing as unknown as Record<string, unknown>}
                 currency={listing.currency || "NGN"}
                 hideNames={roomNames}
-                onPick={(name) => { setPickedOffer(name); setBooking(true); }}
+                roomsShown={roomNames.length > 0}
+                onPick={(name, slot) => { setPickedOffer(name); setPickedSlot(slot ?? null); setBooking(true); }}
               />
             </div>
 
@@ -885,7 +889,7 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
           </div>
         </div>
 
-        <BookingRequest listing={listing} open={booking} initialOffer={pickedOffer} initialStay={pickedStay} onClose={() => setBooking(false)} />
+        <BookingRequest listing={listing} open={booking} initialOffer={pickedOffer} initialStay={pickedStay} initialSlot={pickedSlot} onClose={() => setBooking(false)} />
         </>
       )}
     </div>
