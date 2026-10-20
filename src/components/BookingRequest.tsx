@@ -28,7 +28,7 @@ import { fetchBookingDecision, ASK, type BookingDecision } from "@/lib/booking-d
 import { buildDisplayPrice, formatPriceWithCurrency } from "@/lib/display-price";
 import PayStep, { canPay } from "./PayStep";
 import Button from "./ui/Button";
-import { ROW_ACTION, ROW, fieldClass } from "@/lib/ui-recipes";
+import { ROW_ACTION, ROW, fieldClass, cardClass } from "@/lib/ui-recipes";
 import { startPayment, PayError, type PayIntent } from "@/lib/pay";
 import { useMoney } from "@/lib/useRates";
 import { nativeCurrencyOf } from "@/lib/listing-price";
@@ -508,12 +508,14 @@ export default function BookingRequest({
                 the one screen where somebody commits to turning up never
                 showed it. */}
             {address && (
-              <p className="flex items-start gap-1.5 text-small text-ink-muted mb-5">
+              <p className="flex items-start gap-1.5 text-small text-ink-muted mb-4">
                 <MapPin size={15} className="mt-0.5 shrink-0 text-ink-faint" />
                 <span>{address}</span>
               </p>
             )}
-            {!address && <div className="mb-5" />}
+            {/* The same gap whether or not there is an address to show, or
+                the first field moves depending on the listing. */}
+            {!address && <div className="mb-4" />}
 
             {/* ── step 1 of 3: what, and when ──────────────────────
                 SEVEN FIELDS AT ONCE was the whole form, and on a phone the
@@ -562,7 +564,7 @@ export default function BookingRequest({
                 </div>
               </label>
             ) : offers.length === 1 ? (
-              <div className="mb-4 rounded-2xl bg-surface-sunken border border-line px-4 py-3">
+              <div className={`mb-4 ${cardClass({ tone: "sunken", pad: "sm" })}`}>
                 <p className="text-small font-semibold text-ink">{offers[0].name}</p>
                 {/* THROUGH THE CONVERTER. This branch, the one with a single
                     offer, called formatPriceWithCurrency directly and
@@ -677,6 +679,15 @@ export default function BookingRequest({
               </label>
             </div>
 
+            {/* WHAT YOU PICKED, UNDER WHAT YOU PICKED IT WITH. This sat
+                BELOW the How many field, pulled up by a -mt-2 written for a
+                position it no longer had, so a date confirmation hung off
+                the bottom of a number box. Mine, from moving the guest
+                count onto the form above it. */}
+            {date && (
+              <p className="-mt-2.5 mb-4 text-caption text-ink-faint">{readableDate(date)}</p>
+            )}
+
             {/* HOW MANY, BACK ON THE FORM. This field was inside the `paid`
                 branch, so it rendered on the SUCCESS screen, after the money
                 had gone, and never on the form at all. guests was therefore
@@ -696,10 +707,6 @@ export default function BookingRequest({
                 className={fieldClass()}
               />
             </label>
-
-            {date && (
-              <p className="-mt-2 mb-4 text-caption text-ink-faint">{readableDate(date)}</p>
-            )}
 
             </>)}
 
