@@ -26,7 +26,8 @@
  */
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import LoadError from "@/components/ui/LoadError";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { MapPin, Search, X } from "lucide-react";
 import AppStrip from "@/components/AppStrip";
 import MasonryFeed from "@/components/MasonryFeed";
@@ -48,13 +49,20 @@ export default function HomePage() {
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const revealRef = useReveal();
+  const [failed, setFailed] = useState(false);
 
-  useEffect(() => {
+  // AN OUTAGE IS NOT AN EMPTY MARKETPLACE. This caught into [], so a
+  // Firestore failure or a dropped connection told EVERY visitor "Nothing
+  // here yet, we are adding places every week" on the front page.
+  const load = useCallback(() => {
+    setFailed(false);
+    setLoading(true);
     getFeaturedListings(40)
       .then(setListings)
-      .catch(() => setListings([]))
+      .catch(() => setFailed(true))
       .finally(() => setLoading(false));
   }, []);
+  useEffect(() => { load(); }, [load]);
 
   // THE CITY, like the app's header.
   //
@@ -245,6 +253,8 @@ export default function HomePage() {
             </div>
           ))}
         </div>
+      ) : failed ? (
+        <LoadError what="the places" onRetry={load} />
       ) : feed.length ? (
         <MasonryFeed listings={feed} />
       ) : (

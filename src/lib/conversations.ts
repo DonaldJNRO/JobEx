@@ -119,17 +119,18 @@ export function messagesPath(kind: ConversationKind, id: string): [string, strin
  */
 export function watchMyConversations(
   me: string,
-  onList: (list: Conversation[]) => void,
+  onList: (list: Conversation[], failed?: boolean) => void,
 ): Unsubscribe {
   let chats: Conversation[] = [];
   let trips: Conversation[] = [];
   let ready = { chats: false, trips: false };
+  const failed = { chats: false, trips: false };
 
   const emit = () => {
     // Hold the first paint until both have spoken once, or the list visibly
     // reshuffles as the second one lands.
     if (!ready.chats || !ready.trips) return;
-    onList(rankConversations([...chats, ...trips]));
+    onList(rankConversations([...chats, ...trips]), failed.chats || failed.trips);
   };
 
   const chatQ = query(
@@ -168,7 +169,11 @@ export function watchMyConversations(
     },
     // A listener that throws takes the page with it, and an empty half is
     // survivable where a blank screen is not. Same rule as watchMyTrips.
-    () => { chats = []; ready.chats = true; emit(); },
+    // A REFUSED LISTENER IS NOT AN EMPTY INBOX. This emitted [], so the
+    // page said "No conversations yet" to somebody with 74 of them. The
+    // half still empties, because one side failing must not blank the
+    // other, but it says that it failed.
+    () => { chats = []; ready.chats = true; failed.chats = true; emit(); },
   );
 
   const unsubTrip = onSnapshot(
@@ -195,7 +200,7 @@ export function watchMyConversations(
       ready.trips = true;
       emit();
     },
-    () => { trips = []; ready.trips = true; emit(); },
+    () => { trips = []; ready.trips = true; failed.trips = true; emit(); },
   );
 
   return () => { unsubChat(); unsubTrip(); };

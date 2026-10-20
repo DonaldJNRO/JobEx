@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import LoadError from "@/components/ui/LoadError";
 import { useMoney } from "@/lib/useRates";
 import { buildDisplayPrice, formatPriceWithCurrency } from "@/lib/display-price";
 import Button from "@/components/ui/Button";
@@ -38,6 +39,7 @@ const STATUS_TONE: Record<string, { label: string; className: string }> = {
 // its own copy. The sweep covers the pages now.
 
 export default function BookingsPage() {
+  const [failed, setFailed] = useState(false);
   const { rates, ready, to } = useMoney();
   const money = (amount: number | null, currency: string | null): string | null => {
     if (!amount) return null;
@@ -58,10 +60,14 @@ export default function BookingsPage() {
   }, [loading, user, router]);
 
   const load = useCallback(async (uid: string) => {
+    setFailed(false);
     try {
       setBookings(await getTravellerBookings(uid));
     } catch {
-      setBookings([]);
+      // NOT AN EMPTY LIST. This set [] and the page then rendered "No
+      // bookings yet" to a traveller with ten of them, so an outage looked
+      // like somebody who had never booked anything.
+      setFailed(true);
     }
   }, []);
 
@@ -81,7 +87,9 @@ export default function BookingsPage() {
           </p>
         </header>
 
-        {bookings === null && (
+        {failed && <LoadError what="your bookings" onRetry={() => user?.uid && load(user.uid)} />}
+
+        {!failed && bookings === null && (
           <div className="space-y-4" aria-busy="true">
             {[0, 1].map((i) => (
               <div key={i} className="h-40 rounded-2xl bg-surface-sunken animate-shimmer" />
@@ -89,7 +97,7 @@ export default function BookingsPage() {
           </div>
         )}
 
-        {bookings !== null && bookings.length === 0 && (
+        {!failed && bookings !== null && bookings.length === 0 && (
           <div className="rounded-2xl border border-line bg-card py-20 text-center">
             <Calendar size={44} className="mx-auto mb-4 text-text-muted/30" />
             <h2 className="text-lg font-semibold text-ink">No bookings yet</h2>

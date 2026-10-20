@@ -13,6 +13,7 @@
 // conversation look like one product.
 
 import { useEffect, useState } from "react";
+import LoadError from "@/components/ui/LoadError";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
@@ -41,6 +42,7 @@ function TripsInner() {
   // trips, so 74 one-to-one conversations carrying 2,076 messages were
   // not missing from the list, they were missing from the product.
   const [convos, setConvos] = useState<Conversation[] | null>(null);
+  const [convosFailed, setConvosFailed] = useState(false);
   const [creating, setCreating] = useState(false);
   const [adding, setAdding] = useState(false);
   const [filter, setFilter] = useState("");
@@ -56,8 +58,9 @@ function TripsInner() {
   useEffect(() => {
     if (!user) return;
     let live = true;
-    const stop = watchMyConversations(user.uid, async (list) => {
+    const stop = watchMyConversations(user.uid, async (list, failed) => {
       if (!live) return;
+      setConvosFailed(!!failed);
       setConvos(list);
       const ids = list.filter((c) => c.kind === "chat").map((c) => c.otherId || "").filter(Boolean);
       if (ids.length === 0) return;
@@ -180,7 +183,9 @@ function TripsInner() {
             </div>
           )}
 
-          {convos?.length === 0 && (
+          {convosFailed && <LoadError what="your conversations" />}
+
+          {!convosFailed && convos?.length === 0 && (
             <div className="px-6 py-16 text-center">
               <p className="font-semibold text-ink">No conversations yet</p>
               <p className="mt-1.5 text-sm leading-relaxed text-ink-muted">
