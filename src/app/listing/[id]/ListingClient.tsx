@@ -598,6 +598,41 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
                 direct line turns a marketplace into a directory, and the
                 booking request is the only thing that creates a record and
                 earns the commission that paid for the visit. */}
+            {/* WHAT YOU CAN BOOK, DIRECTLY AFTER WHAT THE PLACE HAS.
+                It sat below the map and the opening hours, so somebody
+                reading down the page met the address and the Tuesday
+                hours before they met a single room. Amenities answer
+                what is here; this answers what you can have. They
+                belong next to each other, and the things that tell you
+                where it is and when it opens come after you know what
+                you are going for. */}
+            {/* WHERE THE BUTTON ABOVE SENDS YOU when there is a list. The
+                ref is what lets one action delegate to the list instead of
+                the page hiding its own price to avoid competing with it. */}
+            <div ref={menuRef} className="scroll-mt-24 space-y-10">
+              {/* THE REAL ROOMS, with their photographs. A stay's rooms live
+                  in a roomTypes or stayUnits subcollection and this page had
+                  never read either: it rendered the room NAMES that Scout
+                  also writes into services[], which is why tapping one
+                  showed nothing and why some pages listed the rooms twice.
+                  All 30 room documents in production carry media. */}
+              {listing.role && listing.id && (
+                <RoomList
+                  role={listing.role}
+                  docId={listing.id}
+                  fallbackCurrency={listing.currency || "NGN"}
+                  onPick={(name, stay) => { setPickedOffer(name); setPickedStay(stay ?? null); setBooking(true); }}
+                  onRooms={setRoomNames}
+                />
+              )}
+              <ProfileServices
+                listing={listing as unknown as Record<string, unknown>}
+                currency={listing.currency || "NGN"}
+                hideNames={roomNames}
+                onPick={(name) => { setPickedOffer(name); setBooking(true); }}
+              />
+            </div>
+
             {/* WHERE YOU'LL BE. 50 of 60 live listings carry real
                 coordinates and this page has never drawn one: MapPin is
                 imported four times here purely as decoration.
@@ -686,32 +721,6 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
                 under it. resolveProfileSections picks, using the same rules
                 as sectionRouter.js so the two surfaces cannot disagree about
                 the same business. */}
-            {/* WHERE THE BUTTON ABOVE SENDS YOU when there is a list. The
-                ref is what lets one action delegate to the list instead of
-                the page hiding its own price to avoid competing with it. */}
-            <div ref={menuRef} className="scroll-mt-24 space-y-10">
-              {/* THE REAL ROOMS, with their photographs. A stay's rooms live
-                  in a roomTypes or stayUnits subcollection and this page had
-                  never read either: it rendered the room NAMES that Scout
-                  also writes into services[], which is why tapping one
-                  showed nothing and why some pages listed the rooms twice.
-                  All 30 room documents in production carry media. */}
-              {listing.role && listing.id && (
-                <RoomList
-                  role={listing.role}
-                  docId={listing.id}
-                  fallbackCurrency={listing.currency || "NGN"}
-                  onPick={(name, stay) => { setPickedOffer(name); setPickedStay(stay ?? null); setBooking(true); }}
-                  onRooms={setRoomNames}
-                />
-              )}
-              <ProfileServices
-                listing={listing as unknown as Record<string, unknown>}
-                currency={listing.currency || "NGN"}
-                hideNames={roomNames}
-                onPick={(name) => { setPickedOffer(name); setBooking(true); }}
-              />
-            </div>
 
             {/* The menu, where there is one. On 50% of listings and read by
                 nothing until now, which for a restaurant is the single most

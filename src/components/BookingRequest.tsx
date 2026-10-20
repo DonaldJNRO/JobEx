@@ -554,7 +554,15 @@ export default function BookingRequest({
             {/* Date and time share a row; how many gets its own, because a
                 third child in a two-column grid was being stranded at half
                 width beside nothing. */}
-            <div className="grid grid-cols-2 gap-3 mb-4">
+            {/* [&>*]:min-w-0 ON THE CELLS. The inputs inside already carry
+                min-w-0, and it did nothing: the grid items are the <label>
+                wrappers, and a grid item will not shrink below its content
+                whatever its child says. Safari gives a date and a time
+                input an intrinsic width of their own, so the two boxes grew
+                past their columns, met in the middle and ran off the right
+                edge. Chrome lets them shrink. Same bug as the room screen,
+                one component over, which I fixed there and not here. */}
+            <div className="grid grid-cols-2 gap-3 mb-4 [&>*]:min-w-0">
               <label className="block min-w-0">
                 <span className="block text-sm font-semibold text-ink mb-1.5">Date</span>
                 {/* AN EMPTY DATE INPUT SHOWS NOTHING ON IOS. Desktop Chrome

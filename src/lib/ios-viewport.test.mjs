@@ -66,8 +66,20 @@ console.log("\nand a date field can shrink to its column");
 // grew past their columns, touched in the middle and ran off the right
 // edge. Chrome lets them shrink, which is why this looked right until it
 // was opened on an iPhone.
-ok(/\[&>\*\]:min-w-0/.test(GAL), "the date grid's cells may shrink");
-ok(/w-full min-w-0 appearance-none rounded-xl/.test(GAL), "and so may the inputs inside them");
+// EVERY GRID HOLDING ONE, not just the one I noticed. The inputs in the
+// booking sheet already carried min-w-0 and it did nothing, because the
+// grid items are the <label> wrappers and a grid item will not shrink below
+// its content whatever its child says. Same bug, one component over.
+for (const f of ["src/components/RoomGallery.tsx", "src/components/BookingRequest.tsx"]) {
+  const src = code(f);
+  if (!/type="date"|type="time"/.test(src)) continue;
+  const grids = [...src.matchAll(/className="([^"]*grid-cols-2[^"]*)"/g)].map((m) => m[1]);
+  ok(grids.length > 0, `${f.split("/").pop()} has a two column row of fields`);
+  ok(
+    grids.every((g) => /\[&>\*\]:min-w-0/.test(g)),
+    `${f.split("/").pop()}: its cells may shrink, or Safari's intrinsic width pushes them off the edge`,
+  );
+}
 
 console.log(fails ? `\n${fails} FAILED` : "\nALL PASSED");
 process.exit(fails ? 1 : 0);

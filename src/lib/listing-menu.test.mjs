@@ -196,5 +196,18 @@ ck(/if \(shape === "menu"\) return false;/.test(live(SECTION)),
 ck(/group\.tiers\.length === 0 &&/.test(OFFER),
   "a tiered offer has no second Book button, since it could not say which tier it meant");
 
+console.log("\nwhat you can book comes with what the place has");
+// It sat below the map and the opening hours, so somebody reading down the
+// page met the address and the Tuesday hours before they met a single
+// room. Amenities answer what is here; the list answers what you can have.
+const order = (needle) => live(PAGE).indexOf(needle);
+ck(order("What this place offers") > 0, "the amenities section is still there");
+ck(order("ref={menuRef}") > order("What this place offers"),
+  "and what you can book follows it");
+ck(order("ref={menuRef}") < order("Where you will be"),
+  "before the map");
+ck(order("ref={menuRef}") < order("Good to know"),
+  "and before the opening hours");
+
 console.log(fails ? `\n${fails} FAILED` : "\nALL PASSED");
 process.exit(fails ? 1 : 0);
