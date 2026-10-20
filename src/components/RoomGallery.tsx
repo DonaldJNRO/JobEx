@@ -143,6 +143,24 @@ export default function RoomGallery({
       </div>
 
       <footer className="shrink-0 border-t border-line bg-card px-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] pt-4">
+        {/* THE TERMS THAT ARE ACTUALLY FIELDS, said in the viewer's own
+            money. Four rooms carry settings.cautionFee: 20000 with
+            cautionFeeRefundable, and the only way a traveller had ever seen
+            that was as "20k" buried in a sentence, beside a price in
+            pounds. A deposit you learn about at the door is the worst
+            possible moment to learn about it. */}
+        {(room.cautionFee || room.checkIn || room.minStay) && (
+          <div className="mb-3 flex flex-wrap gap-x-4 gap-y-1 text-caption text-ink-muted">
+            {room.cautionFee ? (
+              <span>
+                <span className="font-semibold text-ink">{money(room.cautionFee, room.priceCurrency)}</span>
+                {room.cautionRefundable ? " refundable deposit" : " deposit"}
+              </span>
+            ) : null}
+            {room.checkIn && room.checkOut ? <span>In {room.checkIn}, out {room.checkOut}</span> : null}
+            {room.minStay && room.minStay > 1 ? <span>{room.minStay} nights minimum</span> : null}
+          </div>
+        )}
         {room.description && (
           <p className="mb-3 line-clamp-2 text-small leading-relaxed text-ink-muted">{room.description}</p>
         )}

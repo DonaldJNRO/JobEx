@@ -40,6 +40,19 @@ export interface Room {
   maxGuests?: number | null;
   amenities?: string[];
   sections: RoomSection[];
+  /** settings.checkInTime / checkOutTime, "14:00" and "12:00". */
+  checkIn?: string | null;
+  checkOut?: string | null;
+  /** settings.minStay, in nights. */
+  minStay?: number | null;
+  // THE CAUTION FEE IS A FIELD. It was being read as prose: four rooms say
+  // "20k for refundable caution fee" in their description AND carry
+  // settings.cautionFee: 20000 with cautionFeeRefundable: true. The
+  // operator entered it properly and the website read neither, so the
+  // figure reached a traveller only as an untranslated "20k" inside a
+  // sentence, next to a price shown in pounds.
+  cautionFee?: number | null;
+  cautionRefundable?: boolean;
 }
 
 const strings = (v: unknown): string[] =>
@@ -81,6 +94,7 @@ export function deriveRoomSections(raw: Record<string, unknown>): RoomSection[] 
 
 export function toRoom(id: string, raw: Record<string, unknown>): Room {
   const price = (raw.basePrice || {}) as Record<string, unknown>;
+  const settings = (raw.settings || {}) as Record<string, unknown>;
   return {
     id,
     name: (typeof raw.name === "string" && raw.name.trim()) || "Room",
@@ -91,6 +105,11 @@ export function toRoom(id: string, raw: Record<string, unknown>): Room {
     maxGuests: typeof raw.maxGuests === "number" ? raw.maxGuests : null,
     amenities: strings(raw.amenities),
     sections: deriveRoomSections(raw),
+    checkIn: typeof settings.checkInTime === "string" ? settings.checkInTime : null,
+    checkOut: typeof settings.checkOutTime === "string" ? settings.checkOutTime : null,
+    minStay: typeof settings.minStay === "number" && settings.minStay > 0 ? settings.minStay : null,
+    cautionFee: typeof settings.cautionFee === "number" && settings.cautionFee > 0 ? settings.cautionFee : null,
+    cautionRefundable: settings.cautionFeeRefundable === true,
   };
 }
 

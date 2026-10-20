@@ -181,5 +181,34 @@ ok(facts.some((f) => /film/.test(f)), "films are named where there are any, sinc
 ok(!facts.join(" ").match(/bedroom|bathroom|bed\b/), "nothing is claimed that the data does not hold");
 ok(stayFacts([toRoom("c", { maxGuests: 0 })])[0] === "1 room", "a room with no guest count does not say Sleeps up to 0");
 
+console.log("\nthe caution fee is a FIELD, not prose");
+// Four rooms say "20k for refundable caution fee" in their description AND
+// carry settings.cautionFee: 20000 with cautionFeeRefundable: true. The
+// operator entered it properly and the website read neither, so a traveller
+// met the figure only as an untranslated "20k" inside a sentence, beside a
+// price shown in pounds. That is why the answer was never a regex over
+// everybody's writing.
+const stay = toRoom("r9", {
+  name: "Lighthouse Cabin",
+  basePrice: { amount: 84, currency: "GBP" },
+  settings: { cautionFee: 20000, cautionFeeRefundable: true, checkInTime: "14:00", checkOutTime: "12:00", minStay: 2 },
+});
+ok(stay.cautionFee === 20000, "the deposit is read as a number");
+ok(stay.cautionRefundable === true, "and whether it comes back");
+ok(stay.checkIn === "14:00" && stay.checkOut === "12:00", "check in and out are read");
+ok(stay.minStay === 2, "and the minimum stay");
+
+const none = toRoom("r10", { settings: { cautionFee: 0, minStay: 0 } });
+ok(none.cautionFee === null, "a zero deposit is no deposit, not a line saying zero");
+ok(none.minStay === null, "and a zero minimum is none");
+ok(toRoom("r11", {}).cautionFee === null, "a room with no settings has no terms rather than undefined ones");
+ok(toRoom("r12", { settings: { cautionFee: "20000" } }).cautionFee === null,
+  "a deposit that is not a number is absent, because a string reaching the money formatter is how NaN gets onto a price");
+
+ok(/room\.cautionFee/.test(GAL), "the room screen shows the deposit");
+ok(/money\(room\.cautionFee, room\.priceCurrency\)/.test(GAL),
+  "through the same converter as the price, so it is in the viewer's money and never a bare 20000");
+ok(/refundable deposit/.test(GAL), "and says whether it comes back");
+
 console.log(fails ? `\n${fails} FAILED` : "\nALL PASSED");
 process.exit(fails ? 1 : 0);
