@@ -10,6 +10,7 @@ import { OFFER_HERO } from "@/lib/screen-open";
 import { slotChoices } from "@/lib/slots";
 import { todayISO } from "@/lib/stay";
 import type { ServiceGroup } from "@/lib/shop-window";
+import { ScreenPanel } from "@/components/ui/ScreenPanel";
 
 /**
  * One screen for a thing you can book that is not a room.
@@ -88,7 +89,7 @@ export default function OfferScreen({
 
   return (
     <Overlay>
-      <div role="dialog" aria-modal="true" aria-label={group.name} className="fixed inset-0 z-[100] flex flex-col bg-surface">
+      <ScreenPanel label={group.name} onClose={close}>
         <header className="flex shrink-0 items-center gap-3 border-b border-line bg-card px-4 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top,0px))]">
           <button
             type="button"
@@ -242,7 +243,7 @@ export default function OfferScreen({
             </div>
           </footer>
         )}
-      </div>
+      </ScreenPanel>
     </Overlay>
   );
 }

@@ -105,7 +105,20 @@ ok(/<video/.test(GAL) && /<Image/.test(GAL), "which shows films as well as photo
 // explaining why there is no autoplay. Seventh time in this repo that a
 // guard matched a spelling instead of the thing.
 ok(!/\bautoPlay\b/.test(GAL.replace(/\/\/[^\n]*/g, "")), "and does not start a film talking at somebody unasked");
-ok(/aria-modal="true"/.test(GAL), "announced as a dialog");
+// ANNOUNCED AS A DIALOG, wherever the markup for that now lives. This
+// asserted the attribute in THIS file, so moving the shell into a shared
+// component failed a guard while the screen stayed correct. Eighth time a
+// guard here matched a spelling rather than the thing it cares about.
+const PANEL = readFileSync("src/components/ui/ScreenPanel.tsx", "utf8");
+ok(/<ScreenPanel/.test(GAL), "the room opens through the shared screen shell");
+ok(/aria-modal="true"/.test(PANEL), "announced as a dialog");
+
+// A FULL SCREEN ON A PHONE, A PANEL ON A LAPTOP. Unbounded, the room photo
+// stretched across a 1280px monitor, a date field was 630px wide for eight
+// characters, and the price sat 1,200px from its own button.
+ok(/md:max-w-/.test(PANEL), "and capped in width once there is a width to cap");
+ok(/md:max-h-\[90dvh\]/.test(PANEL), "and never taller than the window it is in");
+ok(/md:items-center md:justify-center/.test(PANEL), "centred rather than pinned to a corner");
 
 // THE ONE THAT MADE IT STUCK. `position: fixed` is NOT relative to the
 // viewport when an ancestor carries a transform: that ancestor becomes the

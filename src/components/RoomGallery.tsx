@@ -8,6 +8,7 @@ import Overlay from "./Overlay";
 import { roomPhotos, roomVideos, type Room } from "@/lib/rooms";
 import { ROOM_HERO } from "@/lib/screen-open";
 import { quoteStay, stayLine, todayISO, dayAfter } from "@/lib/stay";
+import { ScreenPanel } from "@/components/ui/ScreenPanel";
 
 /**
  * What a room looks like, the way Airbnb shows one.
@@ -100,12 +101,7 @@ export default function RoomGallery({
 
   return (
     <Overlay>
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label={room.name}
-      className="fixed inset-0 z-[100] flex flex-col bg-surface"
-    >
+    <ScreenPanel label={room.name} onClose={close}>
       <header className="flex shrink-0 items-center gap-3 border-b border-line bg-card px-4 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top,0px))]">
         <button
           type="button"
@@ -323,7 +319,7 @@ export default function RoomGallery({
           </Button>
         </div>
       </footer>
-    </div>
+    </ScreenPanel>
     </Overlay>
   );
 }
