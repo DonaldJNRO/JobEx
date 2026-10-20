@@ -1,40 +1,77 @@
 @import "tailwindcss";
 
 @theme {
-  /* CHARCOAL IS THE ACTION. GOLD IS NOT.
-     This said PURPLE until today, and purple is the brand the app left.
-     contexts/ThemeContext.js in sabie-v53-main is explicit about it: "was
-     purple. Charcoal is the brand's own ink." So the website was wearing an
-     old brand on a white page, which is every SaaS template there has ever
-     been, while the product it belongs to is cream, charcoal and gold.
+  /* GOLD IS THE ACTION. CHARCOAL IS THE INK, AND THE SELECTION.
+     This said CHARCOAL IS THE ACTION until today, and that was wrong in a way
+     that took four rounds of "it all looks lame" to find.
 
-     The RULE below is unchanged and still the point: one colour is the
-     action and gold is not it. Only the colour that fills has changed. */
+     --color-primary was #2C2C2A and --color-ink was #2C2C2A. THE SAME HEX.
+     There is no dark-mode block, so text-primary and text-ink resolved
+     identically on every page, and every word meant to read as an action was
+     the exact colour of the sentence beside it. The founder's words were "the
+     Book is same colour, doesn't show any different colours". That was not a
+     perception. It was these two lines.
+
+     It happened in the de-purpling: the brand moved off purple onto the app's
+     charcoal, and primary was pointed at the brand's ink without anyone
+     noticing ink was already there. The rule below survived the edit and was
+     left describing a collision as though it were a choice. */
   --color-primary: #2C2C2A;
   --color-primary-light: #44443F;
   --color-primary-dark: #1A1A19;
-  /* THE ACTION IS ONE COLOUR. GOLD IS NOT IT.
-     Every filled button, every selected state and every focus ring is
-     primary, which is now the brand's charcoal. Secondary is the bee's gold
-     and it stays an accent: a star, a highlight, artwork. It is never the
-     fill of something you press.
+  /* THE ACTION IS ONE COLOUR, AND IT IS GOLD.
+     The rule has always been that one colour means "press this". That half is
+     unchanged and is the whole point. What changed is which colour, because
+     while the action was charcoal the rule was VACUOUS: the action colour was
+     the body colour, so there was no action colour to be the one of.
 
-     This is written down because it had already drifted. Sign up was gold in
-     the header and purple on the page it led to, so the same act wore two
-     colours one tap apart, and a gold "Sign up" sat directly above a purple
-     selected pill in the same menu. Fourteen buttons were purple and four
-     were gold, which is not a second colour with a job, it is an accident
-     with a pattern. One city filter also had a gold focus ring against
-     thirteen purple ones.
+     GOLD FILLS AND THE LABEL IS CHARCOAL. #EF9F27 under #2C2C2A measures
+     6.90:1, which passes AA at every size. The old argument here was that a
+     colour unable to carry white text is a highlight rather than a button,
+     and it assumed the label had to be white. White on gold is 2.01:1 and is
+     forbidden; charcoal on gold is a button. Four lines down, this same file
+     already said it: gold FILLS and goldInk WRITES.
 
-     Gold needs charcoal text to be readable, which is the other tell: a
-     colour that cannot carry white text is a highlight, not a button. */
+     THE FILL ALSO NEEDS AN EDGE. Gold against cream is 1.88:1, under the 3:1
+     a component boundary needs, so a bare gold rectangle on this page reads
+     as a smudge and not an object. action-edge carries the boundary at 3.34:1
+     on cream and 3.60:1 on white. The fill without the edge is half a
+     decision.
+
+     CHARCOAL IS THE SELECTION. A chosen category, a selected currency, your
+     own message bubble, an unread count: those stay charcoal, because they
+     are not things you press, they are things that are true. That division is
+     what keeps exactly ONE gold control on screen at a time, which is the
+     original rule finally enforceable.
+
+     This is written down because it had already drifted once. Sign up was
+     gold in the header and purple on the page it led to, so the same act wore
+     two colours one tap apart. Fourteen buttons were purple and four were
+     gold, which is not a second colour with a job, it is an accident with a
+     pattern. */
   --color-secondary: #EF9F27;
   --color-secondary-dark: #D08A1C;
   /* THE SAME HUE WHEN IT HAS TO BE READ. #EF9F27 measures 2.02:1 on cream
      and body copy needs 4.5:1, so gold FILLS and goldInk WRITES. The app
      carries the same pair for the same reason. */
   --color-secondary-ink: #8A5E0D;
+
+  /* THE ACTION ROLE. Added rather than repainting --color-primary, which is
+     doing three unrelated jobs across 76 class occurrences: a fill under a
+     white label, coloured text, and an icon colour. Changing its hex would
+     break all three at once in one commit on a repo that deploys on push, and
+     would leave four charcoals behind that are not tokens at all. So the
+     action arrives as its own role and reaches a page only when that page
+     adopts the primitive. Every ratio below is computed in
+     src/lib/contrast.ts and asserted in theme-contrast.test.mjs. */
+  --color-action: #EF9F27;        /* the one fill */
+  --color-action-hover: #D08A1C;  /* 4.89:1 under the label, still readable */
+  --color-action-press: #B47C14;
+  --color-action-ink: #2C2C2A;    /* the label ON the fill. Never white: 2.01:1 */
+  --color-action-edge: #B47C14;   /* the boundary the fill cannot carry itself */
+  --color-action-wash: #F9EDD9;   /* a gold chip that is NOT pressable, with secondary-ink at 4.92:1 */
+  --color-ink-wash: #E5E2D9;      /* the neutral chip, replacing bg-primary/10 */
+  --color-focus: #2C2C2A;         /* 12.97:1 on cream. Full opacity: a /30 ring composites to 1.3:1 and is why nothing on this site shows focus today */
   --color-neutral-light: #f8f7f4;
   --color-neutral-dark: #0f0f13;
   --color-text-primary: #3a3a42;
@@ -117,7 +154,27 @@
 }
 
 @layer base {
+  /* FOCUS, WHICH THIS SITE DID NOT HAVE. `focus-visible` appeared ZERO times
+     in 5,900 lines, and the one treatment that did exist was
+     `focus:ring-primary/30` on four form files: 30% charcoal over cream
+     composites to about 1.3:1, so it was invisible even where it was applied.
+     A keyboard user had no idea where they were on any page.
+
+     One rule, every focusable thing, full opacity. :focus-visible and not
+     :focus, so a mouse click does not leave a ring behind. The offset is what
+     makes it read against a filled button, where a ring flush to the edge
+     disappears into the fill. */
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
   html {
+    /* The brand is cream and charcoal, and there is no dark theme. Saying so
+       stops the browser rendering dark date pickers, dark select menus and
+       dark scrollbars over a cream page on a machine set to dark. */
+    color-scheme: light;
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
