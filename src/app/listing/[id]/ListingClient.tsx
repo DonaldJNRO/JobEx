@@ -179,7 +179,7 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
           <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
             <MapPin size={32} className="text-primary/40" />
           </div>
-          <h2 className="text-2xl font-bold text-ink">Listing not found</h2>
+          <h2 className="text-title font-bold text-ink">Listing not found</h2>
           <p className="text-text-muted mt-2">This listing may have been removed.</p>
           <Link href="/" className="inline-flex items-center gap-2 mt-6 bg-primary text-white px-6 py-3 rounded-full font-semibold hover:bg-primary-dark transition-colors">
             Browse Listings
@@ -312,7 +312,7 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
           names it up here, and the price stops being the cheapest of
           everything and becomes the price of that thing. */}
       {pickedOffer ? (
-        <p className="text-sm text-ink-muted mb-1">{pickedOffer}</p>
+        <p className="text-small text-ink-muted mb-1">{pickedOffer}</p>
       ) : null}
       {/* "from" WHEN IT IS A FLOOR. The figure was identical whether it was
           the cheapest of seventeen things or the price of the one thing they
@@ -346,7 +346,7 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
               on the spot when the listing takes payment, is not a cafe and
               has an allocation. It has fired 14 times. Every listing's page
               still promised a 12 hour wait. */}
-          <p className="text-[11px] text-text-muted text-center mt-3">
+          <p className="text-caption text-text-muted text-center mt-3">
             {instant
               // THE SERVER'S SENTENCE, WHOLE. This prefixed it with "Confirmed
               // on the spot." and bookingTerms already returns exactly that
@@ -370,7 +370,7 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
           >
             {ctaWord} <ArrowRight size={18} />
           </a>
-          <p className="text-[11px] text-text-muted text-center mt-3">Book and manage your trip in the Sabię app</p>
+          <p className="text-caption text-text-muted text-center mt-3">Book and manage your trip in the Sabię app</p>
         </>
       )}
     </>
@@ -459,7 +459,7 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
                     />
                   </button>
                 ))}
-                {images.length > 8 && <span className="text-white/70 text-[10px] pr-1">+{images.length - 8}</span>}
+                {images.length > 8 && <span className="text-white/70 text-caption pr-1">+{images.length - 8}</span>}
               </div>
             )}
 
@@ -479,16 +479,16 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
             <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8">
               <div className="max-w-6xl mx-auto">
                 <div className="flex items-center gap-2 mb-2">
-                  <span className="bg-black/55 text-white text-xs font-semibold px-3 py-1 rounded-full backdrop-blur-sm">{category}</span>
+                  <span className="bg-black/55 text-white text-caption font-semibold px-3 py-1 rounded-full backdrop-blur-sm">{category}</span>
                   {listing.rating && (
-                    <span className="bg-black/55 text-white text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-1 backdrop-blur-sm">
+                    <span className="bg-black/55 text-white text-caption font-semibold px-3 py-1 rounded-full flex items-center gap-1 backdrop-blur-sm">
                       <Star size={10} className="fill-secondary text-secondary" /> {listing.rating}
                     </span>
                   )}
                 </div>
-                <h1 className="text-2xl sm:text-4xl font-extrabold text-white drop-shadow-lg">{name}</h1>
+                <h1 className="text-title sm:text-display font-extrabold text-white drop-shadow-lg">{name}</h1>
                 {location && (
-                  <p className="text-white/90 text-sm mt-1.5 flex items-center gap-1.5 drop-shadow">
+                  <p className="text-white/90 text-small mt-1.5 flex items-center gap-1.5 drop-shadow">
                     <MapPin size={14} /> {location}
                   </p>
                 )}
@@ -511,7 +511,7 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
       </div>
 
       {/* Content */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div className="max-w-6xl mx-auto px-gutter sm:px-6 lg:px-8 py-10">
         {/* min-w-0 IS THE WHOLE BUG. A grid item defaults to
             min-width: auto, which means it refuses to shrink below its
             CONTENT. The room carousel inside this column scrolls
@@ -529,12 +529,12 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
             {(type || location) && (
               <div className="flex flex-wrap gap-2 reveal">
                 {type && (
-                  <span className="inline-flex items-center gap-1.5 bg-primary/10 text-primary text-xs font-semibold px-3.5 py-2 rounded-xl">
+                  <span className="inline-flex items-center gap-1.5 bg-primary/10 text-primary text-caption font-semibold px-3.5 py-2 rounded-xl">
                     <Globe size={12} /> {type}
                   </span>
                 )}
                 {location && !shopWindow && (
-                  <span className="inline-flex items-center gap-1.5 bg-surface-sunken text-text-muted text-xs font-medium px-3.5 py-2 rounded-xl">
+                  <span className="inline-flex items-center gap-1.5 bg-surface-sunken text-text-muted text-caption font-medium px-3.5 py-2 rounded-xl">
                     <MapPin size={12} /> {location}
                   </span>
                 )}
@@ -544,7 +544,7 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
             {/* Description */}
             {listing.description && (
               <div className="reveal">
-                <h2 className="text-lg font-bold text-ink mb-4">About this place</h2>
+                <h2 className="text-heading font-bold text-ink mb-4">About this place</h2>
                 {/* CLAMPED, WITH A WAY DOWN. 28 of 60 descriptions run past
                     300 characters and one ran the full length of the page,
                     which pushes the menu, the hours and the map below where
@@ -563,7 +563,7 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
                   <button
                     type="button"
                     onClick={() => setShowAllDescription(true)}
-                    className="mt-3 text-sm font-semibold text-ink underline decoration-line-strong underline-offset-4 hover:decoration-ink"
+                    className="mt-3 text-small font-semibold text-ink underline decoration-line-strong underline-offset-4 hover:decoration-ink"
                   >
                     Show more
                   </button>
@@ -574,7 +574,7 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
             {/* Amenities */}
             {amenities.length > 0 && (
               <div className="reveal">
-                <h2 className="text-lg font-bold text-ink mb-5">What this place offers</h2>
+                <h2 className="text-heading font-bold text-ink mb-5">What this place offers</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                   {amenities.slice(0, 12).map((a) => {
                     const IconComp = AMENITY_ICONS[a.toLowerCase()] || Check;
@@ -583,7 +583,7 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
                         <div className="w-9 h-9 rounded-lg bg-primary/12 flex items-center justify-center group-hover:scale-110 transition-transform">
                           <IconComp size={16} className="text-primary" />
                         </div>
-                        <span className="text-sm font-medium text-ink">{amenityLabel(a)}</span>
+                        <span className="text-small font-medium text-ink">{amenityLabel(a)}</span>
                       </div>
                     );
                   })}
@@ -649,7 +649,7 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
                 than no map at all. */}
             {placeMap && (
               <div className="reveal">
-                <h2 className="text-lg font-bold text-ink mb-1">Where you will be</h2>
+                <h2 className="text-heading font-bold text-ink mb-1">Where you will be</h2>
                 <p className="mb-4 text-small text-ink-muted">{placeMap.label}</p>
                 <div className="overflow-hidden rounded-2xl border border-line bg-surface-sunken">
                   <iframe
@@ -664,7 +664,7 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
                   href={placeMap.mapsHref}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-secondary-ink underline underline-offset-4"
+                  className="mt-3 inline-flex items-center gap-2 text-small font-semibold text-secondary-ink underline underline-offset-4"
                 >
                   <MapPin size={15} /> Open in maps
                 </a>
@@ -673,20 +673,20 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
 
             {(openingWeek.length > 0 || style || visitLine) && (
               <div className="reveal">
-                <h2 className="text-lg font-bold text-ink mb-5">Good to know</h2>
+                <h2 className="text-heading font-bold text-ink mb-5">Good to know</h2>
 
                 <div className={`divide-y divide-line ${cardClass({ pad: "none" })}`}>
                   {visitLine && (
                     <div className="flex items-start gap-3 p-4">
                       <Shield size={16} className="text-primary shrink-0 mt-0.5" />
-                      <span className="text-sm text-ink">{visitLine}</span>
+                      <span className="text-small text-ink">{visitLine}</span>
                     </div>
                   )}
 
                   {style && (
                     <div className="flex items-start gap-3 p-4">
                       <Users size={16} className="text-primary shrink-0 mt-0.5" />
-                      <span className="text-sm text-ink">{style}</span>
+                      <span className="text-small text-ink">{style}</span>
                     </div>
                   )}
 
@@ -694,21 +694,21 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
                     <div className="p-4">
                       <div className="flex items-center gap-3 mb-3">
                         <Clock size={16} className="text-primary shrink-0" />
-                        <span className="text-sm font-semibold text-ink">Opening hours</span>
+                        <span className="text-small font-semibold text-ink">Opening hours</span>
                         {/* Only when we can actually tell. `null` means the
                             document says nothing about today, and rendering
                             that as "Closed" would send somebody to a locked
                             door on a day the place was open. */}
                         {isOpenNow === true && (
-                          <span className="text-xs font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">Open now</span>
+                          <span className="text-caption font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">Open now</span>
                         )}
                         {isOpenNow === false && (
-                          <span className="text-xs font-semibold text-ink-muted bg-surface-sunken px-2 py-0.5 rounded-full">Closed now</span>
+                          <span className="text-caption font-semibold text-ink-muted bg-surface-sunken px-2 py-0.5 rounded-full">Closed now</span>
                         )}
                       </div>
                       <dl className="space-y-1.5">
                         {openingWeek.map((row) => (
-                          <div key={row.day} className="flex justify-between gap-4 text-sm">
+                          <div key={row.day} className="flex justify-between gap-4 text-small">
                             <dt className="text-text-muted">{row.label}</dt>
                             <dd className={row.closed ? "text-ink-muted" : "text-ink font-medium"}>{row.hours}</dd>
                           </div>
@@ -736,7 +736,7 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
                   href={listing.menuPdfUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2.5 text-sm font-semibold text-primary hover:underline underline-offset-4"
+                  className="inline-flex items-center gap-2.5 text-small font-semibold text-primary hover:underline underline-offset-4"
                 >
                   <Download size={16} /> See the menu
                 </a>
@@ -756,7 +756,7 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
               </div>
 
               {/* Quick info */}
-              <div className="space-y-4 text-sm">
+              <div className="space-y-4 text-small">
                 {type && (
                   <div className="flex justify-between">
                     <span className="text-text-muted">Type</span>
@@ -816,7 +816,7 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
                 {([
                   ...(visitedBySabie(listing) ? [{ icon: Shield, text: "Visited by Sabię" }] : []),
                 ]).map((badge) => (
-                  <div key={badge.text} className="flex items-center gap-2.5 text-xs text-text-muted">
+                  <div key={badge.text} className="flex items-center gap-2.5 text-caption text-text-muted">
                     <badge.icon size={14} className="text-primary shrink-0" />
                     {badge.text}
                   </div>
@@ -829,14 +829,14 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
 
       {/* Similar Listings */}
       {!shopWindow && similarListings.length > 0 && (
-        <section className="py-16 bg-card border-t border-line">
-          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="py-section bg-card border-t border-line">
+          <div className="max-w-6xl mx-auto px-gutter sm:px-6 lg:px-8">
             <div className="flex items-end justify-between mb-8 reveal">
               <div>
-                <p className="text-xs font-bold text-primary uppercase tracking-[0.2em] mb-2">More to explore</p>
-                <h2 className="text-2xl font-extrabold text-ink">Similar Listings</h2>
+                <p className="text-caption font-bold text-primary uppercase tracking-[0.2em] mb-2">More to explore</p>
+                <h2 className="text-title font-extrabold text-ink">Similar Listings</h2>
               </div>
-              <Link href="/" className="text-sm font-bold text-primary hover:underline underline-offset-4">
+              <Link href="/" className="text-small font-bold text-primary hover:underline underline-offset-4">
                 View all <ChevronRight size={14} className="inline" />
               </Link>
             </div>

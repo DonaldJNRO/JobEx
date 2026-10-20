@@ -84,8 +84,8 @@ export default function BookingsPage() {
     <div className="min-h-screen bg-surface">
       <div className="mx-auto max-w-3xl px-4 py-section">
         <header className="mb-8">
-          <h1 className="text-2xl font-bold text-ink">My bookings</h1>
-          <p className="mt-1.5 text-sm text-text-muted">
+          <h1 className="text-title font-bold text-ink">My bookings</h1>
+          <p className="mt-1.5 text-small text-text-muted">
             Your code is what you say at the door.
           </p>
         </header>
@@ -149,7 +149,7 @@ export default function BookingsPage() {
                         {tone?.label || booking.status}
                       </span>
                       {total && (
-                        <p className="mt-2 text-lg font-bold text-primary">{total}</p>
+                        <p className="mt-2 text-heading font-bold text-primary">{total}</p>
                       )}
                     </div>
                   </div>
@@ -163,7 +163,7 @@ export default function BookingsPage() {
                     <div className="border-t border-line px-5 py-3">
                       <Link
                         href={`/listing/${booking.listingId}`}
-                        className="text-sm font-semibold text-primary hover:underline underline-offset-4"
+                        className="text-small font-semibold text-primary hover:underline underline-offset-4"
                       >
                         View the listing
                       </Link>

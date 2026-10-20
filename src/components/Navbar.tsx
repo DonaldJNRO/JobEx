@@ -31,7 +31,7 @@ export default function Navbar() {
        it, because a blur behind an opaque layer renders nothing and costs
        the same. */
     <nav className="fixed top-0 left-0 right-0 z-50 bg-surface border-b border-line">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-gutter sm:px-6 lg:px-8">
         <div data-chrome="top" className="flex items-center justify-between h-16">
           {/* Logo */}
           {/* THE WORDMARK ALREADY CONTAINS THE BEE, in the bowl of the b. It is
@@ -69,7 +69,7 @@ export default function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`text-sm font-medium px-4 py-2 rounded-lg transition-all ${
+                  className={`text-small font-medium px-4 py-2 rounded-lg transition-all ${
                     isActive
                       ? "text-ink bg-surface-sunken"
                       : "text-ink-muted hover:text-ink hover:bg-surface-sunken"
@@ -89,10 +89,10 @@ export default function Navbar() {
                   in the mobile menu, so a desktop visitor reached their own
                   bookings through Account or not at all; /trips would have
                   had the same problem the day it shipped. */}
-              <Link href="/trips" className="text-sm font-medium text-ink-muted hover:text-ink px-3 py-2 transition-colors">
+              <Link href="/trips" className="text-small font-medium text-ink-muted hover:text-ink px-3 py-2 transition-colors">
                 Trips
               </Link>
-              <Link href="/bookings" className="text-sm font-medium text-ink-muted hover:text-ink px-3 py-2 transition-colors">
+              <Link href="/bookings" className="text-small font-medium text-ink-muted hover:text-ink px-3 py-2 transition-colors">
                 Bookings
               </Link>
               <Link href="/account" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
@@ -103,21 +103,21 @@ export default function Navbar() {
                     <User size={16} className="text-primary" />
                   </div>
                 )}
-                <span className="text-sm font-medium text-ink-body">
+                <span className="text-small font-medium text-ink-body">
                   {userProfile?.fullName?.split(" ")[0] || "Account"}
                 </span>
               </Link>
               </>
             ) : !loading ? (
               <>
-                <Link href="/auth/login" className="text-sm font-medium text-ink-muted hover:text-ink px-4 py-2 transition-colors">
+                <Link href="/auth/login" className="text-small font-medium text-ink-muted hover:text-ink px-4 py-2 transition-colors">
                   Log in
                 </Link>
                 {/* PURPLE, because purple is the action. This was gold, and
                     the button it leads to on the signup page was purple: the
                     same act, two colours, one tap apart. Gold is the bee's
                     colour and it stays an accent. */}
-                <Link href="/auth/signup" className="text-sm font-semibold bg-primary hover:bg-primary-dark text-white px-5 py-2.5 rounded-full transition-colors">
+                <Link href="/auth/signup" className="text-small font-semibold bg-primary hover:bg-primary-dark text-white px-5 py-2.5 rounded-full transition-colors">
                   Sign up
                 </Link>
               </>
@@ -145,7 +145,7 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`block text-sm font-medium py-2.5 px-3 rounded-lg transition-colors ${isActive ? "text-ink bg-surface-sunken" : "text-ink-muted hover:text-ink"}`}
+                className={`block text-small font-medium py-2.5 px-3 rounded-lg transition-colors ${isActive ? "text-ink bg-surface-sunken" : "text-ink-muted hover:text-ink"}`}
                 onClick={() => setMobileOpen(false)}
               >
                 {link.label}
@@ -155,14 +155,14 @@ export default function Navbar() {
           <hr className="border-line my-2" />
           {user ? (
             <>
-              <Link href="/account" className="block text-sm font-medium py-2.5 px-3 text-ink-muted hover:text-ink" onClick={() => setMobileOpen(false)}>My Account</Link>
-              <Link href="/trips" className="block text-sm font-medium py-2.5 px-3 text-ink-muted hover:text-ink" onClick={() => setMobileOpen(false)}>Trips</Link>
-              <Link href="/bookings" className="block text-sm font-medium py-2.5 px-3 text-ink-muted hover:text-ink" onClick={() => setMobileOpen(false)}>My Bookings</Link>
+              <Link href="/account" className="block text-small font-medium py-2.5 px-3 text-ink-muted hover:text-ink" onClick={() => setMobileOpen(false)}>My Account</Link>
+              <Link href="/trips" className="block text-small font-medium py-2.5 px-3 text-ink-muted hover:text-ink" onClick={() => setMobileOpen(false)}>Trips</Link>
+              <Link href="/bookings" className="block text-small font-medium py-2.5 px-3 text-ink-muted hover:text-ink" onClick={() => setMobileOpen(false)}>My Bookings</Link>
             </>
           ) : (
             <>
-              <Link href="/auth/login" className="block text-sm font-medium py-2.5 px-3 text-ink-muted" onClick={() => setMobileOpen(false)}>Log in</Link>
-              <Link href="/auth/signup" className="block text-sm font-semibold bg-primary hover:bg-primary-dark text-white text-center py-3 rounded-full mt-2" onClick={() => setMobileOpen(false)}>Sign up</Link>
+              <Link href="/auth/login" className="block text-small font-medium py-2.5 px-3 text-ink-muted" onClick={() => setMobileOpen(false)}>Log in</Link>
+              <Link href="/auth/signup" className="block text-small font-semibold bg-primary hover:bg-primary-dark text-white text-center py-3 rounded-full mt-2" onClick={() => setMobileOpen(false)}>Sign up</Link>
             </>
           )}
         </div>

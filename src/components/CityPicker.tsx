@@ -67,7 +67,7 @@ export default function CityPicker({
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
         aria-expanded={open}
-        className="inline-flex items-center gap-1.5 rounded-full px-1 text-lg font-bold tracking-tight text-ink"
+        className="inline-flex items-center gap-1.5 rounded-full px-1 text-heading font-bold tracking-tight text-ink"
       >
         {current ? current.name : "Everywhere"}
         <ChevronDown className="h-4 w-4 text-ink-muted" />
@@ -91,8 +91,8 @@ export default function CityPicker({
 
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h2 className="text-2xl font-bold tracking-tight text-ink">Where are you going?</h2>
-                <p className="mt-1.5 text-sm leading-relaxed text-text-muted">
+                <h2 className="text-title font-bold tracking-tight text-ink">Where are you going?</h2>
+                <p className="mt-1.5 text-small leading-relaxed text-text-muted">
                   We go deep in a few places rather than thin everywhere. Your feed leans toward the city you pick.
                 </p>
               </div>
@@ -106,7 +106,7 @@ export default function CityPicker({
               </button>
             </div>
 
-            <p className="mt-6 text-sm text-text-muted">Live now</p>
+            <p className="mt-6 text-small text-text-muted">Live now</p>
             <ul className="mt-2 overflow-hidden rounded-2xl bg-surface-sunken">
               {live.map((c) => {
                 const picked = c.id === selected;
@@ -119,13 +119,13 @@ export default function CityPicker({
                       aria-current={picked ? "true" : undefined}
                       className="flex w-full items-center gap-3 px-4 py-4 text-left hover:bg-surface"
                     >
-                      {flag && <span className="text-2xl leading-none" aria-hidden="true">{flag}</span>}
+                      {flag && <span className="text-title leading-none" aria-hidden="true">{flag}</span>}
                       <span className="min-w-0 flex-1">
-                        <span className="block text-lg font-bold text-ink">{c.name}</span>
+                        <span className="block text-heading font-bold text-ink">{c.name}</span>
                         {!!c.categories?.length && (
                           <span className="mt-1.5 flex flex-wrap gap-1.5">
                             {c.categories.map((id) => (
-                              <span key={id} className="rounded-full bg-card px-2.5 py-1 text-xs text-ink-muted">
+                              <span key={id} className="rounded-full bg-card px-2.5 py-1 text-caption text-ink-muted">
                                 {CATEGORY_LABELS[id as keyof typeof CATEGORY_LABELS] || id}
                               </span>
                             ))}
@@ -147,7 +147,7 @@ export default function CityPicker({
             <button
               type="button"
               onClick={() => { onSelect(null); setOpen(false); }}
-              className="mt-4 w-full rounded-xl px-4 py-3 text-sm font-medium text-ink-muted hover:bg-surface-sunken"
+              className="mt-4 w-full rounded-xl px-4 py-3 text-small font-medium text-ink-muted hover:bg-surface-sunken"
             >
               Show me everywhere
             </button>

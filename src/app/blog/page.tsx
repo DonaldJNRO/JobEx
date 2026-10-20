@@ -9,7 +9,7 @@ export default function BlogPage() {
         <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-6">
           <Newspaper size={32} className="text-primary" />
         </div>
-        <h1 className="text-2xl font-bold text-ink mb-2">Blog Coming Soon</h1>
+        <h1 className="text-title font-bold text-ink mb-2">Blog Coming Soon</h1>
         <p className="text-text-muted max-w-md mx-auto">
           Travel tips, destination guides, and behind-the-scenes at Sabię. Stay tuned.
         </p>

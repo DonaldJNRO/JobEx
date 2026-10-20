@@ -98,7 +98,7 @@ export default function AccountPage() {
   return (
     <main className="min-h-screen bg-surface">
       <div className="mx-auto max-w-2xl px-4 py-8">
-        <h1 className="text-2xl font-bold tracking-tight text-ink">Account</h1>
+        <h1 className="text-title font-bold tracking-tight text-ink">Account</h1>
 
         {/* WHO YOU ARE, and the first thing on the page you can change. */}
         <section className={`mt-6 ${cardClass()}`}>
@@ -112,7 +112,7 @@ export default function AccountPage() {
                 className="h-16 w-16 rounded-full object-cover"
               />
             ) : (
-              <span className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-2xl font-bold text-primary">
+              <span className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-title font-bold text-primary">
                 {initial}
               </span>
             )}
@@ -139,11 +139,11 @@ export default function AccountPage() {
               </div>
             ) : (
               <div className="min-w-0 flex-1">
-                <p className="truncate text-lg font-bold text-ink">{userProfile?.fullName || "Add your name"}</p>
+                <p className="truncate text-heading font-bold text-ink">{userProfile?.fullName || "Add your name"}</p>
                 {userProfile?.handle && (
-                  <p className="truncate font-mono text-sm text-ink-muted">{userProfile.handle}</p>
+                  <p className="truncate font-mono text-small text-ink-muted">{userProfile.handle}</p>
                 )}
-                <p className="truncate text-sm text-ink-muted">{user.email}</p>
+                <p className="truncate text-small text-ink-muted">{user.email}</p>
               </div>
             )}
 
@@ -169,14 +169,14 @@ export default function AccountPage() {
           </div>
 
           {saved && (
-            <p className="mt-3 inline-flex items-center gap-1.5 text-sm text-settled-ink">
+            <p className="mt-3 inline-flex items-center gap-1.5 text-small text-settled-ink">
               <Check className="h-4 w-4" /> Saved
             </p>
           )}
           {/* A handle is how somebody adds you to a trip, which is the only
               reason it is on this page at all. */}
           {editing && (
-            <p className="mt-3 text-xs leading-relaxed text-ink-muted">
+            <p className="mt-3 text-caption leading-relaxed text-ink-muted">
               Your handle is how people find you to add you to a trip.
             </p>
           )}
@@ -187,7 +187,7 @@ export default function AccountPage() {
             wrong one and could do nothing about it. */}
         <section className={`mt-5 ${cardClass()}`}>
           <h2 className="font-bold text-ink">Show prices in</h2>
-          <p className="mt-1 text-sm text-ink-muted">
+          <p className="mt-1 text-small text-ink-muted">
             Operators set their own prices. We convert them so you can compare.
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
@@ -197,7 +197,7 @@ export default function AccountPage() {
                 type="button"
                 onClick={() => pickCurrency(c)}
                 aria-pressed={currency === c}
-                className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                className={`rounded-full px-4 py-2 text-small font-semibold transition-colors ${
                   currency === c
                     ? "bg-primary text-white"
                     : "bg-surface-sunken text-ink-muted hover:text-ink"
@@ -210,7 +210,7 @@ export default function AccountPage() {
               type="button"
               onClick={() => pickCurrency("")}
               aria-pressed={!currency}
-              className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+              className={`rounded-full px-4 py-2 text-small font-semibold transition-colors ${
                 !currency ? "bg-primary text-white" : "bg-surface-sunken text-ink-muted hover:text-ink"
               }`}
             >
@@ -224,7 +224,7 @@ export default function AccountPage() {
         {cities.length > 0 && (
           <section className={`mt-5 ${cardClass()}`}>
             <h2 className="font-bold text-ink">Your city</h2>
-            <p className="mt-1 text-sm text-ink-muted">
+            <p className="mt-1 text-small text-ink-muted">
               We go deep in a few places rather than thin everywhere.
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
@@ -234,7 +234,7 @@ export default function AccountPage() {
                   type="button"
                   onClick={() => pickCity(c.id)}
                   aria-pressed={city === c.id}
-                  className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                  className={`inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-small font-semibold transition-colors ${
                     city === c.id ? "bg-primary text-white" : "bg-surface-sunken text-ink-muted hover:text-ink"
                   }`}
                 >
@@ -246,7 +246,7 @@ export default function AccountPage() {
                 type="button"
                 onClick={() => pickCity(null)}
                 aria-pressed={!city}
-                className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
+                className={`rounded-full px-4 py-2 text-small font-semibold transition-colors ${
                   !city ? "bg-primary text-white" : "bg-surface-sunken text-ink-muted hover:text-ink"
                 }`}
               >
@@ -270,7 +270,7 @@ export default function AccountPage() {
               <Icon className="h-5 w-5 shrink-0 text-primary" />
               <span className="min-w-0 flex-1">
                 <span className="block font-semibold text-ink">{label}</span>
-                <span className="block text-sm text-ink-muted">{hint}</span>
+                <span className="block text-small text-ink-muted">{hint}</span>
               </span>
             </Link>
           ))}
@@ -291,7 +291,7 @@ export default function AccountPage() {
           Log out
         </Button>
 
-        <p className="mt-6 text-center text-xs text-ink-faint">
+        <p className="mt-6 text-center text-caption text-ink-faint">
           <Link href="/terms" className="underline decoration-line-strong underline-offset-4 hover:text-ink">Terms</Link>
           {" · "}
           <Link href="/privacy" className="underline decoration-line-strong underline-offset-4 hover:text-ink">Privacy</Link>

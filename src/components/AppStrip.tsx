@@ -66,14 +66,14 @@ export default function AppStrip() {
           app", and naming the icon too makes a screen reader say it twice. */}
       <Image src="/images/sabie-app-icon.png" alt="" width={32} height={32} className="w-8 h-8 rounded-lg shrink-0" />
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold text-ink leading-tight">Get the app</p>
-        <p className="text-xs text-ink-muted leading-tight truncate">Plan the whole trip with your crew</p>
+        <p className="text-small font-semibold text-ink leading-tight">Get the app</p>
+        <p className="text-caption text-ink-muted leading-tight truncate">Plan the whole trip with your crew</p>
       </div>
       <a
         href={APP_STORE_URL}
         target="_blank"
         rel="noopener noreferrer"
-        className="shrink-0 px-4 h-9 inline-flex items-center rounded-full bg-primary text-white text-sm font-semibold"
+        className="shrink-0 px-4 h-9 inline-flex items-center rounded-full bg-primary text-white text-small font-semibold"
       >
         Get
       </a>

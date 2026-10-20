@@ -41,7 +41,7 @@ export default function BookingFields({ booking }: { booking: TravellerBooking }
   ];
 
   return (
-    <dl className="grid grid-cols-[auto_1fr] gap-x-5 gap-y-2.5 text-sm">
+    <dl className="grid grid-cols-[auto_1fr] gap-x-5 gap-y-2.5 text-small">
       {rows.map((row) => (
         <div key={row.label} className="contents">
           <dt className="text-text-muted">{row.label}</dt>

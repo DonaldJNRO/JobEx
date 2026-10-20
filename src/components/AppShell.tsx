@@ -107,14 +107,14 @@ export default function AppShell({
                 key={t.href}
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-[15px] transition-colors ${
+                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-body transition-colors ${
                   active ? "bg-primary/10 font-bold text-primary" : "font-medium text-ink-muted hover:bg-surface-sunken hover:text-ink"
                 }`}
               >
                 <span className="relative">
                   <Icon className="h-[22px] w-[22px]" />
                   {t.badge && unread > 0 && (
-                    <span className="absolute -right-1.5 -top-1.5 min-w-[16px] rounded-full bg-primary px-1 text-center text-[10px] font-bold leading-4 text-white">
+                    <span className="absolute -right-1.5 -top-1.5 min-w-[16px] rounded-full bg-primary px-1 text-center text-caption font-bold leading-4 text-white">
                       {unread > 9 ? "9+" : unread}
                     </span>
                   )}
@@ -160,14 +160,14 @@ export default function AppShell({
                 key={t.href}
                 href={href}
                 aria-current={active ? "page" : undefined}
-                className={`flex flex-1 flex-col items-center gap-0.5 py-2.5 text-[10px] font-medium ${
+                className={`flex flex-1 flex-col items-center gap-0.5 py-2.5 text-caption font-medium ${
                   active ? "text-primary" : "text-ink-muted"
                 }`}
               >
                 <span className="relative">
                   <Icon className="h-[22px] w-[22px]" />
                   {t.badge && unread > 0 && (
-                    <span className="absolute -right-2 -top-1.5 min-w-[16px] rounded-full bg-primary px-1 text-center text-[10px] font-bold leading-4 text-white">
+                    <span className="absolute -right-2 -top-1.5 min-w-[16px] rounded-full bg-primary px-1 text-center text-caption font-bold leading-4 text-white">
                       {unread > 9 ? "9+" : unread}
                     </span>
                   )}

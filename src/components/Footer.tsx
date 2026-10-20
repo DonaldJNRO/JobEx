@@ -5,7 +5,7 @@ import { MapPin, Mail } from "lucide-react";
 export default function Footer() {
   return (
     <footer className="bg-surface-sunken text-ink-muted border-t border-line">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div className="max-w-7xl mx-auto px-gutter sm:px-6 lg:px-8 py-section">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           {/* Brand */}
           <div className="md:col-span-1">
@@ -27,15 +27,15 @@ export default function Footer() {
                 budget splitting", neither of which exists anywhere on this
                 website, under a wordmark, in the footer of the listings, the
                 legal pages and everything else. */}
-            <p className="text-sm leading-relaxed">
+            <p className="text-small leading-relaxed">
               Stays, experiences and places to eat, visited by us and bookable in one place. Lagos, Abuja, Jos and London.
             </p>
           </div>
 
           {/* Product */}
           <div>
-            <h4 className="text-sm font-semibold text-ink mb-4 uppercase tracking-wider">Product</h4>
-            <ul className="space-y-2.5 text-sm">
+            <h4 className="text-small font-semibold text-ink mb-4 uppercase tracking-wider">Product</h4>
+            <ul className="space-y-2.5 text-small">
               <li><Link href="/" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">Explore</Link></li>
               <li><Link href="/?category=stays" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">Stays</Link></li>
               <li><Link href="/?category=experiences" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">Experiences</Link></li>
@@ -46,8 +46,8 @@ export default function Footer() {
 
           {/* Company */}
           <div>
-            <h4 className="text-sm font-semibold text-ink mb-4 uppercase tracking-wider">Company</h4>
-            <ul className="space-y-2.5 text-sm">
+            <h4 className="text-small font-semibold text-ink mb-4 uppercase tracking-wider">Company</h4>
+            <ul className="space-y-2.5 text-small">
               <li><Link href="/about" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">About</Link></li>
               {/* NO BLOG LINK until there is a blog. /blog is a Coming Soon
                   card with no posts and no [slug] route behind it. sitemap.ts
@@ -63,8 +63,8 @@ export default function Footer() {
 
           {/* Contact */}
           <div>
-            <h4 className="text-sm font-semibold text-ink mb-4 uppercase tracking-wider">Get in Touch</h4>
-            <ul className="space-y-3 text-sm">
+            <h4 className="text-small font-semibold text-ink mb-4 uppercase tracking-wider">Get in Touch</h4>
+            <ul className="space-y-3 text-small">
               <li className="flex items-start gap-2">
                 <MapPin size={16} className="mt-0.5 shrink-0" />
                 <span>20 Wenlock Road, London, N1 7GU, UK</span>
@@ -75,15 +75,15 @@ export default function Footer() {
               </li>
             </ul>
             <div className="flex gap-3 mt-5">
-              <a href="https://twitter.com/sabieapp" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-surface-sunken flex items-center justify-center hover:bg-line-strong transition-colors text-xs font-bold">X</a>
-              <a href="https://instagram.com/sabieapp" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-surface-sunken flex items-center justify-center hover:bg-line-strong transition-colors text-xs font-bold">IG</a>
-              <a href="https://linkedin.com/company/sabieapp" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-surface-sunken flex items-center justify-center hover:bg-line-strong transition-colors text-xs font-bold">in</a>
+              <a href="https://twitter.com/sabieapp" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-surface-sunken flex items-center justify-center hover:bg-line-strong transition-colors text-caption font-bold">X</a>
+              <a href="https://instagram.com/sabieapp" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-surface-sunken flex items-center justify-center hover:bg-line-strong transition-colors text-caption font-bold">IG</a>
+              <a href="https://linkedin.com/company/sabieapp" target="_blank" rel="noopener noreferrer" className="w-9 h-9 rounded-full bg-surface-sunken flex items-center justify-center hover:bg-line-strong transition-colors text-caption font-bold">in</a>
             </div>
           </div>
         </div>
 
         <div className="border-t border-line mt-12 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-ink-faint">&copy; {new Date().getFullYear()} Sabię. All rights reserved.</p>
+          <p className="text-caption text-ink-faint">&copy; {new Date().getFullYear()} Sabię. All rights reserved.</p>
           <div className="flex items-center gap-4">
             <Image src="/images/barclays-eagle-labs-logo.svg" alt="Barclays Eagle Labs" width={100} height={24} className="opacity-50 hover:opacity-80 transition-opacity" />
             <Image src="/images/fv-partner-new24.svg" alt="Foundervine" width={80} height={24} className="opacity-50 hover:opacity-80 transition-opacity" />

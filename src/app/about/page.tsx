@@ -57,8 +57,8 @@ export default function AboutPage() {
       {/* Hero */}
       <section className="bg-gradient-to-br from-primary to-primary-dark py-page text-center">
         <div className="max-w-3xl mx-auto px-4">
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-white mb-4">About Sabię</h1>
-          <p className="text-lg text-white/85 leading-relaxed">
+          <h1 className="text-display sm:text-hero font-extrabold text-white mb-4 text-balance">About Sabię</h1>
+          <p className="text-heading text-white/85 leading-relaxed">
             We make a whole trip bookable, not just the bed you sleep in.
           </p>
         </div>
@@ -66,10 +66,10 @@ export default function AboutPage() {
 
       {/* Mission */}
       <section className="py-section">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-5xl mx-auto px-gutter sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-2xl font-bold text-ink mb-4">Our Mission</h2>
+              <h2 className="text-title font-bold text-ink mb-4">Our Mission</h2>
               {/* The old copy here sold a planning tool: WhatsApp polls,
                   spreadsheet budgets, AI recommendations, expense splitting.
                   Three of those four name features this site does not have,
@@ -98,8 +98,8 @@ export default function AboutPage() {
               ].map((s) => (
                 <div key={s.label} className="bg-card p-5 rounded-2xl border border-line text-center">
                   <s.icon size={24} className="mx-auto text-primary mb-2" />
-                  <p className="font-bold text-sm text-ink">{s.label}</p>
-                  <p className="text-xs text-text-muted mt-0.5">{s.desc}</p>
+                  <p className="font-bold text-small text-ink">{s.label}</p>
+                  <p className="text-caption text-text-muted mt-0.5">{s.desc}</p>
                 </div>
               ))}
             </div>
@@ -108,17 +108,17 @@ export default function AboutPage() {
       </section>
 
       {/* Team */}
-      <section className="py-20 bg-card">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-bold text-ink text-center mb-12">Meet the Team</h2>
+      <section className="py-page bg-card">
+        <div className="max-w-5xl mx-auto px-gutter sm:px-6 lg:px-8">
+          <h2 className="text-title font-bold text-ink text-center mb-12">Meet the Team</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {TEAM.map((t) => (
               <div key={t.name} className="text-center">
                 <div className="relative w-28 h-28 mx-auto rounded-full overflow-hidden bg-surface-sunken mb-4">
                   <Image src={t.image} alt={t.name} fill className="object-cover" />
                 </div>
-                <h3 className="font-semibold text-sm text-ink">{t.name}</h3>
-                <p className="text-xs text-text-muted mt-0.5">{t.role}</p>
+                <h3 className="font-semibold text-small text-ink">{t.name}</h3>
+                <p className="text-caption text-text-muted mt-0.5">{t.role}</p>
               </div>
             ))}
           </div>
@@ -134,9 +134,9 @@ export default function AboutPage() {
           Their words are not ours to edit; the note above the data says why
           nothing here is rewritten. `photo` is optional and falls back to an
           initial. */}
-      <section className="py-16 bg-card border-t border-line">
+      <section className="py-section bg-card border-t border-line">
         <div className="max-w-5xl mx-auto px-4">
-          <h2 className="text-2xl font-bold text-ink text-center mb-10">What people told us</h2>
+          <h2 className="text-title font-bold text-ink text-center mb-10">What people told us</h2>
           <div className={`grid gap-6 ${TESTIMONIALS.length > 2 ? "sm:grid-cols-2 lg:grid-cols-3" : "sm:grid-cols-2"}`}>
             {TESTIMONIALS.map((t) => (
               <figure key={t.name} className="rounded-2xl border border-line bg-surface p-6">
@@ -151,7 +151,7 @@ export default function AboutPage() {
                   )}
                   <span className="min-w-0">
                     <span className="block truncate font-semibold text-ink">{t.name}</span>
-                    <span className="block truncate text-sm text-text-muted">{t.role}</span>
+                    <span className="block truncate text-small text-text-muted">{t.role}</span>
                   </span>
                 </figcaption>
               </figure>
@@ -161,9 +161,9 @@ export default function AboutPage() {
       </section>
 
       {/* Backed By */}
-      <section className="py-16">
+      <section className="py-section">
         <div className="max-w-5xl mx-auto px-4 text-center">
-          <p className="text-xs font-semibold text-text-muted uppercase tracking-widest mb-6">Backed by</p>
+          <p className="text-caption font-semibold text-text-muted uppercase tracking-widest mb-6">Backed by</p>
           <div className="flex items-center justify-center gap-12 opacity-60">
             <Image src="/images/barclays-eagle-labs-logo.svg" alt="Barclays Eagle Labs" width={140} height={36} />
             <Image src="/images/fv-partner-new24.svg" alt="Foundervine" width={100} height={36} />

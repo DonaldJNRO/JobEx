@@ -116,7 +116,7 @@ export default function ListingCard({
         {/* The one badge worth keeping, because it is RARE. A label that appears
             on every card is decoration; one that appears on a few is a signal. */}
         {listing.isPromoted && (
-          <span className="absolute top-3 left-3 bg-card/95 backdrop-blur-sm text-ink text-[11px] font-semibold px-2.5 py-1 rounded-full shadow-sm">
+          <span className="absolute top-3 left-3 bg-card/95 backdrop-blur-sm text-ink text-caption font-semibold px-2.5 py-1 rounded-full shadow-sm">
             Featured
           </span>
         )}
@@ -129,9 +129,9 @@ export default function ListingCard({
             nothing to do with the business. "The Grove Apar…" was the tell.
             The rating moved down to the meta line, where it is the same kind
             of thing as the place: a fact about the listing, not its title. */}
-        <h3 className="font-semibold text-[15px] text-ink leading-snug truncate">{name}</h3>
+        <h3 className="font-semibold text-body text-ink leading-snug truncate">{name}</h3>
 
-        <div className="mt-1 flex items-baseline justify-between gap-3 text-[13px] text-ink-muted">
+        <div className="mt-1 flex items-baseline justify-between gap-3 text-small text-ink-muted">
           <span className="truncate">{[location, category].filter(Boolean).join(" · ")}</span>
           {listing.rating ? (
             <span className="shrink-0 inline-flex items-center gap-1">
@@ -165,21 +165,21 @@ export default function ListingCard({
             gate. The amount keeps the weight; the unit sits beside it in the
             muted colour, so the eye reads the number first and still learns
             what it buys. */}
-        <p className="mt-1.5 text-[15px] leading-snug">
+        <p className="mt-1.5 text-body leading-snug">
           {amount ? (
             <>
               {/* "from" BEFORE the number, because that is where a reader
                   expects it and because the number alone is a different
                   claim. Naileditbyd read "£2", her cheapest add on, next to
                   acrylics that start at eight times that. */}
-              {from && <span className="text-[13px] text-ink-muted mr-1">from</span>}
+              {from && <span className="text-small text-ink-muted mr-1">from</span>}
               <span className="font-semibold text-ink">{amount}</span>
-              {unit && <span className="ml-1.5 text-[13px] text-ink-muted">{unit}</span>}
+              {unit && <span className="ml-1.5 text-small text-ink-muted">{unit}</span>}
             </>
           ) : (
             // Not a price, so not set as one. It used to read "Contact host",
             // in price weight, in Airbnb's word rather than ours.
-            <span className="text-[13px] text-ink-muted">Price on request</span>
+            <span className="text-small text-ink-muted">Price on request</span>
           )}
         </p>
       </div>

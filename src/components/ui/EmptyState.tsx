@@ -18,7 +18,7 @@ interface Props {
  */
 export default function EmptyState({ icon, title, body, action, bare }: Props) {
   const inner = (
-    <div className="px-6 py-16 text-center">
+    <div className="px-6 py-section text-center">
       {icon && <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center text-ink-faint">{icon}</div>}
       <p className="text-heading font-bold text-ink">{title}</p>
       {body && <p className="mx-auto mt-2 max-w-sm text-small leading-relaxed text-ink-muted">{body}</p>}

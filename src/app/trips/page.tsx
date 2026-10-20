@@ -128,7 +128,7 @@ function TripsInner() {
               onChange={(e) => setFilter(e.target.value)}
               placeholder="Search"
               aria-label="Search your conversations"
-              className="w-full rounded-lg border border-line bg-surface py-1.5 pl-8 pr-2 text-sm text-ink placeholder:text-ink-faint"
+              className="w-full rounded-lg border border-line bg-surface py-1.5 pl-8 pr-2 text-small text-ink placeholder:text-ink-faint"
             />
           </div>
           <button
@@ -153,7 +153,7 @@ function TripsInner() {
                 type="button"
                 onClick={() => setOnlyUnread(id === "unread")}
                 aria-pressed={onlyUnread === (id === "unread")}
-                className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+                className={`rounded-full px-3 py-1 text-caption font-semibold transition-colors ${
                   onlyUnread === (id === "unread")
                     ? "bg-primary text-white"
                     : "bg-surface-sunken text-ink-muted hover:text-ink"
@@ -223,16 +223,16 @@ function TripsInner() {
                       <Image src={c.photoUrl} alt="" fill sizes="44px" className="object-cover" />
                     </span>
                   ) : (
-                    <span aria-hidden="true" className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-bold ${a.tint}`}>
+                    <span aria-hidden="true" className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-small font-bold ${a.tint}`}>
                       {a.initials}
                     </span>
                   )}
                   <span className="min-w-0 flex-1">
                     <span className="flex items-baseline justify-between gap-2">
                       <span className="truncate font-semibold text-ink">{c.title}</span>
-                      <span className="shrink-0 text-[11px] text-ink-faint">{whenOf(c.lastMessageAtMs)}</span>
+                      <span className="shrink-0 text-caption text-ink-faint">{whenOf(c.lastMessageAtMs)}</span>
                     </span>
-                    <span className={`mt-0.5 block truncate text-sm ${c.unread > 0 ? "font-semibold text-ink" : "text-ink-muted"}`}>
+                    <span className={`mt-0.5 block truncate text-small ${c.unread > 0 ? "font-semibold text-ink" : "text-ink-muted"}`}>
                       {c.lastMessage
                         // A NAME ONLY WHERE IT TELLS YOU SOMETHING. In a
                         // one-to-one the only other person is the one in
@@ -244,7 +244,7 @@ function TripsInner() {
                     </span>
                   </span>
                   {c.unread > 0 && (
-                    <span className="shrink-0 rounded-full bg-primary px-1.5 py-0.5 text-[11px] font-bold text-white">
+                    <span className="shrink-0 rounded-full bg-primary px-1.5 py-0.5 text-caption font-bold text-white">
                       {c.unread > 99 ? "99+" : c.unread}
                     </span>
                   )}
@@ -272,13 +272,13 @@ function TripsInner() {
                   <Image src={open.photoUrl} alt="" fill sizes="36px" className="object-cover" />
                 </span>
               ) : (
-                <span aria-hidden="true" className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold ${tripAvatar(open.title, open.id).tint}`}>
+                <span aria-hidden="true" className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-caption font-bold ${tripAvatar(open.title, open.id).tint}`}>
                   {tripAvatar(open.title, open.id).initials}
                 </span>
               )}
               <div className="min-w-0 flex-1">
                 <h2 className="truncate font-bold text-ink">{open.title}</h2>
-                <p className="truncate text-xs text-ink-muted">
+                <p className="truncate text-caption text-ink-muted">
                   {open.kind === "chat"
                     // A one-to-one has one other person in it. Saying "2
                     // people" under their own name is a count nobody needed.

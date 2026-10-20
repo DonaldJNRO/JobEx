@@ -183,7 +183,7 @@ export default function OfferScreen({
                       >
                         <span className="min-w-0 text-ink">{t.label}</span>
                         <span className="flex shrink-0 items-center gap-2.5">
-                          <span className="text-sm font-semibold text-ink">{money(t.price)}</span>
+                          <span className="text-small font-semibold text-ink">{money(t.price)}</span>
                           <span className={ROW_ACTION}>Book <ChevronRight size={13} /></span>
                         </span>
                       </button>

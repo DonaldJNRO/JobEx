@@ -107,16 +107,16 @@ export default function ProfileServices({ listing, currency, onPick, hideNames, 
           {withItems.map((cat, i) => (
             <div key={`${cat.name ?? i}`}>
               {cat.name && (
-                <p className="text-xs font-semibold uppercase tracking-wide text-ink-muted mb-1.5">
+                <p className="text-caption font-semibold uppercase tracking-wide text-ink-muted mb-1.5">
                   {cat.name}
                 </p>
               )}
               <ul className={`divide-y divide-line overflow-hidden ${cardClass({ pad: "none" })}`}>
                 {(cat.items ?? []).map((it, j) => (
                   <li key={`${it?.name ?? j}`} className="flex items-baseline justify-between gap-4 px-4 py-2.5">
-                    <span className="text-sm text-ink">{it?.name}</span>
+                    <span className="text-small text-ink">{it?.name}</span>
                     {typeof it?.price === "number" && (
-                      <span className="text-sm text-ink-muted whitespace-nowrap">
+                      <span className="text-small text-ink-muted whitespace-nowrap">
                         {money(it.price)}
                       </span>
                     )}
@@ -219,13 +219,13 @@ function ServiceRow(
           </span>
         ) : null}
         <span className="min-w-0">
-          <span className="block text-sm text-ink">{group.name}</span>
+          <span className="block text-small text-ink">{group.name}</span>
           {group.description && (
-            <span className="block text-xs text-ink-muted mt-0.5">{group.description}</span>
+            <span className="block text-caption text-ink-muted mt-0.5">{group.description}</span>
           )}
         </span>
         <span className="flex items-center gap-2 whitespace-nowrap">
-          <span className="text-sm font-semibold text-ink">
+          <span className="text-small font-semibold text-ink">
             {group.hasChoices ? "from " : ""}{money(group.fromPrice)}
           </span>
           {/* A ROW HAS TO LOOK LIKE THE WAY IN. Without this the list reads

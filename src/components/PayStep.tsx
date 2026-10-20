@@ -114,7 +114,7 @@ function CardForm({ amountLabel, onPaid, onCancel }: Props) {
       <PaymentElement options={{ layout: "tabs" }} />
 
       {error && (
-        <p className="text-sm text-alarm-ink bg-alarm-bg border border-alarm-line rounded-xl px-3 py-2">
+        <p className="text-small text-alarm-ink bg-alarm-bg border border-alarm-line rounded-xl px-3 py-2">
           {error}
         </p>
       )}
@@ -127,12 +127,12 @@ function CardForm({ amountLabel, onPaid, onCancel }: Props) {
         type="button"
         onClick={onCancel}
         disabled={busy}
-        className="w-full text-sm text-ink-muted py-1 disabled:opacity-50"
+        className="w-full text-small text-ink-muted py-1 disabled:opacity-50"
       >
         Back
       </button>
 
-      <p className="text-xs text-ink-muted text-center">
+      <p className="text-caption text-ink-muted text-center">
         Sabię holds your money until after your visit.
       </p>
     </form>

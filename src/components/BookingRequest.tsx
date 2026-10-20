@@ -404,22 +404,22 @@ export default function BookingRequest({
             <div className="w-12 h-12 rounded-full bg-primary/10 text-primary inline-flex items-center justify-center mb-3">
               <Check size={22} />
             </div>
-            <h2 className="text-xl text-ink mb-2">You are booked</h2>
-            <p className="text-sm text-ink-muted mb-1">
+            <h2 className="text-title text-ink mb-2">You are booked</h2>
+            <p className="text-small text-ink-muted mb-1">
               {business} has your booking for {date}{time ? ` at ${time}` : ""}.
             </p>
-            <p className="text-sm text-ink-muted mb-4">
+            <p className="text-small text-ink-muted mb-4">
               Your booking reference is <span className="font-semibold text-ink">{intent?.bookingRequestId?.slice(0, 8).toUpperCase()}</span>.
               Show it when you arrive. We have emailed it to you.
             </p>
-            <p className="text-xs text-ink-muted">
+            <p className="text-caption text-ink-muted">
               Sabię holds your money until after your visit.
             </p>
           </div>
         ) : intent ? (
           <div className="pt-4">
-            <h2 className="text-xl text-ink mb-1">Pay {business}</h2>
-            <p className="text-sm text-ink-muted mb-4">
+            <h2 className="text-title text-ink mb-1">Pay {business}</h2>
+            <p className="text-small text-ink-muted mb-4">
               {offer ? `${offer}, ` : ""}{date}{time ? ` at ${time}` : ""}
             </p>
             <PayStep
@@ -434,13 +434,13 @@ export default function BookingRequest({
             <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
               <Check size={22} className="text-primary" />
             </div>
-            <h2 className="text-xl text-ink mb-2">Request sent</h2>
+            <h2 className="text-title text-ink mb-2">Request sent</h2>
             {/* The exact promise, and nothing beyond it. No "confirmed", no
                 "booked": the operator has not answered yet. */}
-            <p className="text-sm text-ink-muted leading-relaxed">
+            <p className="text-small text-ink-muted leading-relaxed">
               They have 12 hours. We&rsquo;ll tell you when to pay.
             </p>
-            <dl className="mt-5 rounded-2xl bg-surface-sunken border border-line p-4 text-sm">
+            <dl className="mt-5 rounded-2xl bg-surface-sunken border border-line p-4 text-small">
               <div className="flex justify-between gap-4 py-1">
                 <dt className="text-ink-muted">What</dt><dd className="text-ink font-medium text-right">{offer}</dd>
               </div>
@@ -458,7 +458,7 @@ export default function BookingRequest({
             </dl>
             {/* ONLY NOW. The App Store is offered after a request exists, and
                 as a second option, never as the way to make one. */}
-            <p className="mt-5 text-xs text-ink-faint leading-relaxed">
+            <p className="mt-5 text-caption text-ink-faint leading-relaxed">
               Want it on your phone? The Sabię app keeps this booking, and the
               rest of the trip, in one place.{" "}
               <a href={APP_STORE_URL} className="font-semibold text-primary underline underline-offset-4" target="_blank" rel="noopener noreferrer">
@@ -471,7 +471,7 @@ export default function BookingRequest({
           </div>
         ) : (
           <form onSubmit={submit} className="pt-4">
-            <h2 className="text-xl text-ink mb-1">
+            <h2 className="text-title text-ink mb-1">
               {step === "when" ? (instant ? "Book now" : "Ask to book")
                 : step === "you" ? "Who is coming"
                 : "Check and confirm"}
@@ -492,7 +492,7 @@ export default function BookingRequest({
             <p className="sr-only">
               Step {step === "when" ? 1 : step === "you" ? 2 : 3} of 3
             </p>
-            <p className="text-sm text-ink-muted mb-1.5">
+            <p className="text-small text-ink-muted mb-1.5">
               {instant
                 // `why` ONLY WHEN IT ADDS SOMETHING. For an instant listing
                 // bookingTerms returns "Confirmed on the spot.", which this
@@ -508,7 +508,7 @@ export default function BookingRequest({
                 the one screen where somebody commits to turning up never
                 showed it. */}
             {address && (
-              <p className="flex items-start gap-1.5 text-sm text-ink-muted mb-5">
+              <p className="flex items-start gap-1.5 text-small text-ink-muted mb-5">
                 <MapPin size={15} className="mt-0.5 shrink-0 text-ink-faint" />
                 <span>{address}</span>
               </p>
@@ -525,7 +525,7 @@ export default function BookingRequest({
             {step === "when" && (<>
             {offers.length > 1 ? (
               <label className="block mb-4">
-                <span className="block text-sm font-semibold text-ink mb-1.5">What are you booking?</span>
+                <span className="block text-small font-semibold text-ink mb-1.5">What are you booking?</span>
                 {/* OUR CHEVRON, not the browser's. A native select draws its
                     own arrow in a different place, at a different size and in a
                     different grey on every OS, hard against the right edge and
@@ -563,7 +563,7 @@ export default function BookingRequest({
               </label>
             ) : offers.length === 1 ? (
               <div className="mb-4 rounded-2xl bg-surface-sunken border border-line px-4 py-3">
-                <p className="text-sm font-semibold text-ink">{offers[0].name}</p>
+                <p className="text-small font-semibold text-ink">{offers[0].name}</p>
                 {/* THROUGH THE CONVERTER. This branch, the one with a single
                     offer, called formatPriceWithCurrency directly and
                     printed the operator's own money: a guest in London was
@@ -571,7 +571,7 @@ export default function BookingRequest({
                     saying what that is. The branch beside it, for several
                     offers, had always converted. */}
                 {typeof offers[0].price === "number" && (
-                  <p className="text-sm text-ink-muted">{priceFor(offers[0].price as number)}</p>
+                  <p className="text-small text-ink-muted">{priceFor(offers[0].price as number)}</p>
                 )}
               </div>
             ) : null}
@@ -589,7 +589,7 @@ export default function BookingRequest({
                 one component over, which I fixed there and not here. */}
             <div className="grid grid-cols-2 gap-3 mb-4 [&>*]:min-w-0">
               <label className="block min-w-0">
-                <span className="block text-sm font-semibold text-ink mb-1.5">Date</span>
+                <span className="block text-small font-semibold text-ink mb-1.5">Date</span>
                 {/* AN EMPTY DATE INPUT SHOWS NOTHING ON IOS. Desktop Chrome
                     draws dd/mm/yyyy; mobile Safari draws a blank box, so the
                     field read as broken next to the "Pick a time" beside it.
@@ -626,7 +626,7 @@ export default function BookingRequest({
                   be placed against a slot, and the operator was left to agree
                   an hour by message. */}
               <label className="block min-w-0">
-                <span className="block text-sm font-semibold text-ink mb-1.5">Time</span>
+                <span className="block text-small font-semibold text-ink mb-1.5">Time</span>
                 {slots.length > 0 ? (
                   <select
                     required
@@ -666,7 +666,7 @@ export default function BookingRequest({
                 for one person, and a party of four had no way to say so.
                 Mine, from wrapping the steps. */}
             <label className="block mb-4">
-              <span className="block text-sm font-semibold text-ink mb-1.5">How many</span>
+              <span className="block text-small font-semibold text-ink mb-1.5">How many</span>
               <input
                 type="number"
                 inputMode="numeric"
@@ -680,7 +680,7 @@ export default function BookingRequest({
             </label>
 
             {date && (
-              <p className="-mt-2 mb-4 text-xs text-ink-faint">{readableDate(date)}</p>
+              <p className="-mt-2 mb-4 text-caption text-ink-faint">{readableDate(date)}</p>
             )}
 
             </>)}
@@ -688,7 +688,7 @@ export default function BookingRequest({
             {/* ── step 2 of 3: who you are ─────────────────────────── */}
             {step === "you" && (<>
             <label className="block mb-4">
-              <span className="block text-sm font-semibold text-ink mb-1.5">Your name</span>
+              <span className="block text-small font-semibold text-ink mb-1.5">Your name</span>
               <input
                 type="text"
                 required
@@ -699,7 +699,7 @@ export default function BookingRequest({
             </label>
 
             <label className="block mb-4">
-              <span className="block text-sm font-semibold text-ink mb-1.5">Email or phone</span>
+              <span className="block text-small font-semibold text-ink mb-1.5">Email or phone</span>
               <input
                 type="text"
                 required
@@ -712,7 +712,7 @@ export default function BookingRequest({
             </label>
 
             <label className="block mb-5">
-              <span className="block text-sm font-semibold text-ink mb-1.5">Anything they should know? <span className="font-normal text-ink-faint">Optional</span></span>
+              <span className="block text-small font-semibold text-ink mb-1.5">Anything they should know? <span className="font-normal text-ink-faint">Optional</span></span>
               <textarea
                 rows={2}
                 value={note}
@@ -759,14 +759,14 @@ export default function BookingRequest({
 
             {money.display && dueNow !== null && dueNow !== total && (
               <div className="mb-2 flex items-baseline justify-between">
-                <span className="text-sm text-ink">Pay now</span>
+                <span className="text-small text-ink">Pay now</span>
                 {/* THROUGH THE CONVERTER. This was the only money in the
                     sheet that bypassed it: a raw operator-currency number
                     with Nigerian digit grouping and no symbol at all, sat
                     directly above a "Full price" line that HAD been
                     converted. A London guest read "Pay now 326,900" over
                     "Full price £240". */}
-                <span className="text-lg font-semibold text-ink">{show(dueNow).display || money.display}</span>
+                <span className="text-heading font-semibold text-ink">{show(dueNow).display || money.display}</span>
               </div>
             )}
             {/* THE FEE, SAID OUT LOUD. The server adds it on every booking
@@ -777,11 +777,11 @@ export default function BookingRequest({
                 has no fee to disclose yet. */}
             {chargeable && (dueNow === null || dueNow === total) && (
               <div className="mb-2 space-y-1.5">
-                <div className="flex items-baseline justify-between text-sm">
+                <div className="flex items-baseline justify-between text-small">
                   <span className="text-ink-muted">{chosen?.name || "Booking"}</span>
                   <span className="text-ink">{feeMoney.sub}</span>
                 </div>
-                <div className="flex items-baseline justify-between text-sm">
+                <div className="flex items-baseline justify-between text-small">
                   <span className="text-ink-muted">
                     {feeLabel()}
                     {/* A fixed floor is not 5 percent, and saying "5%" over a
@@ -796,7 +796,7 @@ export default function BookingRequest({
 
             {money.display && (
               <div className="mb-5 flex items-baseline justify-between border-t border-line pt-2.5">
-                <span className="text-sm text-ink-muted">
+                <span className="text-small text-ink-muted">
                   {dueNow !== null && dueNow !== total ? "Full price" : "Total"}
                 </span>
                 <span className="text-right">
@@ -805,10 +805,10 @@ export default function BookingRequest({
                       a date and no checkout, so there is no stay length to
                       total. Showing it bare reads as the price of the whole
                       booking. */}
-                  <span className="block text-2xl font-semibold text-ink">
+                  <span className="block text-title font-semibold text-ink">
                     {money.display}
                     {isRate && (
-                      <span className="text-sm font-normal text-ink-muted"> {(chosen?.name || "").toLowerCase()}</span>
+                      <span className="text-small font-normal text-ink-muted"> {(chosen?.name || "").toLowerCase()}</span>
                     )}
                   </span>
                   {/* The "about N5,000" line under the total is gone. The
@@ -827,12 +827,12 @@ export default function BookingRequest({
                 that protection is either real or decorative. */}
             {policy.length > 0 && (
               <div className="mb-5 rounded-2xl bg-surface-sunken px-3.5 py-3">
-                <p className="text-xs font-semibold text-ink mb-1.5">
+                <p className="text-caption font-semibold text-ink mb-1.5">
                   {business}&apos;s booking terms
                 </p>
                 <ul className="space-y-1">
                   {policy.map((line) => (
-                    <li key={line} className="text-xs text-ink-muted leading-relaxed">
+                    <li key={line} className="text-caption text-ink-muted leading-relaxed">
                       {line}
                     </li>
                   ))}
@@ -841,7 +841,7 @@ export default function BookingRequest({
             )}
 
             {error && (
-              <p className="mb-4 flex items-start gap-2 text-sm text-alarm-ink bg-alarm-bg border border-alarm-line rounded-2xl px-3 py-2.5">
+              <p className="mb-4 flex items-start gap-2 text-small text-alarm-ink bg-alarm-bg border border-alarm-line rounded-2xl px-3 py-2.5">
                 <AlertTriangle size={16} className="mt-0.5 shrink-0" />
                 {error}
               </p>
@@ -882,7 +882,7 @@ export default function BookingRequest({
                 {adding ? "Adding" : "Add to my trip"}
               </Button>
             )}
-            <p className="mt-3 text-xs text-ink-faint text-center">
+            <p className="mt-3 text-caption text-ink-faint text-center">
               {/* THREE STATES, NOT TWO. `instant` says the server would
                   take money for this; willCharge says this site actually
                   can. While the publishable key is unset those differ, and

@@ -176,7 +176,7 @@ export default function HomePage() {
               onChange={(e) => setTerm(e.target.value)}
               placeholder="Search places, food, experiences"
               aria-label="Search places"
-              className="w-full rounded-xl border border-line bg-card py-2.5 pl-9 pr-9 text-[15px] text-ink placeholder:text-ink-faint"
+              className="w-full rounded-xl border border-line bg-card py-2.5 pl-9 pr-9 text-body text-ink placeholder:text-ink-faint"
             />
             {term && (
               <button
@@ -214,7 +214,7 @@ export default function HomePage() {
               type="button"
               onClick={() => setTab(c.id)}
               aria-pressed={active}
-              className={`snap-start shrink-0 px-5 py-2.5 rounded-full text-sm font-semibold whitespace-nowrap transition-colors ${
+              className={`snap-start shrink-0 px-5 py-2.5 rounded-full text-small font-semibold whitespace-nowrap transition-colors ${
                 active
                   ? "bg-primary text-white"
                   : "bg-surface-sunken text-ink-muted hover:bg-line/40 hover:text-ink"

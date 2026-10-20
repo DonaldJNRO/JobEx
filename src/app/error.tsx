@@ -12,7 +12,7 @@ import Button from "@/components/ui/Button";
  */
 export default function ErrorPage({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
   return (
-    <div className="flex min-h-[60dvh] items-center justify-center px-gutter py-16">
+    <div className="flex min-h-[60dvh] items-center justify-center px-gutter py-section">
       <div className="max-w-sm text-center">
         <h1 className="text-title font-bold tracking-tight text-ink">That did not load</h1>
         <p className="mt-2 text-small leading-relaxed text-ink-muted">

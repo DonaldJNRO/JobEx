@@ -93,12 +93,12 @@ export default function TripChat({
           )}
 
           {messages?.length === 0 && (
-            <div className="mx-auto max-w-xs py-16 text-center">
-              <span className={`mx-auto flex h-14 w-14 items-center justify-center rounded-full text-lg font-bold ${avatar.tint}`}>
+            <div className="mx-auto max-w-xs py-section text-center">
+              <span className={`mx-auto flex h-14 w-14 items-center justify-center rounded-full text-heading font-bold ${avatar.tint}`}>
                 {avatar.initials}
               </span>
               <p className="mt-4 font-semibold text-ink">{trip.title}</p>
-              <p className="mt-1.5 text-sm leading-relaxed text-ink-muted">
+              <p className="mt-1.5 text-small leading-relaxed text-ink-muted">
                 {trip.kind === "chat"
                   // A one-to-one has nobody to add and no itinerary behind
                   // it, so neither trip sentence is true in one.
@@ -125,7 +125,7 @@ export default function TripChat({
               return (
                 <div key={m.id}>
                   {newDay && (
-                    <p className="py-3 text-center text-xs text-ink-faint">
+                    <p className="py-3 text-center text-caption text-ink-faint">
                       {new Date(day).toLocaleDateString(undefined, { day: "numeric", month: "long" })}
                     </p>
                   )}
@@ -138,11 +138,11 @@ export default function TripChat({
                       }`}
                     >
                       {!mine && !grouped && (
-                        <p className="mb-0.5 text-xs font-semibold text-ink-muted">{m.senderName}</p>
+                        <p className="mb-0.5 text-caption font-semibold text-ink-muted">{m.senderName}</p>
                       )}
                       <p className="whitespace-pre-wrap break-words leading-relaxed">{m.text}</p>
                       <div className={`mt-0.5 flex items-center gap-1 ${mine ? "justify-end" : "justify-start"}`}>
-                        <span className={`text-[11px] tabular-nums ${mine ? "text-white/60" : "text-ink-faint"}`}>
+                        <span className={`text-caption tabular-nums ${mine ? "text-white/60" : "text-ink-faint"}`}>
                           {timeOf(m)}
                         </span>
                         {mine && (
@@ -188,7 +188,7 @@ export function NoTripPicked() {
     <div className="flex min-h-0 flex-1 items-center justify-center bg-surface">
       <div className="text-center">
         <MessageSquare className="mx-auto h-10 w-10 text-ink-faint/40" />
-        <p className="mt-3 text-sm text-ink-muted">Pick a trip to open its chat.</p>
+        <p className="mt-3 text-small text-ink-muted">Pick a trip to open its chat.</p>
       </div>
     </div>
   );

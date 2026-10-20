@@ -24,7 +24,7 @@ export default function LoadError({
   onRetry?: () => void;
 }) {
   return (
-    <div className="px-6 py-16 text-center" role="alert">
+    <div className="px-6 py-section text-center" role="alert">
       <p className="text-heading font-bold text-ink">We could not load {what}</p>
       <p className="mx-auto mt-2 max-w-sm text-small leading-relaxed text-ink-muted">
         That is our end, not yours. Trying again usually works.

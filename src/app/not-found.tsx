@@ -8,8 +8,8 @@ export default function NotFound() {
         <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
           <MapPin size={36} className="text-primary" />
         </div>
-        <h1 className="text-6xl font-extrabold text-primary mb-2">404</h1>
-        <h2 className="text-xl font-bold text-ink mb-2">Page not found</h2>
+        <h1 className="text-hero font-extrabold text-ink mb-2">404</h1>
+        <h2 className="text-title font-bold text-ink mb-2">Page not found</h2>
         <p className="text-text-muted max-w-md mx-auto mb-8">
           Looks like this page went on a trip without telling us. Let&apos;s get you back on track.
         </p>

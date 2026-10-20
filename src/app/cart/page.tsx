@@ -83,7 +83,7 @@ function CartContents() {
   return (
     <main className="min-h-screen bg-surface">
       <div className="mx-auto max-w-2xl px-4 py-8">
-        <h1 className="text-2xl font-bold tracking-tight text-ink">My trip</h1>
+        <h1 className="text-title font-bold tracking-tight text-ink">My trip</h1>
 
         {trips === null && (
           <div className="mt-8 space-y-3" aria-busy="true">
@@ -110,11 +110,11 @@ function CartContents() {
             <div className={`mt-6 flex items-center justify-between gap-4 ${cardClass({ pad: "sm" })}`}>
               <div>
                 <p className="text-caption uppercase tracking-wider text-ink-faint">Trip total</p>
-                <p className="mt-0.5 text-2xl font-bold tabular-nums text-ink">
+                <p className="mt-0.5 text-title font-bold tabular-nums text-ink">
                   {price(cart.total)}
                 </p>
                 {cart.waiting > 0 && (
-                  <p className="mt-1 text-xs text-ink-muted">
+                  <p className="mt-1 text-caption text-ink-muted">
                     {cart.waiting} {cart.waiting === 1 ? "item is" : "items are"} still waiting on the operator, so {cart.waiting === 1 ? "it is" : "they are"} not in this total.
                   </p>
                 )}
@@ -146,7 +146,7 @@ function CartContents() {
             </div>
 
             {payError && (
-              <p className="mt-3 rounded-xl border border-alarm-line bg-alarm-bg px-3 py-2 text-sm text-alarm-ink">
+              <p className="mt-3 rounded-xl border border-alarm-line bg-alarm-bg px-3 py-2 text-small text-alarm-ink">
                 {payError}
               </p>
             )}
@@ -154,7 +154,7 @@ function CartContents() {
             {paid ? (
               <div className={`mt-4 text-center ${cardClass()}`}>
                 <p className="font-bold text-ink">Paid. Your trip is booked.</p>
-                <p className="mt-1 text-sm text-ink-muted">
+                <p className="mt-1 text-small text-ink-muted">
                   Sabię holds the money until after you have been. Your booking codes are in Bookings.
                 </p>
                 <Button href="/bookings" className="mt-4">
@@ -181,12 +181,12 @@ function CartContents() {
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
                       <p className="truncate font-semibold text-ink">{i.businessName}</p>
-                      {i.package && <p className="mt-0.5 truncate text-sm text-ink-muted">{i.package}</p>}
-                      <p className="mt-1.5 text-sm text-ink-muted">
+                      {i.package && <p className="mt-0.5 truncate text-small text-ink-muted">{i.package}</p>}
+                      <p className="mt-1.5 text-small text-ink-muted">
                         {[i.date, i.time, `${i.guests} ${i.guests === 1 ? "guest" : "guests"}`].filter(Boolean).join(" · ")}
                       </p>
                       {!i.ready && (
-                        <p className="mt-2 inline-flex items-center gap-1.5 text-xs text-ink-muted">
+                        <p className="mt-2 inline-flex items-center gap-1.5 text-caption text-ink-muted">
                           <Clock3 className="h-3.5 w-3.5" />
                           Waiting for them to accept
                         </p>
@@ -206,7 +206,7 @@ function CartContents() {
                 operator may be more generous and never less. */}
             <section className="mt-8">
               <h2 className="font-semibold text-ink">Cancellation</h2>
-              <ul className="mt-2 space-y-1 text-sm leading-relaxed text-ink-muted">
+              <ul className="mt-2 space-y-1 text-small leading-relaxed text-ink-muted">
                 <li>More than 48 hours before: everything back.</li>
                 <li>Between 24 and 48 hours before: half back.</li>
                 <li>Inside 24 hours: the operator keeps the payment.</li>
@@ -230,7 +230,7 @@ export default function CartPage() {
       fallback={
         <main className="min-h-screen bg-surface">
           <div className="mx-auto max-w-2xl px-4 py-8">
-            <h1 className="text-2xl font-bold tracking-tight text-ink">My trip</h1>
+            <h1 className="text-title font-bold tracking-tight text-ink">My trip</h1>
             <div className="mt-8 space-y-3" aria-busy="true">
               {[0, 1].map((i) => <Skeleton key={i} className="h-28" />)}
             </div>
