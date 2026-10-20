@@ -98,14 +98,60 @@ ck(/resolveProfileSections\(listing \?\? \{\}\)\.bookCta/.test(live(PAGE)),
 // pick, most of them cafés whose menu items are not loaded. For those a
 // single action is the only action there could be.
 
+// THE REMEDY WAS WRONG, AND THIS TEST HELD IT IN PLACE.
+//
+// The rule above is right. What the page did with it was suppress its own
+// price card entirely whenever a list existed, so on arrival at any listing
+// with services there was no price anywhere and no filled button anywhere.
+// What the founder reported seeing was "it just says Open now. Solo book
+// now", on both of the listings he opened.
+//
+// And the assertion here was a SPELLING, /\{\(!pickable \|\| pickedOffer\)/,
+// so it guaranteed the mechanism rather than the goal and went green while
+// the page showed nothing to buy. Sixth time this repo has been bitten by a
+// guard matching text instead of behaviour.
+//
+// The goal was never "hide the price". It was "one way in". So:
+
 ck(/const pickable = hasPickableList\(/.test(live(PAGE)),
   "the page asks whether there is anything to pick");
-ck(/\{\(!pickable \|\| pickedOffer\) && \(/.test(live(PAGE)),
-  "and hides its own card when there is");
-ck((live(PAGE).match(/!pickable \|\| pickedOffer/g) || []).length === 2,
-  "on the phone card AND the desktop sidebar, or one of them still competes");
 ck(/export function hasPickableList/.test(live(SECTION)),
   "the answer comes from the component that does the rendering, not a second guess");
+
+// A PRICE IS NEVER CONDITIONAL ON HAVING PICKED SOMETHING. Found by checking
+// that no JSX gate mentioning pickable wraps the booking block, rather than
+// by matching whatever today's gate happens to say.
+ck(!/\{\([^)]*pickable[^)]*\) && \(\s*\n\s*<div[^>]*>\s*\n\s*<div[^>]*>\s*\n\s*\{bookingBlock\}/.test(live(PAGE)),
+  "the phone's price card is not gated on a pick");
+ck(!/\{\([^)]*pickable[^)]*\) && \(\s*\n\s*<div className="hidden lg:block">/.test(live(PAGE)),
+  "and neither is the desktop sidebar's");
+ck((live(PAGE).match(/\{bookingBlock\}/g) || []).length === 2,
+  "both surfaces still render it, so a phone and a desktop see the same offer");
+
+// ONE ACTION, WHICH DELEGATES. With a list and nothing chosen the button
+// carries the list's own words and goes to the list; choose a row and the
+// same button becomes that row's booking. That is "one way in" without a
+// page that refuses to show its price.
+ck(/const delegating = pickable && !pickedOffer;/.test(live(PAGE)),
+  "the page knows when its action should delegate");
+ck(/delegating \? jumpToMenu\(\) : setBooking\(true\)/.test(live(PAGE)),
+  "and the one button either opens the list or opens the booking, never both");
+ck(/delegating \? chooseWord : ctaWord/.test(live(PAGE)),
+  "wearing the list's words when it delegates, so it cannot promise a booking it is not making");
+ck(/ref=\{menuRef\}/.test(live(PAGE)) && /const menuRef = useRef/.test(live(PAGE)),
+  "there is somewhere for it to go");
+
+// AND EVERY ROW LOOKS LIKE A WAY IN. The complaint was "the Book is same
+// colour, doesn't show any different colours": the row's action was a
+// twelve-pixel span in the same colour as the price beside it.
+ck(/className=\{ROW_ACTION\}/.test(live(SECTION)),
+  "a row's action goes through the shared recipe");
+ck(!/text-xs font-semibold text-primary/.test(live(SECTION)),
+  "and is no longer a bare word in the body colour");
+ck(/border border-line-strong/.test(readFileSync("src/lib/ui-recipes.ts", "utf8")),
+  "which carries a border, so it is not distinguished by colour alone");
+ck(!/bg-action/.test(readFileSync("src/lib/ui-recipes.ts", "utf8").split("export const ROW_ACTION")[1].split(");")[0]),
+  "and never the action's gold, or seventeen services would be seventeen gold buttons");
 
 ck(/if \(shape === "menu"\) return false;/.test(live(SECTION)),
   "a cafe keeps its card, because its menu is not tappable and the card is its only action");

@@ -12,6 +12,7 @@
 
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
+import { ROW_ACTION } from "@/lib/ui-recipes";
 import { useMoney as useGuestRates } from "@/lib/useRates";
 import { buildDisplayPrice } from "@/lib/display-price";
 import { serviceGroups, type ServiceGroup } from "@/lib/shop-window";
@@ -72,7 +73,7 @@ export default function ProfileServices({ listing, currency, onPick }: Props) {
     if (withItems.length === 0) return null;
     return (
       <section className="reveal">
-        <h2 className="text-lg font-semibold text-ink mb-3">On the menu</h2>
+        <h2 className="text-heading font-bold text-ink mb-3">On the menu</h2>
         <div className="space-y-5">
           {withItems.map((cat, i) => (
             <div key={`${cat.name ?? i}`}>
@@ -81,7 +82,7 @@ export default function ProfileServices({ listing, currency, onPick }: Props) {
                   {cat.name}
                 </p>
               )}
-              <ul className="rounded-2xl border border-line divide-y divide-line overflow-hidden">
+              <ul className="rounded-2xl border border-line bg-card divide-y divide-line overflow-hidden">
                 {(cat.items ?? []).map((it, j) => (
                   <li key={`${it?.name ?? j}`} className="flex items-baseline justify-between gap-4 px-4 py-2.5">
                     <span className="text-sm text-ink">{it?.name}</span>
@@ -108,8 +109,8 @@ export default function ProfileServices({ listing, currency, onPick }: Props) {
   const heading = shape === "rooms" ? "Pick a room" : "Pick what you want";
   return (
     <section className="reveal">
-      <h2 className="text-lg font-semibold text-ink mb-3">{heading}</h2>
-      <ul className="rounded-2xl border border-line divide-y divide-line overflow-hidden">
+      <h2 className="text-heading font-bold text-ink mb-3">{heading}</h2>
+      <ul className="rounded-2xl border border-line bg-card divide-y divide-line overflow-hidden">
         {groups.map((g) => (
           <ServiceRow key={g.name} group={g} money={money} cta={cta} onPick={onPick} />
         ))}
@@ -133,7 +134,7 @@ function ServiceRow(
       <button
         type="button"
         onClick={act}
-        className="w-full flex items-start justify-between gap-4 px-4 py-3 text-left hover:bg-surface-sunken transition-colors"
+        className="group w-full flex items-start justify-between gap-4 px-4 py-3.5 text-left hover:bg-surface-sunken transition-colors"
       >
         <span className="min-w-0">
           <span className="block text-sm text-ink">{group.name}</span>
@@ -151,12 +152,12 @@ function ServiceRow(
               "Choose" on a row that opens, the action word on one that
               books straight through. */}
           {group.hasChoices ? (
-            <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary">
-              Choose
-              <ChevronDown size={14} className={`transition-transform ${open ? "rotate-180" : ""}`} />
+            <span className={ROW_ACTION}>
+              {open ? "Close" : "Choose"}
+              <ChevronDown size={13} className={`transition-transform ${open ? "rotate-180" : ""}`} />
             </span>
           ) : (
-            <span className="text-xs font-semibold text-primary">{cta}</span>
+            <span className={ROW_ACTION}>{cta}</span>
           )}
         </span>
       </button>
@@ -168,12 +169,12 @@ function ServiceRow(
               <button
                 type="button"
                 onClick={() => onPick(`${group.name} (${t.label})`)}
-                className="w-full flex items-baseline justify-between gap-4 pl-7 pr-4 py-2.5 text-left hover:bg-line/40 transition-colors"
+                className="group w-full flex items-baseline justify-between gap-4 pl-7 pr-4 py-2.5 text-left hover:bg-line/40 transition-colors"
               >
                 <span className="text-sm text-ink-muted">{t.label}</span>
                 <span className="flex items-center gap-2 whitespace-nowrap">
                   <span className="text-sm font-semibold text-ink">{money(t.price)}</span>
-                  <span className="text-xs font-semibold text-primary">{cta}</span>
+                  <span className={ROW_ACTION}>{cta}</span>
                 </span>
               </button>
             </li>

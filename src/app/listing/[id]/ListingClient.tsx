@@ -4,7 +4,8 @@ import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { MapPin, Star, ChevronLeft, ChevronRight, Wifi, Car, Coffee, Waves, Shield, ArrowRight, Download, Globe, Clock, Users, Check } from "lucide-react";
+import { MapPin, Star, ChevronLeft, ChevronRight, ChevronDown, Wifi, Car, Coffee, Waves, Shield, ArrowRight, Download, Globe, Clock, Users, Check } from "lucide-react";
+import Button from "@/components/ui/Button";
 import { resolveListing, getListingPrice, getListingLocation, getListingType, getCategoryLabel, getFeaturedListings, visitedBySabie, Listing } from "@/lib/listings";
 import { useMoney } from "@/lib/useRates";
 import { buildDisplayPrice } from "@/lib/display-price";
@@ -46,6 +47,7 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
   // number across the screen is work for nothing, and the gesture only needs
   // to be judged once, at the end.
   const touchX = useRef<number | null>(null);
+  const menuRef = useRef<HTMLDivElement | null>(null);
   const [similarListings, setSimilarListings] = useState<Listing[]>([]);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [slug, setSlug] = useState("");
@@ -166,13 +168,32 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
   // table; a stay shows rooms. Same resolver as the services section, so the
   // word on the button and the shape of the list below it cannot disagree.
   const ctaWord = CTA_LABEL[resolveProfileSections(listing ?? {}).bookCta];
-  // ONE WAY IN, NEVER TWO. A single Book button above a list of seventeen
-  // services cannot say which one it means, so where there is a list the
-  // list IS the booking and this card does not appear at all.
+  // ONE WAY IN, NEVER TWO, and the way to get there is NOT to hide the price.
   //
-  // It stays for the listings with nothing to pick. Of 49 live listings 29
-  // are in that state, most of them cafés whose menu items are not loaded,
-  // and for those a single action is the only action there could be.
+  // That rule is right: a single Book button above a list of seventeen
+  // services cannot say which one it means. The remedy was wrong. This card
+  // was suppressed entirely while a list existed, so on arrival at any
+  // listing with services there was NO price anywhere on the page and NO
+  // filled button anywhere on the page. Both of the listings the founder
+  // opened are in that state, and what he reported seeing was "it just says
+  // Open now. Solo book now".
+  //
+  // One action, which DELEGATES instead of competing: with a list and
+  // nothing picked yet it carries the menu's own words and takes you to the
+  // menu. Pick a row and the same button becomes that row's booking. So
+  // there is exactly one control at every moment, and a price at every
+  // moment, which is what the rule was trying to achieve.
+  // TAKE THEM TO THE LIST, and move focus with the scroll. A scroll alone
+  // leaves a keyboard user where they were, so the button would do nothing
+  // they could perceive.
+  const jumpToMenu = () => {
+    const el = menuRef.current;
+    if (!el) return setBooking(true);
+    el.scrollIntoView({ behavior: "smooth", block: "start" });
+    const first = el.querySelector<HTMLElement>("button, [href]");
+    if (first) window.setTimeout(() => first.focus({ preventScroll: true }), 420);
+  };
+
   const go = (delta: number) => {
     if (images.length < 2) return;
     setCurrentImage((i) => (i + delta + images.length) % images.length);
@@ -195,6 +216,10 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
   };
 
   const pickable = hasPickableList((listing ?? {}) as unknown as Record<string, unknown>);
+  const chooseWord = resolveProfileSections(listing ?? {}).bookCta === "rooms"
+    ? "Pick a room"
+    : "Pick what you want";
+  const delegating = pickable && !pickedOffer;
   // The price of the row they chose, so the headline figure is no longer the
   // cheapest of everything while they are looking at something else. Null
   // until they choose, which is when the "from" price is the honest answer.
@@ -227,9 +252,14 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
       {pickedOffer ? (
         <p className="text-sm text-ink-muted mb-1">{pickedOffer}</p>
       ) : null}
-      <div className="text-3xl font-extrabold text-primary mb-1">{pickedPrice ?? price}</div>
-      <div className={priceUnit ? "" : "mb-6"} />
-      {priceUnit && <p className="text-sm text-text-muted mb-6">{priceUnit}</p>}
+      {/* "from" WHEN IT IS A FLOOR. The figure was identical whether it was
+          the cheapest of seventeen things or the price of the one thing they
+          chose, so the same number meant two different promises. */}
+      <div className="flex items-baseline gap-1.5 mb-1">
+        {delegating && <span className="text-small text-ink-muted">from</span>}
+        <span className="text-display font-extrabold text-ink">{pickedPrice ?? price}</span>
+      </div>
+      <p className="text-small text-ink-muted mb-6">{priceUnit || "\u00A0"}</p>
       {shopWindow ? (
         <>
           {/* BOOK FINISHES HERE. It used to be a link to the App Store, which
@@ -237,13 +267,14 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
               before they could ask a question. Now it opens the request form,
               and the store is offered afterwards, once there is a booking for
               the app to hold. */}
-          <button
-            type="button"
-            onClick={() => setBooking(true)}
-            className="btn-shine w-full flex items-center justify-center gap-2.5 bg-primary hover:bg-primary-dark text-white font-bold py-4 rounded-xl transition-all hover:shadow-lg hover:shadow-primary/20"
+          <Button
+            size="lg"
+            block
+            onClick={() => (delegating ? jumpToMenu() : setBooking(true))}
+            iconRight={delegating ? <ChevronDown size={18} /> : <ArrowRight size={18} />}
           >
-            {ctaWord} <ArrowRight size={18} />
-          </button>
+            {delegating ? chooseWord : ctaWord}
+          </Button>
           {/* THE SERVER ALREADY DECIDES THIS, and the page did not know.
               canSellInstantly in onBookingRequestCreated confirms a request
               on the spot when the listing takes payment, is not a cafe and
@@ -394,13 +425,11 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
           page in a sidebar that only exists on a desktop. Hidden at lg, where
           the sticky sidebar card carries it instead, so there is never more
           than one Book button on screen. */}
-      {(!pickable || pickedOffer) && (
-        <div className="lg:hidden max-w-6xl mx-auto px-4 sm:px-6 pt-6">
-          <div className="bg-card rounded-2xl border border-line p-6 shadow-lg shadow-black/5">
-            {bookingBlock}
-          </div>
+      <div className="lg:hidden max-w-6xl mx-auto px-4 sm:px-6 pt-6">
+        <div className="bg-card rounded-2xl border border-line p-6 shadow-lg shadow-black/5">
+          {bookingBlock}
         </div>
-      )}
+      </div>
 
       {/* Content */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -517,11 +546,16 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
                 under it. resolveProfileSections picks, using the same rules
                 as sectionRouter.js so the two surfaces cannot disagree about
                 the same business. */}
-            <ProfileServices
-              listing={listing as unknown as Record<string, unknown>}
-              currency={listing.currency || "NGN"}
-              onPick={(name) => { setPickedOffer(name); setBooking(true); }}
-            />
+            {/* WHERE THE BUTTON ABOVE SENDS YOU when there is a list. The
+                ref is what lets one action delegate to the list instead of
+                the page hiding its own price to avoid competing with it. */}
+            <div ref={menuRef} className="scroll-mt-24">
+              <ProfileServices
+                listing={listing as unknown as Record<string, unknown>}
+                currency={listing.currency || "NGN"}
+                onPick={(name) => { setPickedOffer(name); setBooking(true); }}
+              />
+            </div>
 
             {/* The menu, where there is one. On 50% of listings and read by
                 nothing until now, which for a restaurant is the single most
@@ -543,15 +577,13 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
           {/* Sidebar — Booking Card */}
           <div className="lg:col-span-1">
             <div className="sticky top-24 bg-card rounded-2xl border border-line p-7 shadow-xl shadow-black/5 ">
-              {/* Same rule on the desktop sidebar: where the page has a
-                  list to pick from, the list is the booking and this is not
-                  a second offer competing with it. */}
-              {(!pickable || pickedOffer) && (
-                <div className="hidden lg:block">
-                  {bookingBlock}
-                  <div className="my-6 border-t border-line" />
-                </div>
-              )}
+              {/* The sidebar carries it too, always. Where there is a list
+                  the button delegates to the list rather than competing
+                  with it, so one control is still the whole truth. */}
+              <div className="hidden lg:block">
+                {bookingBlock}
+                <div className="my-6 border-t border-line" />
+              </div>
 
               {/* Quick info */}
               <div className="space-y-4 text-sm">

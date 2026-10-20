@@ -120,6 +120,25 @@ export const FIELD = {
   invalid: "border-alarm-line",
 } as const;
 
+// A ROW'S ACTION MARKER, which is NOT a nested button.
+//
+// The whole row is already the control, and a button inside a button is
+// invalid markup where the inner one stops receiving the tap. But the marker
+// still has to READ as the way in: it shipped as a twelve-pixel word in the
+// same colour as the price beside it, under a comment saying "A ROW HAS TO
+// LOOK LIKE THE WAY IN", and that is the single thing the founder pointed at.
+//
+// So it wears the secondary button's clothes on a span. It never wears the
+// action's gold, because seventeen services would then be seventeen gold
+// buttons and the one real action at the top of the page would be lost among
+// them.
+export const ROW_ACTION = cx(
+  "inline-flex items-center gap-1 shrink-0",
+  RADIUS.control,
+  "border border-line-strong bg-card px-2.5 py-1.5 text-caption font-semibold text-ink",
+  "transition-colors group-hover:bg-surface-sunken group-hover:border-ink-muted",
+);
+
 export const ROW = {
   base: "flex items-start gap-3 w-full text-left px-4 py-3 transition-colors",
   interactive: cx("hover:bg-surface-sunken", FOCUS),
