@@ -21,6 +21,7 @@ import { offersOf, slotsFor, policyLines, addressOf, type Offer } from "@/lib/sh
 import { offerTotal } from "@/lib/offer-total";
 import { breakdownOf, feeLabel, TRAVELLER_FEE_PERCENT } from "@/lib/traveller-fee";
 import { nightsBetween } from "@/lib/stay";
+import { slotChoices, hasSlots } from "@/lib/slots";
 import { useAuth } from "@/contexts/AuthContext";
 import { addToTrip } from "@/lib/cart";
 import { fetchBookingDecision, ASK, type BookingDecision } from "@/lib/booking-decision";
@@ -165,6 +166,29 @@ export default function BookingRequest({
   // 49 listings that have not set any, and the field below then asks in plain
   // words instead of inventing a grid nobody agreed to.
   const slots = slotsFor(listing, offer);
+  // WHICH OF THOSE TIMES CAN STILL BE TAKEN. shop-window's slotsFor lists
+  // the operator's times and stays the only place that does; this decides
+  // availability, which is the part nothing did. The service's own days and
+  // notice period come from the chosen row.
+  const slotRules = (() => {
+    const rows = (listing as unknown as { services?: Record<string, unknown>[] })?.services ?? [];
+    const wanted = (offer || "").trim().toLowerCase();
+    const row = rows.find((r) => String(r?.name ?? "").trim().toLowerCase() === wanted);
+    return {
+      slots,
+      availableDays: Array.isArray(row?.availableDays) ? (row!.availableDays as string[]) : undefined,
+      leadTimeHours: typeof row?.leadTime === "number" ? (row.leadTime as number) : undefined,
+    };
+  })();
+  const takeable = date ? slotChoices(date, slotRules) : slots.map((slot) => ({ slot, available: true, reason: null }));
+
+  // A CHOSEN TIME THAT STOPS BEING TAKEABLE MUST GO. Pick 10am for
+  // tomorrow, move the date to today after 10, and the request would carry
+  // a time the operator cannot honour, with the field still showing it.
+  useEffect(() => {
+    if (!time || !hasSlots({ slots })) return;
+    if (!takeable.some((c) => c.slot === time && c.available)) setTime("");
+  }, [date, time, takeable, slots]);
   const policy = policyLines(listing);
   const address = addressOf(listing);
   // THE SERVER DECIDES, and this asks it. booking-mode.ts used to work it
@@ -610,7 +634,17 @@ export default function BookingRequest({
                     className="w-full min-w-0 h-12 px-3 rounded-2xl bg-card border border-line text-ink focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-colors"
                   >
                     <option value="">Pick a time</option>
-                    {slots.map((t) => <option key={t} value={t}>{t}</option>)}
+                    {/* EVERY SLOT, WITH THE GONE ONES DISABLED. A list that
+                        silently shortens as the day goes on reads as a
+                        service losing its times; a greyed row reads as a
+                        time that has gone. 27 services also carry the days
+                        they run, which nothing had ever read, so a
+                        Saturday-only experience accepted a Tuesday. */}
+                    {takeable.map((c) => (
+                      <option key={c.slot} value={c.slot} disabled={!c.available}>
+                        {c.slot}{c.reason ? ` · ${c.reason}` : ""}
+                      </option>
+                    ))}
                   </select>
                 ) : (
                   <input
