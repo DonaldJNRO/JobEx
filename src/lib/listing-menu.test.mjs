@@ -194,8 +194,13 @@ ck(/worthAScreen\(group\)/.test(live(SECTION)), "and the row asks before opening
 ck(/openAsScreen\(thumb, OFFER_HERO/.test(live(SECTION)), "which comes out of the row it was tapped on");
 ck(/imageUrl: typeof \(r as \{ imageUrl\?: unknown \}\)\.imageUrl/.test(SHOP),
   "the photo is carried through the group, or nothing downstream can read it");
-ck(/timeSlots/.test(SHOP) && /When it runs/.test(OFFER),
+// THE HOURS ARE A PICKER BESIDE THE DAY NOW, not a heading over nine
+// pills: same shape as check in and check out on a room, because it is the
+// same job. The heading went from "When it runs" to "When" with it.
+ck(/timeSlots/.test(SHOP) && /<Clock size=\{16\} \/> When/.test(OFFER),
   "and the hours, which 116 experiences carry and nothing had ever shown");
+ck(/grid grid-cols-2 gap-2\.5 \[&>\*\]:min-w-0/.test(OFFER),
+  "as two pickers side by side, with cells that can shrink");
 
 // A CAFE'S MENU IS A MENU. You read it; you do not tap a jollof rice to
 // open its screen. hasPickableList already refuses a menu shape, so this

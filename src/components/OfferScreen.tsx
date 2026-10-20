@@ -5,7 +5,7 @@ import Image from "next/image";
 import { X, Clock, ChevronRight } from "lucide-react";
 import Button from "./ui/Button";
 import Overlay from "./Overlay";
-import { ROW_ACTION, cardClass } from "@/lib/ui-recipes";
+import { ROW_ACTION, cardClass, fieldClass } from "@/lib/ui-recipes";
 import { OFFER_HERO } from "@/lib/screen-open";
 import { slotChoices } from "@/lib/slots";
 import { todayISO } from "@/lib/stay";
@@ -137,70 +137,68 @@ export default function OfferScreen({
               <p className="whitespace-pre-line text-body leading-[1.8] text-ink-body">{group.description}</p>
             )}
 
-            {/* THE HOURS IT RUNS. 116 experience services carry timeSlots
-                and nothing on this website had ever read one, so "when is
-                it" was a question the page could answer and did not. */}
+            {/* WHEN. TWO PICKERS, SIDE BY SIDE, the same shape as check
+                in and check out on a room, because it is the same job: two
+                halves of one answer.
+
+                This was nine tappable pills under a date field. Tappable
+                was the fix for read-only, and a grid of pills is still the
+                wrong object: it takes four rows of height to say what a
+                dropdown says in one, and it does not look like the pair of
+                boxes the rest of the site uses for exactly this.
+
+                The day comes first because the hours DEPEND on it: a
+                Saturday-only experience runs none on a Tuesday, and
+                today's 11am has gone while tomorrow's has not. */}
             {(group.timeSlots?.length ?? 0) > 0 && (
               <div className="mt-6">
-                <h3 className="mb-2.5 flex items-center gap-2 text-heading font-bold text-ink">
-                  <Clock size={16} /> When it runs
+                <h3 className="mb-3 flex items-center gap-2 text-heading font-bold text-ink">
+                  <Clock size={16} /> When
                 </h3>
-                {/* A PICKER, NOT A NOTICE BOARD. These were read-only
-                    pills: the screen listed sixteen times a guest could
-                    not choose between, and then the next screen asked them
-                    to pick one from a dropdown anyway. Tapping the hour you
-                    want is the whole point of showing the hours. */}
-                {/* THE DAY, HERE, ABOVE THE HOURS. This screen listed the
-                    times and told you to pick one, then said the day came
-                    on the NEXT screen, which is backwards: which hours are
-                    open depends on the day. A Saturday-only experience
-                    runs none on a Tuesday and today's 11am has gone.
-                    Picking an hour for no date was picking from a list
-                    nothing had filtered.
-                    
-                    The room screen asks check in before it shows a price,
-                    and this is the same shape. */}
-                <label className="mb-3 block max-w-xs">
-                  <span className="mb-1 block text-caption font-semibold text-ink">Which day</span>
-                  <input
-                    type="date"
-                    value={day}
-                    min={todayISO()}
-                    onChange={(e) => { setDay(e.target.value); setSlot(""); }}
-                    className="w-full min-w-0 rounded-xl border border-line-strong bg-card px-3 py-2.5 text-small text-ink"
-                  />
-                </label>
 
-                <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="When it runs">
-                  {choices.map((c) => {
-                    const chosen = slot === c.slot;
-                    return (
-                      <button
-                        key={c.slot}
-                        type="button"
-                        role="radio"
-                        aria-checked={chosen}
-                        disabled={!day || !c.available}
-                        title={c.reason ?? undefined}
-                        onClick={() => setSlot(chosen ? "" : c.slot)}
-                        className={`rounded-full px-3.5 py-2 text-small font-semibold transition-colors ${
-                          chosen
-                            ? "bg-primary text-white"
-                            : !day || !c.available
-                              ? "cursor-not-allowed bg-ink-wash/60 text-ink-faint line-through"
-                              : "bg-ink-wash text-ink hover:bg-line"
-                        }`}
-                      >
-                        {c.slot}
-                      </button>
-                    );
-                  })}
+                <div className="grid grid-cols-2 gap-2.5 [&>*]:min-w-0">
+                  <label className="block">
+                    <span className="mb-1 block text-caption font-semibold text-ink">Day</span>
+                    <input
+                      type="date"
+                      value={day}
+                      min={todayISO()}
+                      data-empty={day ? undefined : "true"}
+                      // Changing the day clears the hour: that hour may not
+                      // run on the new one.
+                      onChange={(e) => { setDay(e.target.value); setSlot(""); }}
+                      className={fieldClass()}
+                    />
+                    {!day && (
+                      <span aria-hidden="true" className="pointer-events-none -mt-9 block px-3 py-2.5 text-small text-ink-faint">
+                        Add a day
+                      </span>
+                    )}
+                  </label>
+
+                  <label className="block">
+                    <span className="mb-1 block text-caption font-semibold text-ink">Time</span>
+                    <select
+                      value={slot}
+                      disabled={!day}
+                      onChange={(e) => setSlot(e.target.value)}
+                      className={`${fieldClass()} disabled:cursor-not-allowed disabled:bg-surface-sunken disabled:text-ink-faint`}
+                    >
+                      <option value="">{day ? "Pick a time" : "Pick a day first"}</option>
+                      {choices.map((c) => (
+                        <option key={c.slot} value={c.slot} disabled={!c.available}>
+                          {c.slot}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
                 </div>
+
                 <p className="mt-2 text-caption text-ink-muted">
                   {!day
-                    ? "Pick a day to see which hours are open."
+                    ? `Runs ${group.timeSlots![0]} to ${group.timeSlots![group.timeSlots!.length - 1]}. Pick a day to see what is open.`
                     : choices.some((c) => c.available)
-                      ? (slot ? "That is your slot." : "Pick an hour.")
+                      ? (slot ? "That is your slot." : "Pick a time.")
                       : "Nothing runs on that day."}
                 </p>
               </div>

@@ -103,25 +103,29 @@ console.log("\nand the hours are a picker, not a notice board");
 // a dropdown anyway.
 const OFFER = readFileSync("src/components/OfferScreen.tsx", "utf8")
   .replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
-ok(/role="radiogroup"/.test(OFFER), "the hours are a group of choices");
-ok(/aria-checked=\{chosen\}/.test(OFFER), "each one says whether it is the chosen one");
-ok(/setSlot\(chosen \? "" : c\.slot\)/.test(OFFER), "and tapping the chosen one clears it, so a pick is reversible");
+// A PICKER BESIDE THE DAY, not a grid of pills. Tappable was the fix for
+// read-only; a nine-pill grid was still the wrong object, taking four rows
+// of height to say what a dropdown says in one, and looking nothing like
+// the pair of boxes the rest of the site uses for exactly this job.
+ok(/grid grid-cols-2 gap-2\.5/.test(OFFER), "the day and the time sit side by side");
+ok(/<select/.test(OFFER), "and the time is a picker");
+ok(!/role="radiogroup"/.test(OFFER), "rather than a grid of pills");
 
-// THE DAY COMES FIRST HERE TOO. This screen listed the hours and said the
-// day came on the NEXT one, which is backwards: which hours are open
-// depends on the day. I fixed the ordering in the booking sheet and left
-// the screen that feeds it, which is where somebody actually is.
+// THE DAY DECIDES THE HOURS, so it cannot be asked for second.
 ok(/type="date"/.test(OFFER), "the offer screen asks which day");
 ok(/setDay\(e\.target\.value\); setSlot\(""\)/.test(OFFER),
   "and changing it clears the hour, since that hour may not run on the new day");
-ok(/disabled=\{!day \|\| !c\.available\}/.test(OFFER), "no hour can be picked before a day");
-ok(/Pick a day to see which hours are open/.test(OFFER), "and it says why rather than sitting there greyed");
+ok(/disabled=\{!day\}/.test(OFFER), "no hour can be picked before a day");
+ok(/day \? "Pick a time" : "Pick a day first"/.test(OFFER), "and it says so rather than sitting there greyed");
+ok(/disabled=\{!c\.available\}/.test(OFFER), "an hour that has gone cannot be chosen");
 ok(/Nothing runs on that day/.test(OFFER), "a day the thing does not run says so");
+// An empty date input is blank on iOS, the same as everywhere else.
+ok(/Add a day/.test(OFFER), "and the day field says what it wants, since Safari draws nothing");
 
-// An hour needs the DAYS it runs on to mean anything.
 const SHOP2 = readFileSync("src/lib/shop-window.ts", "utf8");
 ok(/availableDays: Array\.isArray/.test(SHOP2), "the group carries the days it runs");
 ok(/leadTimeHours: typeof/.test(SHOP2), "and the notice it needs");
+
 ok(/onPick\(group\.name, slot \|\| undefined, day \|\| undefined\)/.test(OFFER),
   "the hour travels with the booking, and the day with it");
 
