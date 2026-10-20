@@ -1,0 +1,125 @@
+// "IT SHOWS YOU NOTHING. NOTHING AT ALL."
+//
+// Tapping a room on the website went straight to payment with no picture,
+// where the app shows photos and video. The cause was not the sheet: the
+// website was reading the wrong place. A stay's rooms live in a
+// SUBCOLLECTION, roomTypes or stayUnits, and this site read services[],
+// where Scout also writes the room NAMES. So every row was a stub with a
+// price and nothing behind it, and some pages drew the rooms twice.
+//
+// Measured: 10 listings carry a room subcollection, 30 room documents, ALL
+// 30 carrying media, 195 photos and 45 videos between them.
+//
+// Run: tsx src/lib/rooms.test.mjs
+
+import { readFileSync } from "node:fs";
+import {
+  deriveRoomSections, toRoom, roomPhotos, roomVideos, roomCover, hasMedia,
+} from "./rooms.ts";
+
+let fails = 0;
+const ok = (cond, label) => {
+  if (!cond) { console.error("  FAIL " + label); fails++; } else { console.log("  ok   " + label); }
+};
+
+console.log("\nthe web reads where the rooms actually are");
+const SRC = readFileSync("src/lib/rooms.ts", "utf8");
+ok(/"roomTypes"/.test(SRC), "roomTypes, for a Landlord, Host or HospitalityManager");
+ok(/"stayUnits"/.test(SRC), "and stayUnits, for a hybrid beach listing");
+ok(/Promise\.allSettled/.test(SRC), "both read, so a recategorised listing keeps its rooms");
+
+console.log("\nsections mirror the app's own derivation");
+// Same rule as components/stay/roomSections.js, including the legacy
+// fallback, or a room looks different on a phone and in a browser.
+const real = deriveRoomSections({
+  mediaSections: [
+    { id: "walkthrough", photos: [], videos: ["v1"] },
+    { id: "bedroom", photos: ["p1"], videos: ["v2"] },
+  ],
+});
+ok(real.length === 2, "a section with only a film still counts");
+ok(real[0].id === "walkthrough", "and keeps its order");
+
+const dropped = deriveRoomSections({
+  mediaSections: [
+    { id: "full", photos: ["p1"], videos: [] },
+    { id: "empty", photos: [], videos: [] },
+  ],
+});
+// A heading over nothing is a broken promise, and worse, it shifts the
+// index: the tile at N must open the section at N.
+ok(dropped.length === 1 && dropped[0].id === "full", "an empty section is dropped, not rendered as a heading over nothing");
+
+console.log("\nand the legacy shape still lights up");
+const legacy = deriveRoomSections({ images: ["a", "b"], videoUrl: "v" });
+ok(legacy.length === 1 && legacy[0].id === "gallery", "flat images become one synthetic gallery");
+ok(legacy[0].photos.length === 2 && legacy[0].videos.length === 1, "carrying both");
+ok(deriveRoomSections({ videoUrls: ["v1", "v2"] })[0].videos.length === 2, "videoUrls too");
+ok(deriveRoomSections({}).length === 0, "and a room with nothing has no sections, rather than one empty one");
+ok(deriveRoomSections({ mediaSections: [{ photos: [], videos: [] }], images: ["x"] })[0].photos[0] === "x",
+  "sections that are all empty fall back to the legacy images");
+
+console.log("\nnothing malformed reaches the page");
+ok(deriveRoomSections({ mediaSections: "nope" }).length === 0, "a non-array mediaSections is not iterated");
+ok(deriveRoomSections({ images: [null, "", "ok", 7] })[0].photos.length === 1, "blanks and numbers are not urls");
+ok(deriveRoomSections({ mediaSections: [{ photos: ["p"] }] })[0].videos.length === 0, "a missing videos key is empty, not undefined");
+
+console.log("\na room carries what the row needs");
+const room = toRoom("r1", {
+  name: "Lighthouse Cabin",
+  description: "On the point",
+  basePrice: { amount: 125, currency: "GBP" },
+  quantity: 2, maxGuests: 3,
+  mediaSections: [{ id: "a", photos: ["p1", "p2"], videos: ["v1"] }],
+});
+ok(room.name === "Lighthouse Cabin" && room.priceAmount === 125, "name and price");
+ok(room.priceCurrency === "GBP", "in the currency the room states, not the listing's");
+ok(roomPhotos(room).length === 2 && roomVideos(room).length === 1, "its media, flattened in section order");
+ok(roomCover(room) === "p1", "and a cover for the row");
+ok(hasMedia(room) === true, "which is how the row knows to show one");
+
+const bare = toRoom("r2", {});
+ok(bare.name === "Room", "an unnamed room is still a room, never blank");
+ok(roomCover(bare) === null && hasMedia(bare) === false, "and one with no media says so rather than rendering a broken image");
+ok(toRoom("r3", { basePrice: {} }).priceAmount === null, "a price that is not a number is absent, not NaN");
+
+// A FILM WITHOUT A STILL. 45 videos live in these rooms and some sections
+// carry only video, so a cover of "the first photo" can legitimately be null
+// on a room that definitely has media.
+const filmOnly = toRoom("r4", { mediaSections: [{ id: "w", photos: [], videos: ["v"] }] });
+ok(hasMedia(filmOnly) === true && roomCover(filmOnly) === null,
+  "a room with only a film has media but no cover, and both facts are true at once");
+
+console.log("\nthe page shows them, with their pictures");
+const PAGE = readFileSync("src/app/listing/[id]/ListingClient.tsx", "utf8");
+const LIST = readFileSync("src/components/RoomList.tsx", "utf8");
+ok(/<RoomList/.test(PAGE), "the listing page mounts the room list");
+ok(/fetchRooms\(role, docId\)/.test(LIST), "which reads the subcollection");
+ok(/<Image/.test(LIST), "and every row carries a picture");
+ok(/RoomGallery/.test(LIST), "tapping one opens the gallery rather than going to payment");
+
+const GAL = readFileSync("src/components/RoomGallery.tsx", "utf8");
+ok(/<video/.test(GAL) && /<Image/.test(GAL), "which shows films as well as photos");
+// CASE SENSITIVE, and on the JSX prop rather than the word. The first
+// version of this was /autoPlay/i and it failed against the COMMENT
+// explaining why there is no autoplay. Seventh time in this repo that a
+// guard matched a spelling instead of the thing.
+ok(!/\bautoPlay\b/.test(GAL.replace(/\/\/[^\n]*/g, "")), "and does not start a film talking at somebody unasked");
+ok(/aria-modal="true"/.test(GAL), "announced as a dialog");
+ok(/Escape/.test(GAL), "with a keyboard way out, since it covers the whole page");
+ok(/document\.body\.style\.overflow/.test(GAL), "and the page behind does not scroll under it");
+
+console.log("\nand the rooms are not drawn twice");
+// Scout writes a stay's rooms into services[] as well as roomTypes, so a
+// page rendering both lists showed every room twice: once with a photograph
+// and once as a bare stub.
+const SECTION = readFileSync("src/components/ProfileServices.tsx", "utf8");
+ok(/hideNames/.test(SECTION), "the services list can drop names already shown as rooms");
+ok(/trim\(\)\.toLowerCase\(\)/.test(SECTION), "matched case-insensitively, since the two writers disagree on capitalisation");
+ok(/hideNames=\{roomNames\}/.test(PAGE), "and the page passes what the room list found");
+// It is a de-duplicate, not a way to hide the section: a bonfire is not a
+// room and must survive.
+ok(/\.filter\(\(g\) => !drop\.has/.test(SECTION), "only the duplicates go, never the whole list");
+
+console.log(fails ? `\n${fails} FAILED` : "\nALL PASSED");
+process.exit(fails ? 1 : 0);

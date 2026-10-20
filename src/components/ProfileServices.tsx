@@ -52,13 +52,15 @@ function useMoney(nativeCurrency: string) {
 }
 
 interface Props {
+  /** Names already shown as real rooms, to drop from this list. */
+  hideNames?: string[];
   listing: Record<string, unknown>;
   currency: string;
   /** Opens the booking sheet on a chosen row. */
   onPick: (offerName: string) => void;
 }
 
-export default function ProfileServices({ listing, currency, onPick }: Props) {
+export default function ProfileServices({ listing, currency, onPick, hideNames }: Props) {
   const { services: shape, bookCta } = resolveProfileSections(listing);
   // The same word the button at the top of the page uses.
   // A ROW IS NOT THE PAGE. CTA_LABEL is the word for the ONE button at the
@@ -72,7 +74,18 @@ export default function ProfileServices({ listing, currency, onPick }: Props) {
   // On a row the honest word is what tapping it does. A row with tiers
   // behind it opens them; a row with one price books that price.
   const cta = bookBookCtaRowWord(bookCta);
-  const groups = serviceGroups(listing);
+  // ROOMS ARE WRITTEN INTO services[] TOO. Scout writes a stay's rooms as
+  // services as well as into roomTypes, so a page that renders both lists
+  // shows every room twice, once with a photograph and once as a bare stub.
+  // The root of that is a writer in another repo and a fix there was tried
+  // and reverted as unsafe, so the duplicate is dropped at display time by
+  // whichever surface already drew it properly.
+  //
+  // By name, trimmed and case-insensitively, because the two writers do not
+  // agree on capitalisation. Anything NOT a room, a bonfire for instance,
+  // stays: this is a de-duplicate, not a way to hide the services list.
+  const drop = new Set((hideNames || []).map((n) => n.trim().toLowerCase()).filter(Boolean));
+  const groups = serviceGroups(listing).filter((g) => !drop.has(String(g.name).trim().toLowerCase()));
   const money = useMoney(currency);
   const menu = Array.isArray(listing.menu) ? (listing.menu as MenuCategory[]) : [];
 

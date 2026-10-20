@@ -17,6 +17,7 @@ import { APP_STORE_URL } from "@/lib/app-links";
 import { isShopWindow } from "@/lib/shop-window";
 import { fetchBookingDecision, ASK, type BookingDecision } from "@/lib/booking-decision";
 import ProfileServices, { hasPickableList } from "@/components/ProfileServices";
+import RoomList from "@/components/RoomList";
 import { offersOf } from "@/lib/shop-window";
 import { resolveProfileSections, CTA_LABEL } from "@/lib/profile-sections";
 import type { ListingSnapshot } from "@/lib/listing-snapshot";
@@ -48,6 +49,7 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
   // to be judged once, at the end.
   const touchX = useRef<number | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const [roomNames, setRoomNames] = useState<string[]>([]);
   const [similarListings, setSimilarListings] = useState<Listing[]>([]);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [slug, setSlug] = useState("");
@@ -552,10 +554,26 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
             {/* WHERE THE BUTTON ABOVE SENDS YOU when there is a list. The
                 ref is what lets one action delegate to the list instead of
                 the page hiding its own price to avoid competing with it. */}
-            <div ref={menuRef} className="scroll-mt-24">
+            <div ref={menuRef} className="scroll-mt-24 space-y-10">
+              {/* THE REAL ROOMS, with their photographs. A stay's rooms live
+                  in a roomTypes or stayUnits subcollection and this page had
+                  never read either: it rendered the room NAMES that Scout
+                  also writes into services[], which is why tapping one
+                  showed nothing and why some pages listed the rooms twice.
+                  All 30 room documents in production carry media. */}
+              {listing.role && listing.id && (
+                <RoomList
+                  role={listing.role}
+                  docId={listing.id}
+                  fallbackCurrency={listing.currency || "NGN"}
+                  onPick={(name) => { setPickedOffer(name); setBooking(true); }}
+                  onRooms={setRoomNames}
+                />
+              )}
               <ProfileServices
                 listing={listing as unknown as Record<string, unknown>}
                 currency={listing.currency || "NGN"}
+                hideNames={roomNames}
                 onPick={(name) => { setPickedOffer(name); setBooking(true); }}
               />
             </div>
