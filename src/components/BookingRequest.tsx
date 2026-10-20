@@ -885,6 +885,26 @@ export default function BookingRequest({
                       <span className="text-small font-normal text-ink-muted"> {priceUnitShort}</span>
                     )}
                   </span>
+                  {/* WHAT THE TOTAL COVERS, when nothing says.
+
+                      159 services on this platform carry a price and NOT
+                      ONE says what that price is for: no unit field, and
+                      not one name saying "per person". So a screen reading
+                      "5 people" above "Total 12" is a figure whose meaning
+                      nobody can look up, the traveller included.
+
+                      Guessing either way is worse than saying so. Multiply
+                      and a flat session fee overcharges somebody real;
+                      stay silent and a per head price turns up short at
+                      the door. The headcount reaches the operator with the
+                      booking either way, so the honest line is the one
+                      that says that. Operators need a unit on the price,
+                      which is a Studio and Scout change, not a web one. */}
+                  {guests > 1 && !priceUnitShort && (
+                    <p className="mt-1.5 text-caption text-ink-muted">
+                      Your party of {guests} goes to the operator with the booking.
+                    </p>
+                  )}
                   {/* The "about N5,000" line under the total is gone. The
                       figure a visitor is committing to is the one in their
                       own money, and a second currency beside it read as two

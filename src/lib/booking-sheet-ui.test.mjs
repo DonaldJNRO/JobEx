@@ -121,5 +121,15 @@ ck(/isRate && stayNights === 0 && priceUnit/.test(SHEET),
 ck(/per \$\{m\[1\]\}/.test(SHEET),
   "and the unit comes from a recognised rate, not from whatever the offer is called");
 
+// A HEADCOUNT BESIDE A PRICE THAT DOES NOT SAY WHAT IT COVERS.
+// Measured 20 Oct 2026: 159 services carry a price and NOT ONE carries a
+// unit, nor says "per person" in its name. So "5 people" over "Total 12"
+// is a figure nobody can look up. Multiplying would overcharge a flat
+// session fee; silence sends a per head booking up short at the door.
+ck(/guests > 1 && !priceUnitShort/.test(SHEET),
+  "a party with no unit on the price gets told where the headcount goes");
+ck(/goes to the operator with the booking/.test(SHEET),
+  "which is the one thing about it that is certain");
+
 console.log(fails ? `\n${fails} FAILED` : "\nALL PASSED");
 process.exit(fails ? 1 : 0);
