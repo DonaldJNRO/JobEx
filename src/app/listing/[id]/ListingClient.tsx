@@ -108,7 +108,10 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
       <div className="min-h-screen bg-surface">
         <div className="max-w-6xl mx-auto px-4 py-8">
           <div className="animate-pulse space-y-6">
-            <div className="aspect-[2.2/1] rounded-2xl bg-surface-sunken animate-shimmer" />
+            {/* 4/3 on a phone, matching the hero and loading.tsx. This was
+                2.2/1 against a hero of 4/3, so the page reflowed the moment
+                the content arrived. */}
+            <div className="aspect-[4/3] sm:aspect-[2.5/1] rounded-2xl bg-surface-sunken animate-shimmer" />
             <div className="grid lg:grid-cols-3 gap-8">
               <div className="lg:col-span-2 space-y-4">
                 <div className="h-8 w-2/3 rounded-lg bg-surface-sunken" />

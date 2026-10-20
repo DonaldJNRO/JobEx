@@ -65,7 +65,12 @@ export default function ListingCard({
       // The slug, not the document id, so the address a visitor can copy out of
       // their bar is the one we want them to have.
       href={`/listing/${listingSlug(listing)}`}
-      className="group block"
+      // THE TAP HAS TO ANSWER. Opening a listing awaits a server read, so
+      // for the length of that read nothing on screen moved and the card
+      // gave no sign it had been pressed. A press state plus loading.tsx is
+      // the difference between slow and broken: the finger gets an answer
+      // immediately and the page arrives when it arrives.
+      className="group block transition-transform duration-150 ease-out active:scale-[0.985]"
       style={{ animationDelay: `${index * 0.06}s` }}
     >
       <div
