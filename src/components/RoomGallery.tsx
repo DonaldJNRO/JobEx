@@ -91,20 +91,20 @@ export default function RoomGallery({
       role="dialog"
       aria-modal="true"
       aria-label={room.name}
-      className="fixed inset-0 z-[100] flex flex-col bg-neutral-dark"
+      className="fixed inset-0 z-[100] flex flex-col bg-surface"
     >
-      <header className="flex shrink-0 items-center gap-3 px-4 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top,0px))]">
+      <header className="flex shrink-0 items-center gap-3 border-b border-line bg-card px-4 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top,0px))]">
         <button
           type="button"
           onClick={close}
           aria-label="Close"
-          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface-sunken text-ink transition-colors hover:bg-line"
         >
           <X size={18} />
         </button>
         <div className="min-w-0 flex-1">
-          <h2 className="truncate font-bold text-white">{room.name}</h2>
-          {total > 1 && <p className="text-caption text-white/70">{at + 1} of {total}</p>}
+          <h2 className="truncate font-bold text-ink">{room.name}</h2>
+          {total > 1 && <p className="text-caption text-ink-muted">{at + 1} of {total}</p>}
         </div>
       </header>
 
@@ -125,7 +125,12 @@ export default function RoomGallery({
           const i = Math.round(el.scrollLeft / Math.max(1, el.clientWidth));
           if (i !== at) setAt(i);
         }}
-        className="flex min-h-0 flex-1 snap-x snap-mandatory overflow-x-auto overflow-y-hidden overscroll-x-contain scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        // A FIXED SHAPE AT THE TOP, not whatever height is left over.
+        // flex-1 gave the photo the whole screen minus the footer, and a
+        // 4:3 photo contained inside a tall box is a small photo between
+        // two black bars with the dates crushed into a strip underneath.
+        // Capped at 55vh so it never eats a short screen.
+        className="flex aspect-[4/3] max-h-[55vh] w-full shrink-0 snap-x snap-mandatory overflow-x-auto overflow-y-hidden overscroll-x-contain scroll-smooth bg-neutral-dark [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {items.map((item, i) => (
           <div key={item.src} className="relative flex w-full shrink-0 snap-center items-center justify-center">
@@ -153,12 +158,13 @@ export default function RoomGallery({
           </div>
         ))}
         {items.length === 0 && (
-          <p className="flex w-full items-center justify-center text-small text-white/60">
+          <p className="flex w-full items-center justify-center text-small text-ink-muted">
             No pictures of this room yet.
           </p>
         )}
       </div>
 
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
       {/* WHERE YOU ARE IN THE SET. Dots past about eight become a smear, so
           past that the count says it in words instead. */}
       {items.length > 1 && (
@@ -170,12 +176,14 @@ export default function RoomGallery({
                   type="button"
                   aria-label={`Photo ${i + 1}`}
                   onClick={() => track.current?.scrollTo({ left: i * track.current.clientWidth, behavior: "smooth" })}
-                  className={`h-1.5 rounded-full transition-all ${i === at ? "w-5 bg-white" : "w-1.5 bg-white/40"}`}
+                  className={`h-1.5 rounded-full transition-all ${i === at ? "w-5 bg-ink" : "w-1.5 bg-line-strong"}`}
                 />
               ))
-            : <span className="text-caption text-white/70">{at + 1} of {items.length}</span>}
+            : <span className="text-caption text-ink-muted">{at + 1} of {items.length}</span>}
         </div>
       )}
+
+      </div>
 
       <footer className="shrink-0 border-t border-line bg-card px-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] pt-4">
         {/* THE TERMS THAT ARE ACTUALLY FIELDS, said in the viewer's own

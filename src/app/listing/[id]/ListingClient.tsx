@@ -379,7 +379,14 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
       <div className="relative bg-neutral-dark">
         <div className="max-w-6xl mx-auto">
           <div
-            className="relative aspect-[4/3] sm:aspect-[2.5/1] overflow-hidden sm:rounded-b-3xl select-none"
+            // w-full IS LOAD BEARING. An element carrying a
+            // view-transition-name gets `contain: layout`, and a block with
+            // an aspect-ratio and no explicit width then sizes to its
+            // CONTENT. The content here is an <Image fill>, which is
+            // absolutely positioned and therefore no content at all, so the
+            // hero collapsed to a few hundred pixels in the top left corner
+            // and the rest of the page ran full width beside it.
+            className="relative w-full aspect-[4/3] sm:aspect-[2.5/1] overflow-hidden sm:rounded-b-3xl select-none"
             // THE OTHER END OF THE MORPH. The card sets this same name on
             // the photo you tapped, so the browser treats the two as one
             // element and animates between them: the picture travels from

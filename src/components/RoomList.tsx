@@ -126,12 +126,16 @@ export default function RoomList({
                 const thumb = (e.currentTarget as HTMLElement).querySelector<HTMLElement>("[data-room-thumb]");
                 openAsScreen(thumb, ROOM_HERO, () => setShowing(room));
               }}
-              // 78% so the next card is always part in view. A card that
-              // fills the width looks like the only one there is.
-              className="w-[78%] shrink-0 snap-start overflow-hidden rounded-2xl border border-line bg-card text-left transition-transform duration-150 active:scale-[0.985] sm:w-64"
+              // 66%, so a second card is genuinely readable rather than a
+              // sliver. At 78 one room owned the screen and the carousel
+              // read as a very tall single card you happened to be able to
+              // push sideways.
+              className="w-[66%] max-w-[18rem] shrink-0 snap-start overflow-hidden rounded-2xl border border-line bg-card text-left transition-transform duration-150 active:scale-[0.985]"
             >
-              <span data-room-thumb className="relative block aspect-[4/3] w-full overflow-hidden bg-surface-sunken">
-                {cover ? <Image src={cover} alt="" fill sizes="(min-width: 640px) 256px, 78vw" className="object-cover" /> : null}
+              {/* 3:2, not 4:3. Seven rooms of 4:3 plus their details made
+                  each card taller than the screen it sits in. */}
+              <span data-room-thumb className="relative block aspect-[3/2] w-full overflow-hidden bg-surface-sunken">
+                {cover ? <Image src={cover} alt="" fill sizes="(min-width: 640px) 288px, 66vw" className="object-cover" /> : null}
                 {films > 0 && (
                   <span className="absolute inset-0 flex items-center justify-center">
                     <span className="flex h-10 w-10 items-center justify-center rounded-full bg-black/55 backdrop-blur-sm">

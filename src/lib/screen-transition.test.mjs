@@ -97,5 +97,38 @@ ok(/Step \{step === "when" \? 1/.test(SHEET), "and the step is announced, not on
 ok(/Change\s*\n\s*<\/button>/.test(SHEET) || /> *Change *</.test(SHEET), "the review lists what was chosen with a Change on each row");
 ok((SHEET.match(/type="button"/g) || []).length >= 4, "and those are type=button, or each one submits the form it sits in");
 
+console.log("\na named element still fills its container");
+// THE ONE THAT COLLAPSED THE HERO. An element carrying a
+// view-transition-name gets `contain: layout`. A block with an aspect-ratio
+// and no explicit width then sizes to its CONTENT, and the content here is
+// an <Image fill>, which is absolutely positioned and so no content at all.
+// The hero shrank to a corner and the rest of the page ran full width
+// beside it.
+//
+// Every element that takes a name and relies on aspect-ratio needs an
+// explicit width. There is no warning and nothing fails to build.
+const named = [
+  ["src/app/listing/[id]/ListingClient.tsx", /style=\{\{ viewTransitionName: "listing-hero" \}\}/],
+  ["src/app/listing/[id]/loading.tsx", /viewTransitionName: "listing-hero"/],
+];
+for (const [file, marker] of named) {
+  const src = readFileSync(file, "utf8");
+  ok(marker.test(src), `${file.split("/").pop()} carries the name`);
+  // The class list on, or immediately around, the named element.
+  const i = src.search(marker);
+  const near = src.slice(Math.max(0, i - 900), i + 300);
+  ok(/w-full/.test(near), `and sets an explicit width, or contain: layout collapses it`);
+}
+
+const ROOMS2 = readFileSync("src/components/RoomList.tsx", "utf8");
+ok(/data-room-thumb[\s\S]{0,120}w-full/.test(ROOMS2), "the room thumbnail too");
+
+console.log("\nand the room screen is a page, not a letterbox");
+// flex-1 gave the photo the whole screen minus the footer, so a 4:3 photo
+// contained in a tall box was a small photo between two black bars with the
+// dates crushed into a strip underneath.
+ok(/aspect-\[4\/3\] max-h-\[55vh\]/.test(GALLERY), "the photo has a shape and a ceiling");
+ok(!/flex min-h-0 flex-1 snap-x/.test(GALLERY), "rather than whatever height is left over");
+
 console.log(fails ? `\n${fails} FAILED` : "\nALL PASSED");
 process.exit(fails ? 1 : 0);
