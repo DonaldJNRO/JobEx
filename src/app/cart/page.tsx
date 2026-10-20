@@ -13,6 +13,7 @@
 // them at the till.
 
 import { Suspense, useEffect, useState } from "react";
+import { cardClass } from "@/lib/ui-recipes";
 import Button from "@/components/ui/Button";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -107,7 +108,7 @@ function CartContents() {
           <>
             {/* THE TOTAL AND THE BUTTON TOGETHER, because a total somebody
                 has to scroll away from to act on is a total they re-read. */}
-            <div className="mt-6 flex items-center justify-between gap-4 rounded-2xl border border-line bg-card p-4">
+            <div className={`mt-6 flex items-center justify-between gap-4 ${cardClass({ pad: "sm" })}`}>
               <div>
                 <p className="text-caption uppercase tracking-wider text-ink-faint">Trip total</p>
                 <p className="mt-0.5 text-2xl font-bold tabular-nums text-ink">
@@ -152,7 +153,7 @@ function CartContents() {
             )}
 
             {paid ? (
-              <div className="mt-4 rounded-2xl border border-line bg-card p-5 text-center">
+              <div className={`mt-4 text-center ${cardClass()}`}>
                 <p className="font-bold text-ink">Paid. Your trip is booked.</p>
                 <p className="mt-1 text-sm text-ink-muted">
                   Sabię holds the money until after you have been. Your booking codes are in Bookings.
@@ -162,7 +163,7 @@ function CartContents() {
                 </Button>
               </div>
             ) : secret ? (
-              <div className="mt-4 rounded-2xl border border-line bg-card p-4">
+              <div className={`mt-4 ${cardClass({ pad: "sm" })}`}>
                 <PayStep
                   clientSecret={secret}
                   amountLabel={price(cart.total)}
@@ -176,7 +177,7 @@ function CartContents() {
               {cart.items.map((i) => (
                 <li
                   key={i.id}
-                  className={`rounded-2xl border border-line bg-card p-4 ${i.ready ? "" : "opacity-70"}`}
+                  className={`${cardClass({ pad: "sm" })} ${i.ready ? "" : "opacity-70"}`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">

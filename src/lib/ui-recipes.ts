@@ -99,6 +99,27 @@ export const CARD = {
   elevated: "shadow-lg shadow-black/5",
 } as const;
 
+/**
+ * The card, as a STRING, for the elements that are not worth rewriting.
+ *
+ * A <Card> component is right where a card is its own box. Half the cards on
+ * this site are a <section>, an <li> or a wrapper that already carries
+ * layout, and turning those into components means rewriting JSX trees by
+ * hand for no behaviour change, which is how a migration breaks a page.
+ *
+ * What actually mattered was that there were SEVEN radius and shadow
+ * variants and ELEVEN paddings for one idea. One definition fixes that
+ * whether it arrives as a component or a class.
+ */
+export function cardClass(opts: { tone?: keyof typeof CARD.tone; pad?: keyof typeof CARD.pad; elevated?: boolean } = {}): string {
+  return cx(
+    CARD.base,
+    CARD.tone[opts.tone ?? "card"],
+    CARD.pad[opts.pad ?? "md"],
+    opts.elevated && CARD.elevated,
+  );
+}
+
 export const FIELD = {
   label: "block text-small font-semibold text-ink mb-1.5",
   input: cx(

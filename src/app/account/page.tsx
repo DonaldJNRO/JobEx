@@ -14,6 +14,8 @@
 // worse than no button.
 
 import { useEffect, useState } from "react";
+import Button from "@/components/ui/Button";
+import { cardClass } from "@/lib/ui-recipes";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -99,7 +101,7 @@ export default function AccountPage() {
         <h1 className="text-2xl font-bold tracking-tight text-ink">Account</h1>
 
         {/* WHO YOU ARE, and the first thing on the page you can change. */}
-        <section className="mt-6 rounded-2xl border border-line bg-card p-5">
+        <section className={`mt-6 ${cardClass()}`}>
           <div className="flex items-center gap-4">
             {userProfile?.profileImage ? (
               <Image
@@ -183,7 +185,7 @@ export default function AccountPage() {
         {/* WHAT MONEY YOU THINK IN. Guessed from the browser until now, with
             no way to disagree: somebody Nigerian living in London got the
             wrong one and could do nothing about it. */}
-        <section className="mt-5 rounded-2xl border border-line bg-card p-5">
+        <section className={`mt-5 ${cardClass()}`}>
           <h2 className="font-bold text-ink">Show prices in</h2>
           <p className="mt-1 text-sm text-ink-muted">
             Operators set their own prices. We convert them so you can compare.
@@ -220,7 +222,7 @@ export default function AccountPage() {
         {/* WHERE YOUR FEED LEANS. The same choice the home page's sheet
             writes, so changing it in either place changes it in both. */}
         {cities.length > 0 && (
-          <section className="mt-5 rounded-2xl border border-line bg-card p-5">
+          <section className={`mt-5 ${cardClass()}`}>
             <h2 className="font-bold text-ink">Your city</h2>
             <p className="mt-1 text-sm text-ink-muted">
               We go deep in a few places rather than thin everywhere.
@@ -254,7 +256,7 @@ export default function AccountPage() {
           </section>
         )}
 
-        <nav className="mt-5 overflow-hidden rounded-2xl border border-line bg-card">
+        <nav className={`mt-5 overflow-hidden ${cardClass({ pad: "none" })}`}>
           {[
             { icon: Calendar, label: "Your bookings", href: "/bookings", hint: "Codes, dates and receipts" },
             { icon: MessageSquare, label: "Your trips", href: "/trips", hint: "Plan with the people coming" },
@@ -274,20 +276,27 @@ export default function AccountPage() {
           ))}
         </nav>
 
-        <button
-          type="button"
+        {/* A BUTTON, NOT A CARD WITH A HANDLER. This wore the card's
+            radius and border, which is the shape of a container, so the one
+            destructive control on the page read as a panel somebody had
+            made clickable. */}
+        <Button
+          variant="danger"
+          size="lg"
+          block
+          className="mt-5"
           onClick={() => logout().then(() => router.push("/"))}
-          className="mt-5 flex w-full items-center justify-center gap-2 rounded-2xl border border-line bg-card px-5 py-4 font-semibold text-alarm-ink hover:bg-surface-sunken"
+          iconLeft={<LogOut className="h-4 w-4" />}
         >
-          <LogOut className="h-4 w-4" /> Log out
-        </button>
+          Log out
+        </Button>
 
         <p className="mt-6 text-center text-xs text-ink-faint">
-          <Link href="/terms" className="hover:text-ink">Terms</Link>
+          <Link href="/terms" className="underline decoration-line-strong underline-offset-4 hover:text-ink">Terms</Link>
           {" · "}
-          <Link href="/privacy" className="hover:text-ink">Privacy</Link>
+          <Link href="/privacy" className="underline decoration-line-strong underline-offset-4 hover:text-ink">Privacy</Link>
           {" · "}
-          <Link href="/contact" className="hover:text-ink">Contact</Link>
+          <Link href="/contact" className="underline decoration-line-strong underline-offset-4 hover:text-ink">Contact</Link>
         </p>
       </div>
     </main>

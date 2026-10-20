@@ -5,7 +5,7 @@ import Image from "next/image";
 import { X, Clock, ChevronRight } from "lucide-react";
 import Button from "./ui/Button";
 import Overlay from "./Overlay";
-import { ROW_ACTION } from "@/lib/ui-recipes";
+import { ROW_ACTION, cardClass } from "@/lib/ui-recipes";
 import { OFFER_HERO } from "@/lib/screen-open";
 import type { ServiceGroup } from "@/lib/shop-window";
 
@@ -150,7 +150,7 @@ export default function OfferScreen({
             {group.tiers.length > 0 && (
               <div className="mt-6">
                 <h3 className="mb-2.5 text-heading font-bold text-ink">Choose one</h3>
-                <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-card">
+                <ul className={`divide-y divide-line overflow-hidden ${cardClass({ pad: "none" })}`}>
                   {group.tiers.map((t) => (
                     <li key={t.label}>
                       <button

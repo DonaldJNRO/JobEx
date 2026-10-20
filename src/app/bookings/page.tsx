@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { cardClass } from "@/lib/ui-recipes";
 import LoadError from "@/components/ui/LoadError";
 import { useMoney } from "@/lib/useRates";
 import { buildDisplayPrice, formatPriceWithCurrency } from "@/lib/display-price";
@@ -98,7 +99,7 @@ export default function BookingsPage() {
         )}
 
         {!failed && bookings !== null && bookings.length === 0 && (
-          <div className="rounded-2xl border border-line bg-card py-20 text-center">
+          <div className={`py-20 text-center ${cardClass({ pad: "none" })}`}>
             <Calendar size={44} className="mx-auto mb-4 text-text-muted/30" />
             <h2 className="text-lg font-semibold text-ink">No bookings yet</h2>
             <p className="mx-auto mt-1 max-w-sm text-sm text-text-muted">
@@ -119,7 +120,7 @@ export default function BookingsPage() {
               return (
                 <li
                   key={booking.id}
-                  className="overflow-hidden rounded-2xl border border-line bg-card"
+                  className={`overflow-hidden ${cardClass({ pad: "none" })}`}
                 >
                   <div className="flex items-start gap-4 p-5">
                     {booking.image ? (

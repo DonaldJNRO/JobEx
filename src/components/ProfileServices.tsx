@@ -14,7 +14,7 @@ import { useState } from "react";
 import Image from "next/image";
 import OfferScreen from "./OfferScreen";
 import { ChevronRight } from "lucide-react";
-import { ROW_ACTION } from "@/lib/ui-recipes";
+import { ROW_ACTION, cardClass } from "@/lib/ui-recipes";
 import { openAsScreen, OFFER_HERO } from "@/lib/screen-open";
 import { useMoney as useGuestRates } from "@/lib/useRates";
 import { buildDisplayPrice } from "@/lib/display-price";
@@ -109,7 +109,7 @@ export default function ProfileServices({ listing, currency, onPick, hideNames }
                   {cat.name}
                 </p>
               )}
-              <ul className="rounded-2xl border border-line bg-card divide-y divide-line overflow-hidden">
+              <ul className={`divide-y divide-line overflow-hidden ${cardClass({ pad: "none" })}`}>
                 {(cat.items ?? []).map((it, j) => (
                   <li key={`${it?.name ?? j}`} className="flex items-baseline justify-between gap-4 px-4 py-2.5">
                     <span className="text-sm text-ink">{it?.name}</span>
@@ -150,7 +150,7 @@ export default function ProfileServices({ listing, currency, onPick, hideNames }
         />
       )}
       <h2 className="text-heading font-bold text-ink mb-3">{heading}</h2>
-      <ul className="rounded-2xl border border-line bg-card divide-y divide-line overflow-hidden">
+      <ul className={`divide-y divide-line overflow-hidden ${cardClass({ pad: "none" })}`}>
         {groups.map((g) => (
           <ServiceRow key={g.name} group={g} money={money} cta={cta} onPick={onPick} onOpen={setShowing} />
         ))}

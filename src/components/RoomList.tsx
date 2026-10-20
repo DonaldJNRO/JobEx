@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { ChevronRight, Play, Users } from "lucide-react";
 import { fetchRooms, roomCover, roomPhotos, roomVideos, hasMedia, stayFacts, type Room } from "@/lib/rooms";
-import { ROW_ACTION } from "@/lib/ui-recipes";
+import { ROW_ACTION, cardClass } from "@/lib/ui-recipes";
 import { openAsScreen, ROOM_HERO } from "@/lib/screen-open";
 import { useMoney as useGuestRates } from "@/lib/useRates";
 import { buildDisplayPrice } from "@/lib/display-price";
@@ -72,7 +72,7 @@ export default function RoomList({
     return (
       <section>
         <div className="h-5 w-28 rounded bg-surface-sunken animate-shimmer" />
-        <div className="mt-3 divide-y divide-line rounded-2xl border border-line bg-card">
+        <div className={`mt-3 divide-y divide-line ${cardClass({ pad: "none" })}`}>
           {[0, 1, 2].map((i) => (
             <div key={i} className="flex items-center gap-3 p-3">
               <div className="h-16 w-20 shrink-0 rounded-xl bg-surface-sunken animate-shimmer" />
@@ -135,7 +135,7 @@ export default function RoomList({
               // sliver. At 78 one room owned the screen and the carousel
               // read as a very tall single card you happened to be able to
               // push sideways.
-              className="w-[66%] max-w-[18rem] shrink-0 snap-start overflow-hidden rounded-2xl border border-line bg-card text-left transition-transform duration-150 active:scale-[0.985]"
+              className={`w-[66%] max-w-[18rem] shrink-0 snap-start overflow-hidden text-left transition-transform duration-150 active:scale-[0.985] ${cardClass({ pad: "none" })}`}
             >
               {/* 3:2, not 4:3. Seven rooms of 4:3 plus their details made
                   each card taller than the screen it sits in. */}

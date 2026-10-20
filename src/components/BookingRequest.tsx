@@ -862,16 +862,21 @@ export default function BookingRequest({
                 Only when they are signed in: a basket belongs to a trip, and
                 a trip belongs to a person. A signed-out visitor still books
                 the single thing above, which is what they could do before. */}
+            {/* A SECONDARY BUTTON, not a card's clothes on a control. This
+                wore the card's radius and border, which is the shape of a
+                container, beside a primary that is a button. */}
             {user && (
-              <button
-                type="button"
+              <Button
+                variant="secondary"
+                size="lg"
+                block
+                className="mt-2.5"
                 onClick={addToBasket}
-                disabled={adding || sending}
-                className="mt-2.5 w-full h-13 min-h-[52px] rounded-2xl border border-line bg-card text-ink font-semibold inline-flex items-center justify-center gap-2 disabled:opacity-60"
+                disabled={sending}
+                loading={adding}
               >
-                {adding && <Loader2 size={16} className="animate-spin" />}
                 {adding ? "Adding" : "Add to my trip"}
-              </button>
+              </Button>
             )}
             <p className="mt-3 text-xs text-ink-faint text-center">
               {/* THREE STATES, NOT TWO. `instant` says the server would

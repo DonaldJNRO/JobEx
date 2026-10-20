@@ -133,5 +133,29 @@ ok(/px-gutter/.test(CONTAINER.base), "Container uses px-gutter");
 console.log("\nand one separation mechanic for rows");
 ok(/divide-y/.test(ROW.group), "rows separate with divide-y, not four different ways");
 
+console.log("\nand a card has one definition, not twenty-five");
+// There were 25 hand-rolled cards across 10 files in 7 radius and shadow
+// variants and 11 paddings, for one idea. A <Card> is right where a card is
+// its own box; half of these are a <section>, an <li> or a wrapper that
+// already carries layout, and turning those into components means
+// rewriting JSX trees for no behaviour change, which is how a migration
+// breaks a page. The string form fixes the thing that actually mattered.
+import { readdirSync as rd, statSync as st } from "node:fs";
+import { join as jn } from "node:path";
+const tsxFiles = (dir) => rd(dir).flatMap((n) => {
+  const f = jn(dir, n);
+  return st(f).isDirectory() ? tsxFiles(f) : /\.tsx$/.test(n) ? [f] : [];
+});
+const all = ["src/app", "src/components"].flatMap(tsxFiles).filter((f) => !f.includes("/ui/"));
+let rogue = [];
+for (const f of all) {
+  const src = readFileSync(f, "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
+  for (const m of src.matchAll(/rounded-2xl border border-line bg-card/g)) {
+    rogue.push(f.replace("src/", ""));
+  }
+}
+ok(all.length > 20, `swept ${all.length} components outside the primitives`);
+ok(rogue.length === 0, rogue.length ? `${rogue[0]} still spells a card by hand` : "every card goes through cardClass");
+
 console.log(fails ? `\n${fails} FAILED` : "\nALL PASSED");
 process.exit(fails ? 1 : 0);

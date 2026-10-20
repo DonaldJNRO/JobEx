@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import { cardClass } from "@/lib/ui-recipes";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -670,7 +671,7 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
               <div className="reveal">
                 <h2 className="text-lg font-bold text-ink mb-5">Good to know</h2>
 
-                <div className="rounded-2xl border border-line bg-card divide-y divide-line">
+                <div className={`divide-y divide-line ${cardClass({ pad: "none" })}`}>
                   {visitLine && (
                     <div className="flex items-start gap-3 p-4">
                       <Shield size={16} className="text-primary shrink-0 mt-0.5" />

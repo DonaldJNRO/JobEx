@@ -1,3 +1,4 @@
+import { cardClass } from "@/lib/ui-recipes";
 /**
  * WHAT YOU SEE THE INSTANT YOU TAP A CARD.
  *
@@ -35,7 +36,7 @@ export default function LoadingListing() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         {/* The price card, which is now always present on the real page. */}
         <div className="pt-6 lg:hidden">
-          <div className="rounded-2xl border border-line bg-card p-6">
+          <div className={cardClass({ pad: "lg" })}>
             <div className="h-9 w-40 rounded-lg bg-surface-sunken animate-shimmer" />
             <div className="mt-2 h-4 w-24 rounded bg-surface-sunken animate-shimmer" />
             <div className="mt-6 h-13 min-h-[52px] rounded-xl bg-surface-sunken animate-shimmer" />
@@ -53,7 +54,7 @@ export default function LoadingListing() {
             {/* The menu, which is the first thing on this page worth reading. */}
             <div className="space-y-3">
               <div className="h-5 w-36 rounded bg-surface-sunken animate-shimmer" />
-              <div className="divide-y divide-line rounded-2xl border border-line bg-card">
+              <div className={`divide-y divide-line ${cardClass({ pad: "none" })}`}>
                 {[0, 1, 2].map((i) => (
                   <div key={i} className="flex items-center justify-between gap-4 px-4 py-3.5">
                     <div className="min-w-0 flex-1 space-y-2">
@@ -67,7 +68,7 @@ export default function LoadingListing() {
             </div>
           </div>
           <div className="hidden lg:block">
-            <div className="h-72 rounded-2xl border border-line bg-card" />
+            <div className={`h-72 ${cardClass({ pad: "none" })}`} />
           </div>
         </div>
       </div>
