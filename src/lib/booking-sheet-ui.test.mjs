@@ -107,5 +107,19 @@ ck(/holds your slot and confirms it\. You pay them at the studio\./.test(SHEET),
 ck(!/\{instant\s*\n?\s*\? "Confirmed straight away/.test(SHEET),
   "and the old two-state copy is gone");
 
+// ── the review step reads like a sentence ───────────────────────────────
+// This is the one screen somebody checks before paying, and it was showing
+// a stored value, a floating comma and a unit that was not one.
+ck(/value: \[date && readableDate\(date\), time\]/.test(SHEET),
+  'the date is readable, not "2026-10-20 at 8:00 PM"');
+ck(/name\.trim\(\) \? `\$\{name\.trim\(\)\}/.test(SHEET),
+  'the name is trimmed, or a trailing space gives "Donald Jnr , 5 people"');
+// A total of "£12 skate nights" is not a unit and not a sentence: the
+// offer's NAME was being appended to the figure.
+ck(/isRate && stayNights === 0 && priceUnit/.test(SHEET),
+  "a rate says its unit only while it is still a rate");
+ck(/per \$\{m\[1\]\}/.test(SHEET),
+  "and the unit comes from a recognised rate, not from whatever the offer is called");
+
 console.log(fails ? `\n${fails} FAILED` : "\nALL PASSED");
 process.exit(fails ? 1 : 0);

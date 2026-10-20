@@ -289,6 +289,17 @@ export default function BookingRequest({
   // the page, under the sentence "No payment now. Nothing is charged until
   // they accept.", with nothing explaining the difference, and showed the
   // same inflated figure back on the Request sent panel.
+  // THE UNIT A RATE IS QUOTED IN, taken from the offer's own name, which is
+  // where offerTotal reads it from too. "Per night" becomes "per night";
+  // anything that is not a recognised rate becomes nothing at all, which is
+  // the honest answer for an offer called "Skate Nights".
+  const priceUnitShort = (() => {
+    const n = (chosen?.name || "").toLowerCase();
+    const m = n.match(/\bper\s+(night|person|hour|day|head|session)\b/);
+    return m ? `per ${m[1]}` : "";
+  })();
+  const priceUnit = priceUnitShort;
+
   const chargeable = willCharge && fee.fee > 0;
   const money = show(chargeable ? fee.total : (typeof total === "number" ? total : 0));
   const feeMoney = { sub: show(fee.subtotal).display, fee: show(fee.fee).display };
@@ -787,8 +798,14 @@ export default function BookingRequest({
               <div className="mb-5 overflow-hidden rounded-2xl border border-line">
                 {[
                   { label: "What", value: chosen?.name || offers[0]?.name || listing.businessName, to: "when" as const },
-                  { label: "When", value: [date, time].filter(Boolean).join(" at ") || "Not set", to: "when" as const },
-                  { label: "Who", value: name ? `${name}${guests > 1 ? `, ${guests} people` : ""}` : "Not set", to: "you" as const },
+                  // READABLE, like everywhere else on this sheet. This printed the raw
+                  // stored value, so the one screen somebody checks before
+                  // paying said "2026-10-20 at 8:00 PM". readableDate has been
+                  // sitting two hundred lines up since the beginning.
+                  { label: "When", value: [date && readableDate(date), time].filter(Boolean).join(" at ") || "Not set", to: "when" as const },
+                  // TRIMMED, or a name typed with a trailing space reads "Donald Jnr , 5
+                  // people", with the comma floating off on its own.
+                  { label: "Who", value: name.trim() ? `${name.trim()}${guests > 1 ? `, ${guests} people` : ""}` : "Not set", to: "you" as const },
                   { label: "Reply to", value: contact || "Not set", to: "you" as const },
                 ].map((row) => (
                   <div key={row.label} className={`${ROW.base} items-center border-b border-line last:border-0`}>
@@ -858,8 +875,14 @@ export default function BookingRequest({
                       booking. */}
                   <span className="block text-title font-semibold text-ink">
                     {money.display}
-                    {isRate && (
-                      <span className="text-small font-normal text-ink-muted"> {(chosen?.name || "").toLowerCase()}</span>
+                    {/* THE UNIT, NOT THE NAME. This appended the offer's
+                        own name to the figure, so a total read "£12 skate
+                        nights", which is not a unit and not a sentence. A
+                        rate only needs saying while it IS a rate: once
+                        there are nights the figure is a bill, and the
+                        breakdown above already shows the arithmetic. */}
+                    {isRate && stayNights === 0 && priceUnit && (
+                      <span className="text-small font-normal text-ink-muted"> {priceUnitShort}</span>
                     )}
                   </span>
                   {/* The "about N5,000" line under the total is gone. The
