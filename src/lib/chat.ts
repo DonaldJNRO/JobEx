@@ -27,6 +27,7 @@ import {
   type Unsubscribe, type DocumentData,
 } from "firebase/firestore";
 import { db } from "./firebase";
+import { messagesPath, type ConversationKind } from "./conversations";
 
 export interface ChatMessage {
   id: string;
@@ -64,9 +65,14 @@ function toMessage(id: string, d: DocumentData): ChatMessage {
 export function watchMessages(
   tripId: string,
   onMessages: (messages: ChatMessage[]) => void,
+  // WHICH COLLECTION. A one-to-one chat's messages live under `chats` and a
+  // trip's under `trips`, and this read only ever knew about trips, so the
+  // website could not open 74 of the 116 conversations that exist. Defaulted
+  // to "trip" so every existing caller is unchanged.
+  kind: ConversationKind = "trip",
 ): Unsubscribe {
   const q = query(
-    collection(db, "trips", tripId, "messages"),
+    collection(db, ...messagesPath(kind, tripId)),
     orderBy("timestamp", "asc"),
     limitToLast(PAGE),
   );
@@ -102,12 +108,13 @@ export async function sendMessage(
   sender: { id: string; name: string },
   text: string,
   memberIds: string[],
+  kind: ConversationKind = "trip",
 ): Promise<void> {
   const body = text.trim();
   if (!body) return;
 
-  const tripRef = doc(db, "trips", tripId);
-  const messageRef = doc(collection(db, "trips", tripId, "messages"));
+  const tripRef = doc(db, kind === "chat" ? "chats" : "trips", tripId);
+  const messageRef = doc(collection(db, ...messagesPath(kind, tripId)));
 
   const batch = writeBatch(db);
   batch.set(messageRef, {
@@ -122,7 +129,14 @@ export async function sendMessage(
     // Where it came from, the same way bookingDetails.source names the web.
     source: "web",
   });
-  // merge, because the trip already exists and this must not clobber it.
+  // merge, because the parent already exists and this must not clobber it.
+  //
+  // BOTH SPELLINGS ON A CHAT. A trip document names its last sender
+  // `lastMessageSenderName`; a one-to-one chat document names it
+  // `senderName`, and that is the field the mobile app's inbox reads. Write
+  // only the trip's spelling and a reply sent from the website leaves the
+  // phone's list showing whoever spoke before, which is worse than showing
+  // nothing because it is confidently wrong.
   batch.set(tripRef, {
     lastMessage: previewOf(body, "text"),
     lastMessageTime: serverTimestamp(),
@@ -131,6 +145,7 @@ export async function sendMessage(
     lastMessageSenderName: sender.name,
     lastMessageType: "text",
     lastMessageId: messageRef.id,
+    ...(kind === "chat" ? { senderId: sender.id, senderName: sender.name } : {}),
   }, { merge: true });
   await batch.commit();
 
@@ -154,9 +169,9 @@ export async function sendMessage(
 }
 
 /** Clear this person's badge when they open the thread. */
-export async function markTripRead(tripId: string, uid: string): Promise<void> {
+export async function markTripRead(tripId: string, uid: string, kind: ConversationKind = "trip"): Promise<void> {
   try {
-    await updateDoc(doc(db, "trips", tripId), {
+    await updateDoc(doc(db, kind === "chat" ? "chats" : "trips", tripId), {
       [`unreadCounts.${uid}`]: 0,
       [`lastMessageSeenBy.${uid}`]: true,
     });

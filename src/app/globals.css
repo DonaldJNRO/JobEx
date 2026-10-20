@@ -100,7 +100,20 @@
      surface where the captions and the copyright line live. */
   --color-ink-faint: #6B6A64;
   /* WARM HAIRLINES. A cool grey rule on a cream page reads as dirt on it. */
-  --color-line: #D9D4C7;
+  /* A HAIRLINE, NOT A RULE. This was #D9D4C7, which measures 1.37:1 against
+     cream, and it was drawn around all 58 bordered things on the site: every
+     card, every divider, every input. "Borders are too thick."
+
+     They were not thick, they were LOUD. One pixel is already the minimum,
+     so the weight a border reads at is its contrast, and 1.37 is an
+     assertive line to put around something that also has its own background.
+     1.21 reads as an edge rather than as a frame.
+
+     line-strong is deliberately left where it was. A card is separated by
+     its fill and only hinted at by its edge; a secondary button has nothing
+     BUT its edge, since white on cream is 1.03:1, so softening that one
+     would turn a control back into a label. */
+  --color-line: #E6E1D4;
   --color-line-strong: #C4BDAB;
 
   /* FAILURE, and only failure. The site had no token for it, so the first

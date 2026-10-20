@@ -18,7 +18,7 @@ import { useEffect, useRef, useState } from "react";
 import { Send, Loader2, Check, CheckCheck, MessageSquare } from "lucide-react";
 import { watchMessages, sendMessage, markTripRead, type ChatMessage } from "@/lib/chat";
 import { tripAvatar } from "@/lib/trip-visual";
-import type { Trip } from "@/lib/trips";
+import type { Conversation } from "@/lib/conversations";
 
 function msOf(m: ChatMessage): number {
   return m.timestamp?.toMillis?.()
@@ -34,7 +34,11 @@ export default function TripChat({
   trip,
   me,
 }: {
-  trip: Trip;
+  // A CONVERSATION, not a trip. This component read trips/{id}/messages
+  // only, so the 74 one-to-one chats on this platform had no thread view at
+  // all. A chat and a trip are the same object to a reader: a title, people,
+  // and a list of messages.
+  trip: Conversation;
   me: { id: string; name: string };
 }) {
   const [messages, setMessages] = useState<ChatMessage[] | null>(null);
@@ -43,8 +47,8 @@ export default function TripChat({
   const bottom = useRef<HTMLDivElement>(null);
   const first = useRef(true);
 
-  useEffect(() => { first.current = true; return watchMessages(trip.id, setMessages); }, [trip.id]);
-  useEffect(() => { void markTripRead(trip.id, me.id); }, [trip.id, me.id, messages?.length]);
+  useEffect(() => { first.current = true; return watchMessages(trip.id, setMessages, trip.kind); }, [trip.id, trip.kind]);
+  useEffect(() => { void markTripRead(trip.id, me.id, trip.kind); }, [trip.id, trip.kind, me.id, messages?.length]);
 
   useEffect(() => {
     if (!messages?.length) return;
@@ -61,7 +65,7 @@ export default function TripChat({
     setSending(true);
     setDraft("");
     try {
-      await sendMessage(trip.id, me, body, trip.memberIds);
+      await sendMessage(trip.id, me, body, trip.memberIds, trip.kind);
     } catch {
       // Put it back rather than losing what they typed.
       setDraft(body);
@@ -70,7 +74,7 @@ export default function TripChat({
     }
   };
 
-  const avatar = tripAvatar(trip.tripName, trip.id);
+  const avatar = tripAvatar(trip.title, trip.id);
   let lastDay = "";
 
   return (
@@ -93,11 +97,15 @@ export default function TripChat({
               <span className={`mx-auto flex h-14 w-14 items-center justify-center rounded-full text-lg font-bold ${avatar.tint}`}>
                 {avatar.initials}
               </span>
-              <p className="mt-4 font-semibold text-ink">{trip.tripName}</p>
+              <p className="mt-4 font-semibold text-ink">{trip.title}</p>
               <p className="mt-1.5 text-sm leading-relaxed text-ink-muted">
-                {trip.memberIds.length > 1
-                  ? "Say where you are thinking of going."
-                  : "Add the people coming with you, then say where you are thinking of going."}
+                {trip.kind === "chat"
+                  // A one-to-one has nobody to add and no itinerary behind
+                  // it, so neither trip sentence is true in one.
+                  ? "Nothing here yet. Say hello."
+                  : trip.memberIds.length > 1
+                    ? "Say where you are thinking of going."
+                    : "Add the people coming with you, then say where you are thinking of going."}
               </p>
             </div>
           )}
@@ -157,7 +165,7 @@ export default function TripChat({
         <input
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
-          placeholder={`Message ${trip.tripName}`}
+          placeholder={`Message ${trip.title}`}
           aria-label="Write a message"
           className="min-w-0 flex-1 rounded-xl border border-line bg-surface px-3.5 py-2.5 text-ink placeholder:text-ink-faint"
         />

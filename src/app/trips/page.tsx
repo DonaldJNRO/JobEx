@@ -18,13 +18,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { Plus, Loader2, ArrowLeft, UserPlus, Check, Search } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { watchMyTrips, createTrip, addTripMember, findTravellers, type Trip, type TripMember } from "@/lib/trips";
+import { createTrip, addTripMember, findTravellers, type TripMember } from "@/lib/trips";
+import { watchMyConversations, fetchPeople, withPeople, keyOf, parseKey, type Conversation } from "@/lib/conversations";
 import { tripAvatar, previewOf } from "@/lib/trip-visual";
 import TripChat, { NoTripPicked } from "@/components/TripChat";
 
-function whenOf(t: Trip): string {
-  const ms = t.lastMessageTime?.toMillis?.()
-    ?? (typeof t.lastMessageTime?.seconds === "number" ? t.lastMessageTime.seconds * 1000 : 0);
+function whenOf(ms: number): string {
   if (!ms) return "";
   const d = new Date(ms);
   return new Date().toDateString() === d.toDateString()
@@ -38,7 +37,10 @@ function TripsInner() {
   const params = useSearchParams();
   const openId = params.get("t");
 
-  const [trips, setTrips] = useState<Trip[] | null>(null);
+  // THE WHOLE INBOX, people and trips. This page read trips and only
+  // trips, so 74 one-to-one conversations carrying 2,076 messages were
+  // not missing from the list, they were missing from the product.
+  const [convos, setConvos] = useState<Conversation[] | null>(null);
   const [creating, setCreating] = useState(false);
   const [adding, setAdding] = useState(false);
   const [filter, setFilter] = useState("");
@@ -47,7 +49,25 @@ function TripsInner() {
   const [found, setFound] = useState<TripMember[]>([]);
 
   useEffect(() => { if (!loading && !user) router.push("/auth/login?next=/trips"); }, [user, loading, router]);
-  useEffect(() => { if (user) return watchMyTrips(user.uid, setTrips); }, [user]);
+  // A chat document carries participant uids and nothing else, so a
+  // one-to-one row has no name until the users are resolved. Resolved once
+  // per set of ids rather than per render, and a name that will not resolve
+  // still renders a row.
+  useEffect(() => {
+    if (!user) return;
+    let live = true;
+    const stop = watchMyConversations(user.uid, async (list) => {
+      if (!live) return;
+      setConvos(list);
+      const ids = list.filter((c) => c.kind === "chat").map((c) => c.otherId || "").filter(Boolean);
+      if (ids.length === 0) return;
+      const people = await fetchPeople(ids);
+      // The await means this can land after the component is gone, and a
+      // late setState on an unmounted listener is how a leak starts.
+      if (live) setConvos((prev) => (prev ? withPeople(prev, people) : prev));
+    });
+    return () => { live = false; stop(); };
+  }, [user]);
 
   useEffect(() => {
     if (!adding || term.trim().length < 2) { setFound([]); return; }
@@ -58,7 +78,11 @@ function TripsInner() {
 
   if (loading || !user) return null;
 
-  const open = trips?.find((t) => t.id === openId) ?? null;
+  // A CHAT ID AND A TRIP ID ARE BOTH FIRESTORE IDS and could be equal, so
+  // the url carries the kind: ?t=chat:abc or ?t=trip:abc. A bare id from an
+  // older link still resolves, as a trip, which is what it used to mean.
+  const picked = parseKey(openId || "") ?? (openId ? { kind: "trip" as const, id: openId } : null);
+  const open = picked ? (convos?.find((c) => c.kind === picked.kind && c.id === picked.id) ?? null) : null;
   const me = { id: user.uid, name: userProfile?.fullName || user.displayName || "Traveller" };
 
   const start = async () => {
@@ -66,7 +90,7 @@ function TripsInner() {
     setCreating(true);
     try {
       const id = await createTrip(user, userProfile, "New trip");
-      router.push(`/trips?t=${id}`);
+      router.push(`/trips?t=trip:${id}`);
     } catch { setCreating(false); }
   };
 
@@ -98,7 +122,7 @@ function TripsInner() {
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
               placeholder="Search"
-              aria-label="Search your trips"
+              aria-label="Search your conversations"
               className="w-full rounded-lg border border-line bg-surface py-1.5 pl-8 pr-2 text-sm text-ink placeholder:text-ink-faint"
             />
           </div>
@@ -116,7 +140,7 @@ function TripsInner() {
         {/* UNREAD, the one filter that earns its row. LinkedIn carries six;
             with a handful of trips the rest would be chrome over an empty
             list. It hides itself until there IS something unread. */}
-        {(trips ?? []).some((t) => (t.unreadCounts?.[user.uid] || 0) > 0) && (
+        {(convos ?? []).some((c) => c.unread > 0) && (
           <div className="flex gap-2 border-b border-line px-3 py-2">
             {([["all", "All"], ["unread", "Unread"]] as const).map(([id, label]) => (
               <button
@@ -137,73 +161,90 @@ function TripsInner() {
         )}
 
         <div className="min-h-0 flex-1 overflow-y-auto">
-          {trips === null && (
-            <div className="space-y-2 p-3" aria-busy="true">
-              {[0, 1, 2].map((i) => <div key={i} className="h-16 rounded-xl bg-surface-sunken animate-shimmer" />)}
+          {/* A SKELETON THAT LOOKS LIKE A ROW, not three grey bars. It
+              carries a circle where the face goes and two lines of
+              different widths where the name and the preview go, so the
+              list does not change shape when it arrives. */}
+          {convos === null && (
+            <div className="divide-y divide-line" aria-busy="true" aria-live="polite">
+              {[0, 1, 2, 3, 4].map((i) => (
+                <div key={i} className="flex items-center gap-3 px-4 py-3.5">
+                  <div className="h-11 w-11 shrink-0 rounded-full bg-surface-sunken animate-shimmer" />
+                  <div className="min-w-0 flex-1 space-y-2">
+                    <div className="h-3.5 rounded bg-surface-sunken animate-shimmer" style={{ width: `${54 + ((i * 13) % 26)}%` }} />
+                    <div className="h-3 rounded bg-surface-sunken animate-shimmer" style={{ width: `${68 + ((i * 7) % 22)}%` }} />
+                  </div>
+                </div>
+              ))}
+              <span className="sr-only">Loading your conversations</span>
             </div>
           )}
 
-          {trips?.length === 0 && (
+          {convos?.length === 0 && (
             <div className="px-6 py-16 text-center">
-              <p className="font-semibold text-ink">No trips yet</p>
+              <p className="font-semibold text-ink">No conversations yet</p>
               <p className="mt-1.5 text-sm leading-relaxed text-ink-muted">
-                A trip is where everything you book lives, with the people coming with you.
+                Message someone, or start a trip and bring the people coming with you.
               </p>
             </div>
           )}
 
-          {(trips ?? [])
-            .filter((t) => {
-              if (onlyUnread && !(t.unreadCounts?.[user.uid] || 0)) return false;
+          {(convos ?? [])
+            .filter((c) => {
+              if (onlyUnread && !c.unread) return false;
               const q = filter.trim().toLowerCase();
               if (!q) return true;
               // The name, and whoever last spoke, which is how somebody
               // actually remembers a conversation.
-              return `${t.tripName} ${t.lastMessageSenderName ?? ""}`.toLowerCase().includes(q);
+              return `${c.title} ${c.lastMessageSenderName ?? ""}`.toLowerCase().includes(q);
             })
-            .map((t) => {
-            const unread = t.unreadCounts?.[user.uid] || 0;
-            const a = tripAvatar(t.tripName, t.id);
-            const preview = previewOf(t.lastMessage);
-            const active = t.id === openId;
-            return (
-              <button
-                key={t.id}
-                type="button"
-                onClick={() => router.push(`/trips?t=${t.id}`)}
-                aria-current={active ? "true" : undefined}
-                className={`flex w-full items-center gap-3 border-b border-line px-4 py-3 text-left transition-colors ${
-                  active ? "bg-surface-sunken" : "hover:bg-surface-sunken/60"
-                }`}
-              >
-                {t.imageUrl ? (
-                  <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full bg-surface-sunken">
-                    <Image src={t.imageUrl} alt="" fill sizes="44px" className="object-cover" />
+            .map((c) => {
+              const a = tripAvatar(c.title, c.id);
+              const active = picked?.kind === c.kind && picked?.id === c.id;
+              const isChat = c.kind === "chat";
+              return (
+                <button
+                  key={keyOf(c)}
+                  type="button"
+                  onClick={() => router.push(`/trips?t=${keyOf(c)}`)}
+                  aria-current={active ? "true" : undefined}
+                  className={`flex w-full items-center gap-3 border-b border-line px-4 py-3.5 text-left transition-colors ${
+                    active ? "bg-surface-sunken" : "hover:bg-surface-sunken/60"
+                  }`}
+                >
+                  {c.photoUrl ? (
+                    <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full bg-surface-sunken">
+                      <Image src={c.photoUrl} alt="" fill sizes="44px" className="object-cover" />
+                    </span>
+                  ) : (
+                    <span aria-hidden="true" className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-bold ${a.tint}`}>
+                      {a.initials}
+                    </span>
+                  )}
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-baseline justify-between gap-2">
+                      <span className="truncate font-semibold text-ink">{c.title}</span>
+                      <span className="shrink-0 text-[11px] text-ink-faint">{whenOf(c.lastMessageAtMs)}</span>
+                    </span>
+                    <span className={`mt-0.5 block truncate text-sm ${c.unread > 0 ? "font-semibold text-ink" : "text-ink-muted"}`}>
+                      {c.lastMessage
+                        // A NAME ONLY WHERE IT TELLS YOU SOMETHING. In a
+                        // one-to-one the only other person is the one in
+                        // the row, so "Ada: hi" says Ada twice.
+                        ? (!isChat && c.lastMessageSenderName ? `${c.lastMessageSenderName}: ${c.lastMessage}` : c.lastMessage)
+                        : isChat
+                          ? "Say something"
+                          : `${c.memberIds.length} ${c.memberIds.length === 1 ? "person" : "people"}`}
+                    </span>
                   </span>
-                ) : (
-                  <span aria-hidden="true" className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-bold ${a.tint}`}>
-                    {a.initials}
-                  </span>
-                )}
-                <span className="min-w-0 flex-1">
-                  <span className="flex items-baseline justify-between gap-2">
-                    <span className="truncate font-semibold text-ink">{t.tripName}</span>
-                    <span className="shrink-0 text-[11px] text-ink-faint">{whenOf(t)}</span>
-                  </span>
-                  <span className={`mt-0.5 block truncate text-sm ${unread > 0 ? "font-semibold text-ink" : "text-ink-muted"}`}>
-                    {preview
-                      ? (t.lastMessageSenderName ? `${t.lastMessageSenderName}: ${preview}` : preview)
-                      : `${t.memberIds.length} ${t.memberIds.length === 1 ? "person" : "people"}`}
-                  </span>
-                </span>
-                {unread > 0 && (
-                  <span className="shrink-0 rounded-full bg-primary px-1.5 py-0.5 text-[11px] font-bold text-white">
-                    {unread > 99 ? "99+" : unread}
-                  </span>
-                )}
-              </button>
-            );
-          })}
+                  {c.unread > 0 && (
+                    <span className="shrink-0 rounded-full bg-primary px-1.5 py-0.5 text-[11px] font-bold text-white">
+                      {c.unread > 99 ? "99+" : c.unread}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
         </div>
       </aside>
 
@@ -215,28 +256,43 @@ function TripsInner() {
               <button
                 type="button"
                 onClick={() => router.push("/trips")}
-                aria-label="Back to your trips"
+                aria-label="Back to your conversations"
                 className="rounded-lg p-1.5 text-ink hover:bg-surface-sunken lg:hidden"
               >
                 <ArrowLeft className="h-5 w-5" />
               </button>
-              <span aria-hidden="true" className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold ${tripAvatar(open.tripName, open.id).tint}`}>
-                {tripAvatar(open.tripName, open.id).initials}
-              </span>
+              {open.photoUrl ? (
+                <span className="relative h-9 w-9 shrink-0 overflow-hidden rounded-full bg-surface-sunken">
+                  <Image src={open.photoUrl} alt="" fill sizes="36px" className="object-cover" />
+                </span>
+              ) : (
+                <span aria-hidden="true" className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold ${tripAvatar(open.title, open.id).tint}`}>
+                  {tripAvatar(open.title, open.id).initials}
+                </span>
+              )}
               <div className="min-w-0 flex-1">
-                <h2 className="truncate font-bold text-ink">{open.tripName}</h2>
+                <h2 className="truncate font-bold text-ink">{open.title}</h2>
                 <p className="truncate text-xs text-ink-muted">
-                  {open.memberIds.length} {open.memberIds.length === 1 ? "person" : "people"}
+                  {open.kind === "chat"
+                    // A one-to-one has one other person in it. Saying "2
+                    // people" under their own name is a count nobody needed.
+                    ? (open.handleLine || "Direct message")
+                    : `${open.memberIds.length} ${open.memberIds.length === 1 ? "person" : "people"}`}
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={() => setAdding((a) => !a)}
-                aria-label="Add someone to this trip"
-                className="rounded-lg p-2 text-ink hover:bg-surface-sunken"
-              >
-                <UserPlus className="h-5 w-5" />
-              </button>
+              {/* ADDING SOMEONE IS A TRIP THING. A one-to-one chat has no
+                  member list to add to: in the app, bringing a third person
+                  in starts a trip. */}
+              {open.kind === "trip" && (
+                <button
+                  type="button"
+                  onClick={() => setAdding((a) => !a)}
+                  aria-label="Add someone to this trip"
+                  className="rounded-lg p-2 text-ink hover:bg-surface-sunken"
+                >
+                  <UserPlus className="h-5 w-5" />
+                </button>
+              )}
             </header>
 
             {adding && (
