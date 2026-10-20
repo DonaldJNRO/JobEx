@@ -164,7 +164,7 @@ export default function RoomGallery({
         )}
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+      <div className="min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain">
       {/* WHERE YOU ARE IN THE SET. Dots past about eight become a smear, so
           past that the count says it in words instead. */}
       {items.length > 1 && (

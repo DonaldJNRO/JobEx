@@ -77,7 +77,7 @@ export default function OfferScreen({
           <h2 className="min-w-0 flex-1 truncate font-bold text-ink">{group.name}</h2>
         </header>
 
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+        <div className="min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain">
           {media.length > 0 && (
             <div
               ref={track}

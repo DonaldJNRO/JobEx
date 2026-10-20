@@ -111,7 +111,12 @@ export default function RoomList({
           const i = Math.round(el.scrollLeft / Math.max(1, w));
           if (i !== at) setAt(i);
         }}
-        className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden"
+        // NO NEGATIVE MARGIN. -mx-4 reaches past the page gutter so a card
+        // can bleed to the edge, which looks right and is how the whole
+        // document came to be wider than the window. A scroller that stays
+        // inside its column cannot widen anything, and the edge bleed is
+        // not worth a page that zooms itself out.
+        className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {rooms.map((room) => {
           const cover = roomCover(room);

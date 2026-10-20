@@ -508,9 +508,19 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
 
       {/* Content */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        {/* min-w-0 IS THE WHOLE BUG. A grid item defaults to
+            min-width: auto, which means it refuses to shrink below its
+            CONTENT. The room carousel inside this column scrolls
+            horizontally and reaches past the gutter with -mx-4, so the
+            column widened to fit it, the grid widened to fit the column,
+            the page widened to fit the grid, and Chrome zoomed the entire
+            document out to fit the page.
+            
+            That is why everything looked shrunk at once: the hero, the
+            logo, the body text. It was never a hero bug. */}
         <div className="grid lg:grid-cols-3 gap-10">
           {/* Main */}
-          <div className="lg:col-span-2 space-y-10">
+          <div className="min-w-0 lg:col-span-2 space-y-10">
             {/* Quick info pills */}
             {(type || location) && (
               <div className="flex flex-wrap gap-2 reveal">
@@ -721,7 +731,7 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
           </div>
 
           {/* Sidebar — Booking Card */}
-          <div className="lg:col-span-1">
+          <div className="min-w-0 lg:col-span-1">
             <div className="sticky top-24 bg-card rounded-2xl border border-line p-7 shadow-xl shadow-black/5 ">
               {/* The sidebar carries it too, always. Where there is a list
                   the button delegates to the list rather than competing
