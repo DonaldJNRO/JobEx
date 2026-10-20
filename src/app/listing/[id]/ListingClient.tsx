@@ -115,6 +115,29 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
     return () => { live = false; };
   }, [listing?.id]);
 
+  // ABOVE THE EARLY RETURNS, AND THAT IS THE WHOLE POINT OF WHERE IT SITS.
+  //
+  // This was below `if (loading) return` and `if (!listing) return`. So the
+  // first render, with loading true, ran fifteen hooks and the second ran
+  // sixteen. React treats a changing hook count as unrecoverable and throws,
+  // which took every listing page down to the error boundary: "That did not
+  // load" on a page that had loaded perfectly.
+  //
+  // BookingRequest carries the same warning for the same reason, four lines
+  // above its own early return. Second time in this codebase.
+  useEffect(() => {
+    const el = priceCardRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(
+      ([entry]) => setPriceGone(!entry.isIntersecting),
+      // A sliver still counts as present, so the bar does not flicker in
+      // and out while somebody nudges the page.
+      { threshold: 0.15 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [listing?.id, loading]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-surface">
@@ -198,19 +221,6 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
   // menu. Pick a row and the same button becomes that row's booking. So
   // there is exactly one control at every moment, and a price at every
   // moment, which is what the rule was trying to achieve.
-  useEffect(() => {
-    const el = priceCardRef.current;
-    if (!el || typeof IntersectionObserver === "undefined") return;
-    const io = new IntersectionObserver(
-      ([entry]) => setPriceGone(!entry.isIntersecting),
-      // A sliver still counts as present, so the bar does not flicker in
-      // and out while somebody nudges the page.
-      { threshold: 0.15 },
-    );
-    io.observe(el);
-    return () => io.disconnect();
-  }, [listing?.id]);
-
   // TAKE THEM TO THE LIST, and move focus with the scroll. A scroll alone
   // leaves a keyboard user where they were, so the button would do nothing
   // they could perceive.
