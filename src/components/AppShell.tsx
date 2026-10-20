@@ -130,7 +130,7 @@ export default function AppShell({
           bottom padding is the phone bar plus the home indicator under it;
           the footer sits inside this, or the bar covers its last rows. */}
       <div className={show ? "lg:pl-56" : undefined}>
-        <div className={bar ? "pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] lg:pb-0" : undefined}>
+        <div data-chrome={bar ? "body" : undefined} className={bar ? "pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] lg:pb-0" : undefined}>
           {children}
           {/* NO FOOTER ON AN APP SURFACE. A feed you scroll for ever does not
               end in a sitemap, and TikTok, Snapchat and Amazon's own product
@@ -143,6 +143,10 @@ export default function AppShell({
       {bar && (
         <nav
           aria-label="Sabię"
+          // data-chrome, so globals.css can shrink this on a short screen.
+          // A phone in landscape has about 380px of height and this bar
+          // plus the navbar were taking a third of it.
+          data-chrome="bar"
           className="fixed inset-x-0 bottom-0 z-30 flex border-t border-line bg-card pb-[env(safe-area-inset-bottom,0px)] lg:hidden"
         >
           {tabs.map((t) => {

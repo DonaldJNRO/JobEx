@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { X, Users, Play } from "lucide-react";
 import Button from "./ui/Button";
@@ -44,6 +44,15 @@ export default function RoomGallery({
 }) {
   const photos = roomPhotos(room);
   const videos = roomVideos(room);
+  // FILMS FIRST, because a walkthrough tells you more about a room than any
+  // still, then the photos in the order their sections run.
+  const items = [
+    ...videos.map((src) => ({ kind: "video" as const, src })),
+    ...photos.map((src) => ({ kind: "photo" as const, src })),
+  ];
+  const total = items.length;
+  const [at, setAt] = useState(0);
+  const track = useRef<HTMLDivElement | null>(null);
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
   const quote = quoteStay(checkIn, checkOut, {
@@ -76,8 +85,6 @@ export default function RoomGallery({
     };
   }, [close]);
 
-  const total = photos.length + videos.length;
-
   return (
     <Overlay>
     <div
@@ -97,57 +104,78 @@ export default function RoomGallery({
         </button>
         <div className="min-w-0 flex-1">
           <h2 className="truncate font-bold text-white">{room.name}</h2>
-          {total > 0 && (
-            <p className="text-caption text-white/70">
-              {total} {total === 1 ? "item" : "items"}
-            </p>
-          )}
+          {total > 1 && <p className="text-caption text-white/70">{at + 1} of {total}</p>}
         </div>
       </header>
 
-      {/* THE WHOLE SET, SCROLLED. Films first, because a walkthrough tells
-          you more about a room than any single still. */}
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 pb-6">
-        <div className="mx-auto flex max-w-3xl flex-col gap-3">
-          {videos.map((src) => (
-            <video
-              key={src}
-              src={src}
-              controls
-              playsInline
-              preload="metadata"
-              className="w-full rounded-xl bg-black"
-            />
-          ))}
-          {photos.map((src, i) => (
-            <div
-              key={src}
-              className="relative w-full overflow-hidden rounded-xl bg-white/5"
-              // THE OTHER END. The first photo is the one that travelled up
-              // from the row, so it alone carries the name; giving it to
-              // every photo would be several elements claiming one name,
-              // which names none of them.
-              style={i === 0 ? { viewTransitionName: ROOM_HERO } : undefined}
-            >
-              <Image
-                src={src}
-                alt=""
-                width={1200}
-                height={900}
-                sizes="(min-width: 768px) 768px, 100vw"
-                className="h-auto w-full object-contain"
-                // The first one is what somebody is waiting to see.
-                priority={i === 0}
+      {/* ONE AT A TIME, SWIPED. This was a column you scrolled, which I
+          took from Airbnb's "show all photos" grid. Wrong reference: that
+          grid is a second screen you open FROM a carousel. The first look
+          at a room, on a phone, is a swipe, and stacking two photos just
+          made you scroll past the first to find the second.
+
+          CSS scroll snapping, so the swipe is the browser's own: it has the
+          right momentum and the right rubber band, which no amount of touch
+          handling reproduces. The counter follows the scroll rather than
+          driving it. */}
+      <div
+        ref={track}
+        onScroll={(e) => {
+          const el = e.currentTarget;
+          const i = Math.round(el.scrollLeft / Math.max(1, el.clientWidth));
+          if (i !== at) setAt(i);
+        }}
+        className="flex min-h-0 flex-1 snap-x snap-mandatory overflow-x-auto overflow-y-hidden overscroll-x-contain scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {items.map((item, i) => (
+          <div key={item.src} className="relative flex w-full shrink-0 snap-center items-center justify-center">
+            {item.kind === "video" ? (
+              <video
+                src={item.src}
+                controls
+                playsInline
+                preload="metadata"
+                className="max-h-full w-full object-contain"
               />
-            </div>
-          ))}
-          {total === 0 && (
-            <p className="py-20 text-center text-small text-white/60">
-              No pictures of this room yet.
-            </p>
-          )}
-        </div>
+            ) : (
+              <Image
+                src={item.src}
+                alt=""
+                fill
+                sizes="100vw"
+                className="object-contain"
+                // The first is what somebody is waiting to see; the rest
+                // load as they swipe to them.
+                priority={i === 0}
+                style={i === 0 ? { viewTransitionName: ROOM_HERO } : undefined}
+              />
+            )}
+          </div>
+        ))}
+        {items.length === 0 && (
+          <p className="flex w-full items-center justify-center text-small text-white/60">
+            No pictures of this room yet.
+          </p>
+        )}
       </div>
+
+      {/* WHERE YOU ARE IN THE SET. Dots past about eight become a smear, so
+          past that the count says it in words instead. */}
+      {items.length > 1 && (
+        <div className="flex shrink-0 items-center justify-center gap-1.5 py-3">
+          {items.length <= 8
+            ? items.map((item, i) => (
+                <button
+                  key={item.src}
+                  type="button"
+                  aria-label={`Photo ${i + 1}`}
+                  onClick={() => track.current?.scrollTo({ left: i * track.current.clientWidth, behavior: "smooth" })}
+                  className={`h-1.5 rounded-full transition-all ${i === at ? "w-5 bg-white" : "w-1.5 bg-white/40"}`}
+                />
+              ))
+            : <span className="text-caption text-white/70">{at + 1} of {items.length}</span>}
+        </div>
+      )}
 
       <footer className="shrink-0 border-t border-line bg-card px-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] pt-4">
         {/* THE TERMS THAT ARE ACTUALLY FIELDS, said in the viewer's own

@@ -32,7 +32,7 @@ export default function Navbar() {
        the same. */
     <nav className="fixed top-0 left-0 right-0 z-50 bg-surface border-b border-line">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div data-chrome="top" className="flex items-center justify-between h-16">
           {/* Logo */}
           {/* THE WORDMARK ALREADY CONTAINS THE BEE, in the bowl of the b. It is
               one or the other, never both, and this used to be both: the bee

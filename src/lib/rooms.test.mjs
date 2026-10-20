@@ -134,7 +134,18 @@ ok(/history\.back\(\)/.test(GAL), "and closing any other way takes that entry ba
 
 // Eleven photos one at a time behind arrows is a slideshow. Airbnb gives you
 // the set in a column, which is how somebody actually decides on a room.
-ok(/overflow-y-auto/.test(GAL), "the set scrolls rather than advancing one at a time");
+// A COLUMN YOU SCROLL WAS THE WRONG REFERENCE, and this guard defended it
+// for an afternoon. Airbnb's photo COLUMN is a second screen you open FROM
+// a carousel; the first look at a room on a phone is a swipe. Stacking two
+// photos just made you scroll past the first to find the second.
+//
+// CSS scroll snapping, so the swipe is the browser's own: it has the right
+// momentum and the right rubber band, which no amount of touch handling
+// reproduces.
+ok(/snap-x snap-mandatory/.test(GAL), "the set snaps, so a swipe lands on one photo");
+ok(/overflow-x-auto/.test(GAL), "sideways");
+ok(/w-full shrink-0 snap-center/.test(GAL), "each item filling the frame");
+ok(!/onTouchStart|onTouchMove/.test(GAL), "and no hand-rolled touch handling competing with the browser's");
 ok(/Escape/.test(GAL), "with a keyboard way out, since it covers the whole page");
 ok(/document\.body\.style\.overflow/.test(GAL), "and the page behind does not scroll under it");
 

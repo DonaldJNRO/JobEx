@@ -154,7 +154,7 @@ export default function HomePage() {
 
           Sticky, because the city and the search are how you steer a feed and
           steering it should not mean scrolling back up to find the controls. */}
-      <div className="sticky top-16 z-20 border-b border-line bg-surface/95 backdrop-blur">
+      <div data-sticky-filters className="sticky top-16 z-20 border-b border-line bg-surface/95 backdrop-blur">
         <div className="flex flex-wrap items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
           {cities.length > 0 && (
             <CityPicker cities={cities} selected={city} onSelect={pickCity} />
