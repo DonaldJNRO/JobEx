@@ -207,8 +207,25 @@ export function amenityList(listing: OperatorListing): string[] {
  */
 export function serviceStyle(listing: OperatorListing): string {
   const model = (listing.businessModel || "").toLowerCase().trim();
-  if (model === "online") return "Delivery and collection only";
-  if (model === "physical") return "Walk in";
+
+  // DELIVERY IS A FOOD WORD. A beach resort does not deliver, and a spa
+  // does not do collection. Three live listings that are not food and
+  // drink carry businessModel "online" anyway, so La Campagne Tropicana
+  // Beach Resort told everybody it was "Delivery and collection only".
+  //
+  // Judged on the ROLE and not on the flag, because the flag is operator
+  // input and this sentence is a claim the page makes.
+  const role = String((listing as { role?: unknown }).role || "").toLowerCase();
+  const isFood = role.includes("food") || role.includes("beverage") || role.includes("restaurant");
+
+  if (model === "online") {
+    // For anything else, "online" most likely means they had no shopfront
+    // field to tick. Saying nothing is the honest version of not knowing.
+    return isFood ? "Delivery and collection only" : "";
+  }
+  // "venue" is what 13 of the 60 live listings actually say, and nothing
+  // here had ever handled it, so they all rendered a blank line.
+  if (model === "physical" || model === "venue") return "Walk in";
   if (model === "both") return "Walk in, delivery and collection";
   return "";
 }

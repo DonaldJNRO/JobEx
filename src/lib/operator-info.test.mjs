@@ -130,7 +130,12 @@ console.log('the service style says something useful or says nothing');
 {
   // "online" on a restaurant means there is no room to walk into, which is
   // exactly what somebody planning a trip needs before they plan around it.
-  is(serviceStyle({ businessModel: 'online' }), 'Delivery and collection only', 'online');
+  // THE ROLE DECIDES, not the flag. Three live listings that are not food
+  // and drink carry businessModel "online", so a beach resort was telling
+  // everybody it was delivery and collection only. Covered in full in
+  // service-style.test.mjs.
+  is(serviceStyle({ businessModel: 'online', role: 'FoodBeverageManager' }), 'Delivery and collection only', 'online, on a kitchen');
+  is(serviceStyle({ businessModel: 'online', role: 'HospitalityManager' }), '', 'online, on a resort, says nothing');
   is(serviceStyle({ businessModel: 'physical' }), 'Walk in', 'physical');
   is(serviceStyle({ businessModel: 'both' }), 'Walk in, delivery and collection', 'both');
   is(serviceStyle({}), '', 'absent says nothing rather than assuming a walk in');
