@@ -136,7 +136,7 @@ export default function RoomGallery({
         // into whatever height is going and fills it, so there is no dead
         // space and no letterbox. A minimum, so it cannot be squeezed to a
         // strip when a room does have a lot to say.
-        className="flex min-h-[38dvh] min-w-0 flex-1 snap-x snap-mandatory overflow-x-auto overflow-y-hidden overscroll-x-contain scroll-smooth bg-neutral-dark [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex max-h-[42dvh] min-h-[30dvh] min-w-0 flex-1 snap-x snap-mandatory overflow-x-auto overflow-y-hidden overscroll-x-contain scroll-smooth bg-neutral-dark [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {items.map((item, i) => (
           <div key={item.src} className="relative flex w-full shrink-0 snap-center items-center justify-center">
@@ -216,7 +216,13 @@ export default function RoomGallery({
         {/* TWO DATES, BECAUSE A STAY HAS TWO. The sheet this used to open
             asked one date and a time, which is right for a haircut and
             cannot describe a night. */}
-        <div className="mb-3 grid grid-cols-2 gap-2.5">
+        {/* min-w-0 ON THE CELLS. Safari gives <input type="date"> an
+            intrinsic width of its own and a grid cell will not shrink below
+            its content, so the two boxes grew past their columns, touched
+            in the middle and ran off the right edge. Chrome lets them
+            shrink, which is why this looked right until it was opened on an
+            iPhone. */}
+        <div className="mb-3 grid grid-cols-2 gap-2.5 [&>*]:min-w-0">
           <label className="block">
             <span className="mb-1 block text-caption font-semibold text-ink">Check in</span>
             <input
@@ -229,7 +235,7 @@ export default function RoomGallery({
                 // impossible pair on screen that the guest did not create.
                 if (checkOut && e.target.value && checkOut <= e.target.value) setCheckOut(dayAfter(e.target.value));
               }}
-              className="w-full rounded-xl border border-line-strong bg-card px-3 py-2.5 text-small text-ink [&::-webkit-date-and-time-value]:text-left"
+              className="w-full min-w-0 appearance-none rounded-xl border border-line-strong bg-card px-3 py-2.5 text-small text-ink [&::-webkit-date-and-time-value]:text-left"
             />
             {/* iOS RENDERS AN EMPTY date INPUT AS NOTHING. No placeholder,
                 no dd/mm/yyyy, just a box, so the two most important
@@ -245,7 +251,7 @@ export default function RoomGallery({
               value={checkOut}
               min={checkIn ? dayAfter(checkIn) : todayISO()}
               onChange={(e) => setCheckOut(e.target.value)}
-              className="w-full rounded-xl border border-line-strong bg-card px-3 py-2.5 text-small text-ink [&::-webkit-date-and-time-value]:text-left"
+              className="w-full min-w-0 appearance-none rounded-xl border border-line-strong bg-card px-3 py-2.5 text-small text-ink [&::-webkit-date-and-time-value]:text-left"
             />
             {!checkOut && <span className="pointer-events-none -mt-9 block px-3 py-2.5 text-small text-ink-faint sm:hidden">Add a date</span>}
           </label>

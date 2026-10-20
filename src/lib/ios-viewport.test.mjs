@@ -60,5 +60,14 @@ const GAL = code("src/components/RoomGallery.tsx");
 ok(/type="date"/.test(GAL), "the room screen asks for dates");
 ok(/Add a date/.test(GAL), "and says so when they are empty, since Safari shows nothing");
 
+console.log("\nand a date field can shrink to its column");
+// Safari gives <input type="date"> an intrinsic width of its own, and a
+// grid cell will not shrink below its content, so check in and check out
+// grew past their columns, touched in the middle and ran off the right
+// edge. Chrome lets them shrink, which is why this looked right until it
+// was opened on an iPhone.
+ok(/\[&>\*\]:min-w-0/.test(GAL), "the date grid's cells may shrink");
+ok(/w-full min-w-0 appearance-none rounded-xl/.test(GAL), "and so may the inputs inside them");
+
 console.log(fails ? `\n${fails} FAILED` : "\nALL PASSED");
 process.exit(fails ? 1 : 0);

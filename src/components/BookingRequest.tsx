@@ -14,7 +14,7 @@
  * turning up.
  */
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { X, Check, Loader2, AlertTriangle, ChevronDown, MapPin } from "lucide-react";
 import { sendBookingRequest, BookingError } from "@/lib/book";
 import { offersOf, slotsFor, policyLines, addressOf, type Offer } from "@/lib/shop-window";
@@ -71,7 +71,14 @@ export default function BookingRequest({
   // So a payment made while signed in puts that person's name on the trip
   // rather than "Guest". A guest booking still works with neither.
   const { user, userProfile } = useAuth();
-  const offers = offersOf(listing);
+  // MEMOISED, AND THAT IS NOT A PERFORMANCE NOTE. offersOf returns a NEW
+  // ARRAY every render, and this value is a dependency of the effect that
+  // resets the sheet when it opens. So the effect ran after every single
+  // render. That was harmless while it only called setOffer with the value
+  // already set, and became a trap the moment I put setStep("when") in it:
+  // press Next, the step changes, the component re-renders, the effect
+  // fires, the step is reset. Nothing happens, for ever.
+  const offers = useMemo(() => offersOf(listing), [listing]);
   const [offer, setOffer] = useState<string>(initialOffer || offers[0]?.name || "");
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
@@ -107,8 +114,16 @@ export default function BookingRequest({
   // TAPPING A DIFFERENT ROW CHANGES THE CHOICE. useState only reads its
   // initial value once, so without this a guest who closed the sheet, tapped
   // Pedicure and reopened it would still be looking at Acrylic.
+  const wasOpen = useRef(false);
   useEffect(() => {
-    if (!open) return;
+    if (!open) { wasOpen.current = false; return; }
+    // ONLY ON THE OPENING EDGE. Even with offers memoised, a reset that
+    // runs whenever this effect happens to re-run is a step counter any
+    // unrelated change can rewind. It resets when the sheet OPENS and at
+    // no other time.
+    const justOpened = !wasOpen.current;
+    wasOpen.current = true;
+    if (!justOpened) return;
     if (initialOffer && offers.some((o) => o.name === initialOffer)) setOffer(initialOffer);
     // THE NIGHTS THEY ALREADY CHOSE. Arriving here from a room screen with
     // check in and check out already picked, and being asked for a date,
@@ -524,8 +539,14 @@ export default function BookingRequest({
             ) : offers.length === 1 ? (
               <div className="mb-4 rounded-2xl bg-surface-sunken border border-line px-4 py-3">
                 <p className="text-sm font-semibold text-ink">{offers[0].name}</p>
+                {/* THROUGH THE CONVERTER. This branch, the one with a single
+                    offer, called formatPriceWithCurrency directly and
+                    printed the operator's own money: a guest in London was
+                    asked to agree to N326,900 with nothing on the screen
+                    saying what that is. The branch beside it, for several
+                    offers, had always converted. */}
                 {typeof offers[0].price === "number" && (
-                  <p className="text-sm text-ink-muted">{formatPriceWithCurrency(offers[0].price, listing.currency || "NGN")}</p>
+                  <p className="text-sm text-ink-muted">{priceFor(offers[0].price as number)}</p>
                 )}
               </div>
             ) : null}
