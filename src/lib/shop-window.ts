@@ -94,6 +94,22 @@ export interface ServiceGroup {
   fromPrice: number | null;
   /** True when the row is worth expanding. */
   hasChoices: boolean;
+  /** The service's own photo and film, which 97 of 159 services carry. */
+  imageUrl?: string | null;
+  videoUrl?: string | null;
+  /** The hours it runs, which 116 experiences carry and nothing showed. */
+  timeSlots?: string[];
+}
+
+/**
+ * Is there enough behind this row to be worth its own screen?
+ *
+ * A row with a photo, a description, its own times or a set of tiers has
+ * something to show. A bare name and a price has not, and opening a screen
+ * for it would be a screen with a name and a price on it.
+ */
+export function worthAScreen(g: ServiceGroup): boolean {
+  return Boolean(g.imageUrl || g.videoUrl || g.description || (g.timeSlots?.length ?? 0) > 0 || g.tiers.length > 0);
 }
 
 /**
@@ -140,6 +156,14 @@ export function serviceGroups(l: OfferSource): ServiceGroup[] {
       tiers: tiers.length > 1 ? tiers : [],
       fromPrice: prices.length ? Math.min(...prices) : null,
       hasChoices: tiers.length > 1,
+      // CARRIED THROUGH, because nothing downstream could read it
+      // otherwise. 97 of 159 services have a photo and 116 experiences
+      // carry their hours, and the row showed a name and a price.
+      imageUrl: typeof (r as { imageUrl?: unknown }).imageUrl === "string" ? (r as { imageUrl: string }).imageUrl : null,
+      videoUrl: typeof (r as { videoUrl?: unknown }).videoUrl === "string" ? (r as { videoUrl: string }).videoUrl : null,
+      timeSlots: Array.isArray((r as { timeSlots?: unknown }).timeSlots)
+        ? ((r as { timeSlots: unknown[] }).timeSlots.filter((t) => typeof t === "string" && t.trim()) as string[])
+        : [],
     });
   }
   return out;

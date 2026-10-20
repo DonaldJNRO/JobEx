@@ -270,7 +270,14 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
   const chooseWord = resolveProfileSections(listing ?? {}).bookCta === "rooms"
     ? "Pick a room"
     : "Pick what you want";
-  const delegating = pickable && !pickedOffer;
+  // AND THE ROOMS COUNT. hasPickableList reads services[], which is where
+  // this page's list used to come from. The real rooms arrived from a
+  // roomTypes subcollection and nothing told the button they existed, so on
+  // a resort with seven rooms and no services the button said "See rooms"
+  // and opened a booking sheet instead of going to them. There WAS a list;
+  // the button was asking the wrong thing whether there was one.
+  const hasList = pickable || roomNames.length > 0;
+  const delegating = hasList && !pickedOffer;
   // The price of the row they chose, so the headline figure is no longer the
   // cheapest of everything while they are looking at something else. Null
   // until they choose, which is when the "from" price is the honest answer.

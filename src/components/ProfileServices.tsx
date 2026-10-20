@@ -11,11 +11,14 @@
 // Three levels waits for Studio's service.category enum.
 
 import { useState } from "react";
+import Image from "next/image";
+import OfferScreen from "./OfferScreen";
 import { ChevronDown } from "lucide-react";
 import { ROW_ACTION } from "@/lib/ui-recipes";
+import { openAsScreen, OFFER_HERO } from "@/lib/screen-open";
 import { useMoney as useGuestRates } from "@/lib/useRates";
 import { buildDisplayPrice } from "@/lib/display-price";
-import { serviceGroups, type ServiceGroup } from "@/lib/shop-window";
+import { serviceGroups, worthAScreen, type ServiceGroup } from "@/lib/shop-window";
 import { resolveProfileSections, CTA_LABEL } from "@/lib/profile-sections";
 
 /**
@@ -87,6 +90,7 @@ export default function ProfileServices({ listing, currency, onPick, hideNames }
   const drop = new Set((hideNames || []).map((n) => n.trim().toLowerCase()).filter(Boolean));
   const groups = serviceGroups(listing).filter((g) => !drop.has(String(g.name).trim().toLowerCase()));
   const money = useMoney(currency);
+  const [showing, setShowing] = useState<ServiceGroup | null>(null);
   const menu = Array.isArray(listing.menu) ? (listing.menu as MenuCategory[]) : [];
 
   // A CAFÉ READS ITS MENU, it does not pick a service. Never payable, so
@@ -105,7 +109,15 @@ export default function ProfileServices({ listing, currency, onPick, hideNames }
                   {cat.name}
                 </p>
               )}
-              <ul className="rounded-2xl border border-line bg-card divide-y divide-line overflow-hidden">
+              {showing && (
+        <OfferScreen
+          group={showing}
+          money={money}
+          onClose={() => setShowing(null)}
+          onPick={(n) => { setShowing(null); onPick(n); }}
+        />
+      )}
+      <ul className="rounded-2xl border border-line bg-card divide-y divide-line overflow-hidden">
                 {(cat.items ?? []).map((it, j) => (
                   <li key={`${it?.name ?? j}`} className="flex items-baseline justify-between gap-4 px-4 py-2.5">
                     <span className="text-sm text-ink">{it?.name}</span>
@@ -135,7 +147,7 @@ export default function ProfileServices({ listing, currency, onPick, hideNames }
       <h2 className="text-heading font-bold text-ink mb-3">{heading}</h2>
       <ul className="rounded-2xl border border-line bg-card divide-y divide-line overflow-hidden">
         {groups.map((g) => (
-          <ServiceRow key={g.name} group={g} money={money} cta={cta} onPick={onPick} />
+          <ServiceRow key={g.name} group={g} money={money} cta={cta} onPick={onPick} onOpen={setShowing} />
         ))}
       </ul>
     </section>
@@ -157,14 +169,27 @@ function bookBookCtaRowWord(bookCta: string): string {
 }
 
 function ServiceRow(
-  { group, money, cta, onPick }:
-    { group: ServiceGroup; money: (n: number | null) => string; cta: string; onPick: (n: string) => void },
+  { group, money, cta, onPick, onOpen }:
+    { group: ServiceGroup; money: (n: number | null) => string; cta: string; onPick: (n: string) => void; onOpen: (g: ServiceGroup) => void },
 ) {
   const [open, setOpen] = useState(false);
 
   // A row with one price books it. A row with a choice opens first, because
   // booking "Gel nails" without saying Short or Medium is not a booking.
-  const act = () => (group.hasChoices ? setOpen((v) => !v) : onPick(group.name));
+  //
+  // AND A ROW WITH SOMETHING BEHIND IT OPENS A SCREEN. 136 experience
+  // services exist, 85 carrying a photo and 116 carrying their own hours,
+  // and every one of them reached a traveller as a name and a price on one
+  // line. A row with a photo, a description, its own times or a set of
+  // tiers has something to show; a bare name and a price has not, and
+  // opening a screen for that would be a screen with a name on it.
+  const act = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (worthAScreen(group)) {
+      const thumb = (e.currentTarget as HTMLElement).querySelector<HTMLElement>("[data-offer-thumb]");
+      return openAsScreen(thumb, OFFER_HERO, () => onOpen(group));
+    }
+    return group.hasChoices ? setOpen((v) => !v) : onPick(group.name);
+  };
 
   return (
     <li>
@@ -173,6 +198,11 @@ function ServiceRow(
         onClick={act}
         className="group w-full flex items-start justify-between gap-4 px-4 py-3.5 text-left hover:bg-surface-sunken transition-colors"
       >
+        {group.imageUrl ? (
+          <span data-offer-thumb className="relative block h-14 w-16 shrink-0 overflow-hidden rounded-xl bg-surface-sunken">
+            <Image src={group.imageUrl} alt="" fill sizes="64px" className="object-cover" />
+          </span>
+        ) : null}
         <span className="min-w-0">
           <span className="block text-sm text-ink">{group.name}</span>
           {group.description && (

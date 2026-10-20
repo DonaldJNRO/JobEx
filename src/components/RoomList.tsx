@@ -50,6 +50,8 @@ export default function RoomList({
   };
   const [rooms, setRooms] = useState<Room[] | null>(null);
   const [showing, setShowing] = useState<Room | null>(null);
+  const [at, setAt] = useState(0);
+  const track = useRef<HTMLDivElement | null>(null);
 
   // In a ref, so a parent passing an inline callback does not re-run the
   // fetch on every render.
@@ -93,69 +95,82 @@ export default function RoomList({
       {/* WILL WE FIT, answered before the prices. Airbnb puts this directly
           under the title and it is the first thing anybody checks. */}
       <p className="mb-3 mt-1 text-small text-ink-muted">{stayFacts(rooms).join(" · ")}</p>
-      <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-card">
+      {/* SIDE BY SIDE, SWIPED. A stacked list of seven rooms is seven
+          scrolls before you have seen what is on offer, and the photo gets
+          a thumbnail because a list row has nowhere to put one. A card you
+          slide gives each room a picture at the size somebody can judge it
+          by, and the next one is always half in view, which is what says
+          "there is more". Same scroll snapping as inside a room: the
+          browser's own swipe, not a reproduction of one. */}
+      <div
+        ref={track}
+        onScroll={(e) => {
+          const el = e.currentTarget;
+          const card = el.firstElementChild as HTMLElement | null;
+          const w = card ? card.offsetWidth + 12 : el.clientWidth;
+          const i = Math.round(el.scrollLeft / Math.max(1, w));
+          if (i !== at) setAt(i);
+        }}
+        className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:px-0 [&::-webkit-scrollbar]:hidden"
+      >
         {rooms.map((room) => {
           const cover = roomCover(room);
           const photos = roomPhotos(room).length;
           const films = roomVideos(room).length;
           return (
-            <li key={room.id}>
-              <button
-                type="button"
-                // THE ROOM COMES OUT OF ITS ROW, the same way the listing
-                // comes out of its card. This is a state change rather than
-                // a navigation, so nothing wraps it automatically and it
-                // used to appear from nowhere.
-                onClick={(e) => {
-                  if (!hasMedia(room)) return onPick(room.name);
-                  const thumb = (e.currentTarget as HTMLElement).querySelector<HTMLElement>("[data-room-thumb]");
-                  openAsScreen(thumb, ROOM_HERO, () => setShowing(room));
-                }}
-                className="group flex w-full items-center gap-3 p-3 text-left transition-colors hover:bg-surface-sunken"
-              >
-                {/* THE PICTURE, which is the whole point. A room with only a
-                    film has no still to show, so it gets the play mark on
-                    its own rather than a grey box pretending to be a photo. */}
-                <span data-room-thumb className="relative h-16 w-20 shrink-0 overflow-hidden rounded-xl bg-surface-sunken">
-                  {cover ? (
-                    <Image src={cover} alt="" fill sizes="80px" className="object-cover" />
-                  ) : null}
-                  {films > 0 && (
-                    <span className="absolute inset-0 flex items-center justify-center">
-                      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-black/55 backdrop-blur-sm">
-                        <Play size={12} className="ml-0.5 fill-white text-white" />
-                      </span>
+            <button
+              key={room.id}
+              type="button"
+              onClick={(e) => {
+                if (!hasMedia(room)) return onPick(room.name);
+                const thumb = (e.currentTarget as HTMLElement).querySelector<HTMLElement>("[data-room-thumb]");
+                openAsScreen(thumb, ROOM_HERO, () => setShowing(room));
+              }}
+              // 78% so the next card is always part in view. A card that
+              // fills the width looks like the only one there is.
+              className="w-[78%] shrink-0 snap-start overflow-hidden rounded-2xl border border-line bg-card text-left transition-transform duration-150 active:scale-[0.985] sm:w-64"
+            >
+              <span data-room-thumb className="relative block aspect-[4/3] w-full overflow-hidden bg-surface-sunken">
+                {cover ? <Image src={cover} alt="" fill sizes="(min-width: 640px) 256px, 78vw" className="object-cover" /> : null}
+                {films > 0 && (
+                  <span className="absolute inset-0 flex items-center justify-center">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-black/55 backdrop-blur-sm">
+                      <Play size={15} className="ml-0.5 fill-white text-white" />
                     </span>
-                  )}
-                </span>
-
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate font-semibold text-ink">{room.name}</span>
-                  <span className="mt-0.5 flex flex-wrap items-center gap-x-2.5 gap-y-0.5 text-caption text-ink-muted">
-                    {room.maxGuests ? (
-                      <span className="inline-flex items-center gap-1">
-                        <Users size={11} /> {room.maxGuests}
-                      </span>
-                    ) : null}
-                    {photos > 0 && <span>{photos} {photos === 1 ? "photo" : "photos"}</span>}
-                    {films > 0 && <span>{films} {films === 1 ? "film" : "films"}</span>}
                   </span>
-                </span>
+                )}
+              </span>
 
-                <span className="shrink-0 text-right">
-                  <span className="block text-sm font-semibold text-ink">
+              <span className="block p-3.5">
+                <span className="block truncate font-semibold text-ink">{room.name}</span>
+                <span className="mt-0.5 flex flex-wrap items-center gap-x-2.5 text-caption text-ink-muted">
+                  {room.maxGuests ? (
+                    <span className="inline-flex items-center gap-1"><Users size={11} /> {room.maxGuests}</span>
+                  ) : null}
+                  {photos > 0 && <span>{photos} {photos === 1 ? "photo" : "photos"}</span>}
+                </span>
+                <span className="mt-2 flex items-baseline justify-between gap-2">
+                  <span className="text-heading font-extrabold text-ink">
                     {money(room.priceAmount ?? null, room.priceCurrency)}
                   </span>
-                  <span className={`${ROW_ACTION} mt-1`}>
+                  <span className={ROW_ACTION}>
                     {hasMedia(room) ? "See room" : "Book"}
                     <ChevronRight size={13} />
                   </span>
                 </span>
-              </button>
-            </li>
+              </span>
+            </button>
           );
         })}
-      </ul>
+      </div>
+
+      {/* WHICH ONE OF HOW MANY. Seven rooms sliding past with no counter is
+          a carousel you cannot tell the end of. */}
+      {rooms.length > 1 && (
+        <p className="mt-2.5 text-caption text-ink-muted">
+          {Math.min(at + 1, rooms.length)} of {rooms.length}
+        </p>
+      )}
 
       {showing && (
         <RoomGallery

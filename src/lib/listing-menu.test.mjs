@@ -138,8 +138,16 @@ ck((live(PAGE).match(/\{bookingBlock\}/g) || []).length === 2,
 // carries the list's own words and goes to the list; choose a row and the
 // same button becomes that row's booking. That is "one way in" without a
 // page that refuses to show its price.
-ck(/const delegating = pickable && !pickedOffer;/.test(live(PAGE)),
+ck(/const delegating = hasList && !pickedOffer;/.test(live(PAGE)),
   "the page knows when its action should delegate");
+// AND IT ASKS ABOUT THE WHOLE LIST. hasPickableList reads services[], which
+// is where this page's list used to come from. The real rooms arrive from a
+// roomTypes subcollection, so on a resort with seven rooms and no services
+// the button said "See rooms" and opened a booking sheet instead of going
+// to them: there WAS a list, and the button was asking the wrong thing
+// whether there was one.
+ck(/const hasList = pickable \|\| roomNames\.length > 0;/.test(live(PAGE)),
+  "and counts the rooms as a list, not only services[]");
 ck(/delegating \? jumpToMenu\(\) : setBooking\(true\)/.test(live(PAGE)),
   "and the one button either opens the list or opens the booking, never both");
 ck(/delegating \? chooseWord : ctaWord/.test(live(PAGE)),
@@ -161,6 +169,32 @@ ck(!/bg-action/.test(readFileSync("src/lib/ui-recipes.ts", "utf8").split("export
 
 ck(/if \(shape === "menu"\) return false;/.test(live(SECTION)),
   "a cafe keeps its card, because its menu is not tappable and the card is its only action");
+
+console.log("\nevery category gets a screen, not just rooms");
+// Rooms got one first and nothing else did, which made it a special case
+// rather than how the product works. 136 experience services exist, 85 with
+// a photo and 116 carrying their own hours, and all of it reached a
+// traveller as a name and a price on one line.
+const SHOP = readFileSync("src/lib/shop-window.ts", "utf8");
+const OFFER = readFileSync("src/components/OfferScreen.tsx", "utf8");
+ck(/export function worthAScreen/.test(SHOP), "a row knows whether it has anything to show");
+ck(/g\.imageUrl \|\| g\.videoUrl \|\| g\.description/.test(SHOP),
+  "a photo, a film, text, times or tiers counts; a bare name and price does not");
+ck(/worthAScreen\(group\)/.test(live(SECTION)), "and the row asks before opening one");
+ck(/openAsScreen\(thumb, OFFER_HERO/.test(live(SECTION)), "which comes out of the row it was tapped on");
+ck(/imageUrl: typeof \(r as \{ imageUrl\?: unknown \}\)\.imageUrl/.test(SHOP),
+  "the photo is carried through the group, or nothing downstream can read it");
+ck(/timeSlots/.test(SHOP) && /When it runs/.test(OFFER),
+  "and the hours, which 116 experiences carry and nothing had ever shown");
+
+// A CAFE'S MENU IS A MENU. You read it; you do not tap a jollof rice to
+// open its screen. hasPickableList already refuses a menu shape, so this
+// stays true by construction rather than by a rule in the screen.
+ck(/if \(shape === "menu"\) return false;/.test(live(SECTION)),
+  "food and drink keeps a flat menu, with nothing to tap into");
+
+ck(/group\.tiers\.length === 0 &&/.test(OFFER),
+  "a tiered offer has no second Book button, since it could not say which tier it meant");
 
 console.log(fails ? `\n${fails} FAILED` : "\nALL PASSED");
 process.exit(fails ? 1 : 0);

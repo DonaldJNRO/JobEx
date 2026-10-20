@@ -41,3 +41,6 @@ export function openAsScreen(el: HTMLElement | null, name: string, change: () =>
 
 /** The one name a room's photo travels under. */
 export const ROOM_HERO = "room-hero";
+
+/** And the one an experience, an event or any other offer travels under. */
+export const OFFER_HERO = "offer-hero";
