@@ -70,7 +70,12 @@ console.log("\na room opens the same way, and it is not a navigation");
 // Next wraps PAGE navigations. A room is a state change putting an overlay
 // up, so nothing wraps it and it appeared from nowhere.
 const ROOMS = readFileSync("src/components/RoomList.tsx", "utf8");
-const GALLERY = readFileSync("src/components/RoomGallery.tsx", "utf8");
+// COMMENTS STRIPPED, ALWAYS. These files explain their own bugs in prose,
+// and a guard that reads the prose is checking its own explanation rather
+// than the code. That has now happened nine times in this repo, so it is a
+// helper rather than a thing to remember.
+const code = (f) => readFileSync(f, "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
+const GALLERY = code("src/components/RoomGallery.tsx");
 const OPEN = readFileSync("src/lib/screen-open.ts", "utf8");
 ok(/openAsScreen\(/.test(ROOMS), "the row opens the room as a screen");
 ok(/startViewTransition/.test(OPEN), "through the same browser API, called by hand");
@@ -127,8 +132,17 @@ console.log("\nand the room screen is a page, not a letterbox");
 // flex-1 gave the photo the whole screen minus the footer, so a 4:3 photo
 // contained in a tall box was a small photo between two black bars with the
 // dates crushed into a strip underneath.
-ok(/aspect-\[4\/3\] max-h-\[55vh\]/.test(GALLERY), "the photo has a shape and a ceiling");
-ok(!/flex min-h-0 flex-1 snap-x/.test(GALLERY), "rather than whatever height is left over");
+// THE THIRD SHAPE, and the first two were each wrong in the opposite
+// direction. flex-1 with object-contain letterboxed a 4:3 photo into a tall
+// box between two black bars. A fixed 4:3 left a band of empty cream
+// between the picture and the dates on any room without a description,
+// which is most of them.
+//
+// flex-1 AND object-cover is the pair: the photo grows into whatever height
+// is going and fills it. No dead space, no letterbox.
+ok(/min-h-\[38vh\] min-w-0 flex-1/.test(GALLERY), "the photo takes the space nobody else wants, with a floor");
+ok(!/object-contain/.test(GALLERY), "and fills it, rather than fitting inside it between bars");
+ok(/shrink-0 overflow-y-auto/.test(GALLERY), "the body takes only what it needs, or the two split the screen");
 
 console.log(fails ? `\n${fails} FAILED` : "\nALL PASSED");
 process.exit(fails ? 1 : 0);

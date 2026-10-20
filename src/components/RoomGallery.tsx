@@ -125,12 +125,18 @@ export default function RoomGallery({
           const i = Math.round(el.scrollLeft / Math.max(1, el.clientWidth));
           if (i !== at) setAt(i);
         }}
-        // A FIXED SHAPE AT THE TOP, not whatever height is left over.
-        // flex-1 gave the photo the whole screen minus the footer, and a
-        // 4:3 photo contained inside a tall box is a small photo between
-        // two black bars with the dates crushed into a strip underneath.
-        // Capped at 55vh so it never eats a short screen.
-        className="flex aspect-[4/3] max-h-[55vh] w-full shrink-0 snap-x snap-mandatory overflow-x-auto overflow-y-hidden overscroll-x-contain scroll-smooth bg-neutral-dark [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        // THE PHOTO TAKES THE SPACE NOBODY ELSE WANTS.
+        //
+        // Fixed at 4:3 it left a band of empty cream between the picture
+        // and the dates on any room without a description, which is most of
+        // them. Before that it was flex-1 with object-contain, which
+        // letterboxed a 4:3 photo into a tall box between two black bars.
+        //
+        // flex-1 AND object-cover is the pair that works: the photo grows
+        // into whatever height is going and fills it, so there is no dead
+        // space and no letterbox. A minimum, so it cannot be squeezed to a
+        // strip when a room does have a lot to say.
+        className="flex min-h-[38vh] min-w-0 flex-1 snap-x snap-mandatory overflow-x-auto overflow-y-hidden overscroll-x-contain scroll-smooth bg-neutral-dark [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {items.map((item, i) => (
           <div key={item.src} className="relative flex w-full shrink-0 snap-center items-center justify-center">
@@ -140,7 +146,7 @@ export default function RoomGallery({
                 controls
                 playsInline
                 preload="metadata"
-                className="max-h-full w-full object-contain"
+                className="h-full w-full object-cover"
               />
             ) : (
               <Image
@@ -148,7 +154,7 @@ export default function RoomGallery({
                 alt=""
                 fill
                 sizes="100vw"
-                className="object-contain"
+                className="object-cover"
                 // The first is what somebody is waiting to see; the rest
                 // load as they swipe to them.
                 priority={i === 0}
@@ -164,7 +170,11 @@ export default function RoomGallery({
         )}
       </div>
 
-      <div className="min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain">
+      {/* NATURAL HEIGHT, not a second claim on the space. With this at
+          flex-1 as well, the photo and an almost empty body split the
+          screen between them and the half holding the dots was blank
+          cream. It takes what it needs and scrolls past a point. */}
+      <div className="min-w-0 shrink-0 overflow-y-auto overscroll-contain" style={{ maxHeight: "40vh" }}>
       {/* WHERE YOU ARE IN THE SET. Dots past about eight become a smear, so
           past that the count says it in words instead. */}
       {items.length > 1 && (
@@ -219,8 +229,14 @@ export default function RoomGallery({
                 // impossible pair on screen that the guest did not create.
                 if (checkOut && e.target.value && checkOut <= e.target.value) setCheckOut(dayAfter(e.target.value));
               }}
-              className="w-full rounded-xl border border-line bg-surface px-3 py-2.5 text-small text-ink"
+              className="w-full rounded-xl border border-line-strong bg-card px-3 py-2.5 text-small text-ink [&::-webkit-date-and-time-value]:text-left"
             />
+            {/* iOS RENDERS AN EMPTY date INPUT AS NOTHING. No placeholder,
+                no dd/mm/yyyy, just a box, so the two most important
+                controls on this screen read as dead. Chrome draws its own
+                hint, which is why this looked fine until it was opened on a
+                phone. */}
+            {!checkIn && <span className="pointer-events-none -mt-9 block px-3 py-2.5 text-small text-ink-faint sm:hidden">Add a date</span>}
           </label>
           <label className="block">
             <span className="mb-1 block text-caption font-semibold text-ink">Check out</span>
@@ -229,8 +245,9 @@ export default function RoomGallery({
               value={checkOut}
               min={checkIn ? dayAfter(checkIn) : todayISO()}
               onChange={(e) => setCheckOut(e.target.value)}
-              className="w-full rounded-xl border border-line bg-surface px-3 py-2.5 text-small text-ink"
+              className="w-full rounded-xl border border-line-strong bg-card px-3 py-2.5 text-small text-ink [&::-webkit-date-and-time-value]:text-left"
             />
+            {!checkOut && <span className="pointer-events-none -mt-9 block px-3 py-2.5 text-small text-ink-faint sm:hidden">Add a date</span>}
           </label>
         </div>
 
