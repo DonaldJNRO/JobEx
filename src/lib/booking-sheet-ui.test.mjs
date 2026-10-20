@@ -110,6 +110,17 @@ ck(!/\{instant\s*\n?\s*\? "Confirmed straight away/.test(SHEET),
 // ── the review step reads like a sentence ───────────────────────────────
 // This is the one screen somebody checks before paying, and it was showing
 // a stored value, a floating comma and a unit that was not one.
+// EVERY date a person reads, not just the one I was shown. A sweep,
+// because spot-fixing one and missing its sibling is the mistake I made
+// six times today.
+{
+  // value={date} is the input's OWN value and has to be the stored form;
+  // everything else here is text somebody reads.
+  const rawShown = [...SHEET.matchAll(/\{date\}/g)]
+    .filter((m) => SHEET.slice(Math.max(0, m.index - 6), m.index) !== "value=");
+  ck(rawShown.length === 0,
+    `no screen on this sheet prints the stored date value (${rawShown.length} left)`);
+}
 ck(/value: \[date && readableDate\(date\), time\]/.test(SHEET),
   'the date is readable, not "2026-10-20 at 8:00 PM"');
 ck(/name\.trim\(\) \? `\$\{name\.trim\(\)\}/.test(SHEET),

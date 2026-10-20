@@ -438,7 +438,7 @@ export default function BookingRequest({
             </div>
             <h2 className="text-title text-ink mb-2">You are booked</h2>
             <p className="text-small text-ink-muted mb-1">
-              {business} has your booking for {date}{time ? ` at ${time}` : ""}.
+              {business} has your booking for {date ? readableDate(date) : ""}{time ? ` at ${time}` : ""}.
             </p>
             <p className="text-small text-ink-muted mb-4">
               Your booking reference is <span className="font-semibold text-ink">{intent?.bookingRequestId?.slice(0, 8).toUpperCase()}</span>.
@@ -452,7 +452,10 @@ export default function BookingRequest({
           <div className="pt-4">
             <h2 className="text-title text-ink mb-1">Pay {business}</h2>
             <p className="text-small text-ink-muted mb-4">
-              {offer ? `${offer}, ` : ""}{date}{time ? ` at ${time}` : ""}
+              {/* READABLE HERE TOO. I fixed this on the review step an hour
+                  ago and left the screen AFTER it, which is the last thing
+                  somebody reads before a card. Sixth sibling missed today. */}
+              {offer ? `${offer}, ` : ""}{date ? readableDate(date) : ""}{time ? ` at ${time}` : ""}
             </p>
             <PayStep
               clientSecret={intent.clientSecret}
