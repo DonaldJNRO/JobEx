@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { MapPin, Star, ChevronLeft, ChevronRight, ChevronDown, Wifi, Car, Coffee, Waves, Shield, ArrowRight, Download, Globe, Clock, Users, Check } from "lucide-react";
 import Button from "@/components/ui/Button";
-import { resolveListing, getListingPrice, getListingLocation, getListingType, getCategoryLabel, getFeaturedListings, visitedBySabie, Listing } from "@/lib/listings";
+import { resolveListing, getListingPrice, getListingPriceParts, getListingLocation, getListingType, getCategoryLabel, getFeaturedListings, visitedBySabie, Listing } from "@/lib/listings";
 import { useMoney } from "@/lib/useRates";
 import { buildDisplayPrice } from "@/lib/display-price";
 import { openingRows, openNow, serviceStyle, verificationLine, amenityLabel } from "@/lib/operator-info";
@@ -182,6 +182,11 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
   if (listing.coverImage && !images.includes(listing.coverImage)) images.unshift(listing.coverImage);
   const name = listing.businessName || listing.title || "Listing";
   const price = getListingPrice(listing, money);
+  // THE PARTS, NOT THE SENTENCE. getListingPrice already returns "from
+  // £4.50" when the figure is a floor, so prepending a styled "from" to it
+  // rendered "from from £4.50". Reading the flag instead means the word is
+  // said once, by whichever surface wants to style it.
+  const priceBits = getListingPriceParts(listing, money);
   const location = getListingLocation(listing);
   const category = getCategoryLabel(listing.role);
   const amenities = listing.selectedAmenities || listing.amenities || [];
@@ -294,8 +299,12 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
           the cheapest of seventeen things or the price of the one thing they
           chose, so the same number meant two different promises. */}
       <div className="flex items-baseline gap-1.5 mb-1">
-        {delegating && <span className="text-small text-ink-muted">from</span>}
-        <span className="text-display font-extrabold text-ink">{pickedPrice ?? price}</span>
+        {/* The word "from" comes from the price itself, which already knows
+            whether this figure is a floor or the whole thing. Saying it
+            again here is what produced "from from £4.50". */}
+        <span className="text-display font-extrabold text-ink">
+          {pickedPrice ?? (priceBits.amount ? `${priceBits.from ? "from " : ""}${priceBits.amount}` : price)}
+        </span>
       </div>
       <p className="text-small text-ink-muted mb-6">{priceUnit || "\u00A0"}</p>
       {shopWindow ? (
@@ -750,13 +759,16 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
           <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
             <div className="min-w-0">
               <p className="truncate text-heading font-extrabold leading-tight text-ink">
-                {delegating && <span className="text-small font-normal text-ink-muted">from </span>}
-                {pickedPrice ?? price}
+                {pickedPrice ?? (priceBits.amount ? `${priceBits.from ? "from " : ""}${priceBits.amount}` : price)}
               </p>
               {/* WHAT THE FIGURE COVERS, which is the thing "£466 total"
-                  gets right: a number with no unit beside it is a guess. */}
+                  gets right: a number with no unit beside it is a guess.
+                  But "Total" under a FROM price is a lie, and a worse one
+                  than saying nothing: it is the cheapest of several things
+                  and the bill will be larger. The word "from" above has
+                  already explained it. */}
               <p className="truncate text-caption text-ink-muted">
-                {pickedOffer || priceUnit || "Total"}
+                {pickedOffer || priceUnit || (priceBits.from ? "Cheapest option" : "Total")}
               </p>
             </div>
             <Button
