@@ -50,6 +50,16 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
   const touchX = useRef<number | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [roomNames, setRoomNames] = useState<string[]>([]);
+  // THE PRICE NEVER LEAVES THE SCREEN. Airbnb keeps "£466 total" and
+  // Reserve pinned the whole way down a listing, because the two questions
+  // somebody is holding while they scroll are what does it cost and how do
+  // I get it. This page answered both only at the very top, and only after
+  // today's fix answered them at all.
+  //
+  // The bar appears once the card at the top has scrolled away, so there is
+  // never a price in two places at once.
+  const priceCardRef = useRef<HTMLDivElement | null>(null);
+  const [priceGone, setPriceGone] = useState(false);
   const [similarListings, setSimilarListings] = useState<Listing[]>([]);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [slug, setSlug] = useState("");
@@ -188,6 +198,19 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
   // menu. Pick a row and the same button becomes that row's booking. So
   // there is exactly one control at every moment, and a price at every
   // moment, which is what the rule was trying to achieve.
+  useEffect(() => {
+    const el = priceCardRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(
+      ([entry]) => setPriceGone(!entry.isIntersecting),
+      // A sliver still counts as present, so the bar does not flicker in
+      // and out while somebody nudges the page.
+      { threshold: 0.15 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [listing?.id]);
+
   // TAKE THEM TO THE LIST, and move focus with the scroll. A scroll alone
   // leaves a keyboard user where they were, so the button would do nothing
   // they could perceive.
@@ -430,7 +453,7 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
           page in a sidebar that only exists on a desktop. Hidden at lg, where
           the sticky sidebar card carries it instead, so there is never more
           than one Book button on screen. */}
-      <div className="lg:hidden max-w-6xl mx-auto px-4 sm:px-6 pt-6">
+      <div ref={priceCardRef} className="lg:hidden max-w-6xl mx-auto px-4 sm:px-6 pt-6">
         <div className="bg-card rounded-2xl border border-line p-6 shadow-lg shadow-black/5">
           {bookingBlock}
         </div>
@@ -702,8 +725,43 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
         </section>
       )}
 
+      {/* THE BAR. At the page root, not inside a section, because every
+          section here wears .reveal and a transform makes its own containing
+          block for anything fixed. That is the bug that put the room gallery
+          in the middle of the page. */}
       {shopWindow && listing && (
+        <>
+        <div
+          className={`fixed inset-x-0 bottom-0 z-40 border-t border-line bg-card px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] pt-3 transition-transform duration-200 lg:hidden ${
+            priceGone ? "translate-y-0" : "translate-y-full"
+          }`}
+          aria-hidden={!priceGone}
+        >
+          <div className="mx-auto flex max-w-6xl items-center justify-between gap-4">
+            <div className="min-w-0">
+              <p className="truncate text-heading font-extrabold leading-tight text-ink">
+                {delegating && <span className="text-small font-normal text-ink-muted">from </span>}
+                {pickedPrice ?? price}
+              </p>
+              {/* WHAT THE FIGURE COVERS, which is the thing "£466 total"
+                  gets right: a number with no unit beside it is a guess. */}
+              <p className="truncate text-caption text-ink-muted">
+                {pickedOffer || priceUnit || "Total"}
+              </p>
+            </div>
+            <Button
+              size="lg"
+              onClick={() => (delegating ? jumpToMenu() : setBooking(true))}
+              // Not reachable by tab while it is off screen.
+              tabIndex={priceGone ? undefined : -1}
+            >
+              {delegating ? chooseWord : ctaWord}
+            </Button>
+          </div>
+        </div>
+
         <BookingRequest listing={listing} open={booking} initialOffer={pickedOffer} onClose={() => setBooking(false)} />
+        </>
       )}
     </div>
   );

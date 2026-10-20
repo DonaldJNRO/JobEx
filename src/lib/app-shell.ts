@@ -34,9 +34,24 @@ export function showsShell(pathname: string): boolean {
   return !isMarketingRoute(pathname);
 }
 
-/** The phone bar, everywhere the rail is except where a composer sits. */
+/** A listing: the page carries its own price and action at the bottom. */
+export function isListingRoute(pathname: string): boolean {
+  const p = pathname || "";
+  return p === "/listing" || p.startsWith("/listing/");
+}
+
+/**
+ * The phone bar, everywhere the rail is except where the bottom of the
+ * screen is already spoken for.
+ *
+ * A chat has its composer there. A listing has its price and its one
+ * action there, which is what Airbnb does and for the same reason: the two
+ * questions a person is holding the whole way down a listing are what does
+ * it cost and how do I get it, and tab bars do not answer either. Two bars
+ * stacked would also push the real one up off the thumb.
+ */
 export function showsBottomBar(pathname: string): boolean {
-  return showsShell(pathname) && !isChatRoute(pathname);
+  return showsShell(pathname) && !isChatRoute(pathname) && !isListingRoute(pathname);
 }
 
 /** The footer, on the website pages only. */

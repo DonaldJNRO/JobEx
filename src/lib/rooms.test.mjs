@@ -14,7 +14,7 @@
 
 import { readFileSync } from "node:fs";
 import {
-  deriveRoomSections, toRoom, roomPhotos, roomVideos, roomCover, hasMedia,
+  deriveRoomSections, toRoom, roomPhotos, roomVideos, roomCover, hasMedia, stayFacts,
 } from "./rooms.ts";
 
 let fails = 0;
@@ -149,6 +149,37 @@ ok(/hideNames=\{roomNames\}/.test(PAGE), "and the page passes what the room list
 // It is a de-duplicate, not a way to hide the section: a bonfire is not a
 // room and must survive.
 ok(/\.filter\(\(g\) => !drop\.has/.test(SECTION), "only the duplicates go, never the whole list");
+
+console.log("\nthe price and the action never leave the screen");
+// Airbnb keeps "£466 total" and Reserve pinned the whole way down a
+// listing, because the two questions somebody holds while scrolling are
+// what does it cost and how do I get it. This page answered both only at
+// the very top.
+ok(/priceGone/.test(PAGE), "the page knows when its price card has scrolled away");
+ok(/IntersectionObserver/.test(PAGE), "watched rather than measured on every scroll event");
+ok(/fixed inset-x-0 bottom-0/.test(PAGE), "and a bar takes over when it has");
+ok(/aria-hidden=\{!priceGone\}/.test(PAGE), "hidden from a screen reader while it is off screen");
+ok(/tabIndex=\{priceGone \? undefined : -1\}/.test(PAGE), "and out of the tab order, or there are two Book buttons to tab through");
+
+// Two bars stacked would push the real one off the thumb, so the tab bar
+// steps aside exactly where the page carries its own action.
+const SHELL = readFileSync("src/lib/app-shell.ts", "utf8");
+ok(/isListingRoute/.test(SHELL), "a listing route is named");
+ok(/!isListingRoute\(pathname\)/.test(SHELL), "and the phone's tab bar stands down on one");
+
+console.log("\nand the facts come before the prices");
+ok(stayFacts([]).length === 0, "no rooms, no line, rather than an empty bullet list");
+const facts = stayFacts([
+  toRoom("a", { name: "Cabin", maxGuests: 4, mediaSections: [{ id: "g", photos: ["p"], videos: [] }] }),
+  toRoom("b", { name: "Suite", maxGuests: 2, mediaSections: [{ id: "g", photos: ["q"], videos: ["v"] }] }),
+]);
+ok(facts[0] === "Sleeps up to 4", "the largest room answers will we fit");
+ok(facts[1] === "2 rooms", "and how many there are to choose between");
+ok(facts.some((f) => /film/.test(f)), "films are named where there are any, since a walkthrough is the draw");
+// An invented bedroom or bathroom count is worse than a shorter line, and
+// these documents carry neither.
+ok(!facts.join(" ").match(/bedroom|bathroom|bed\b/), "nothing is claimed that the data does not hold");
+ok(stayFacts([toRoom("c", { maxGuests: 0 })])[0] === "1 room", "a room with no guest count does not say Sleeps up to 0");
 
 console.log(fails ? `\n${fails} FAILED` : "\nALL PASSED");
 process.exit(fails ? 1 : 0);

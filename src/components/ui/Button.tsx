@@ -22,6 +22,8 @@ interface Props {
   iconRight?: ReactNode;
   className?: string;
   "aria-label"?: string;
+  /** -1 keeps a button out of the tab order while it is off screen. */
+  tabIndex?: number;
 }
 
 /**

@@ -112,6 +112,34 @@ export function hasMedia(room: Room): boolean {
   return room.sections.length > 0;
 }
 
+/**
+ * The facts line, the way Airbnb puts "2 guests · 1 bedroom · 1 bed · 1
+ * bathroom" under a title. A stay answers "will we fit" before it answers
+ * anything else, and this page has never said.
+ *
+ * Only what the data actually holds. An invented bedroom count is worse
+ * than a shorter line, and these documents carry guests and quantity and
+ * nothing about beds or bathrooms.
+ */
+export function stayFacts(rooms: Room[]): string[] {
+  if (rooms.length === 0) return [];
+  const out: string[] = [];
+
+  const sleeps = Math.max(0, ...rooms.map((r) => r.maxGuests || 0));
+  if (sleeps > 0) out.push(`Sleeps up to ${sleeps}`);
+
+  // How many separate things there are to book, which is what somebody
+  // choosing between a cabin and a whole resort needs.
+  out.push(`${rooms.length} ${rooms.length === 1 ? "room" : "rooms"}`);
+
+  const photos = rooms.reduce((n, r) => n + roomPhotos(r).length, 0);
+  const films = rooms.reduce((n, r) => n + roomVideos(r).length, 0);
+  if (films > 0) out.push(`${films} ${films === 1 ? "film" : "films"}`);
+  else if (photos > 0) out.push(`${photos} ${photos === 1 ? "photo" : "photos"}`);
+
+  return out;
+}
+
 /** A room that is switched off is not sold, and must not be shown. */
 export function sellableRooms(rooms: Room[], raws: Record<string, unknown>[]): Room[] {
   return rooms.filter((_, i) => raws[i]?.active !== false);

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { ChevronRight, Play, Users } from "lucide-react";
-import { fetchRooms, roomCover, roomPhotos, roomVideos, hasMedia, type Room } from "@/lib/rooms";
+import { fetchRooms, roomCover, roomPhotos, roomVideos, hasMedia, stayFacts, type Room } from "@/lib/rooms";
 import { ROW_ACTION } from "@/lib/ui-recipes";
 import { useMoney as useGuestRates } from "@/lib/useRates";
 import { buildDisplayPrice } from "@/lib/display-price";
@@ -87,7 +87,10 @@ export default function RoomList({
 
   return (
     <section className="reveal">
-      <h2 className="text-heading font-bold text-ink mb-3">Pick a room</h2>
+      <h2 className="text-heading font-bold text-ink">Pick a room</h2>
+      {/* WILL WE FIT, answered before the prices. Airbnb puts this directly
+          under the title and it is the first thing anybody checks. */}
+      <p className="mb-3 mt-1 text-small text-ink-muted">{stayFacts(rooms).join(" · ")}</p>
       <ul className="divide-y divide-line overflow-hidden rounded-2xl border border-line bg-card">
         {rooms.map((room) => {
           const cover = roomCover(room);
