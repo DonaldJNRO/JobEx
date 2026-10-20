@@ -25,7 +25,7 @@ import { slotChoices, hasSlots } from "@/lib/slots";
 import { useAuth } from "@/contexts/AuthContext";
 import { addToTrip } from "@/lib/cart";
 import { fetchBookingDecision, ASK, type BookingDecision } from "@/lib/booking-decision";
-import { buildDisplayPrice, formatPriceWithCurrency } from "@/lib/display-price";
+import { buildDisplayPrice, formatPriceWithCurrency, billDecimals } from "@/lib/display-price";
 import PayStep, { canPay } from "./PayStep";
 import Button from "./ui/Button";
 import { ROW_ACTION, ROW, fieldClass, cardClass } from "@/lib/ui-recipes";
@@ -271,12 +271,19 @@ export default function BookingRequest({
   // GBP floor to a naira booking and disagree with the charge.
   const fee = breakdownOf(typeof total === "number" ? total : 0, native);
 
-  const show = (amount: number) => buildDisplayPrice({
+  const convertedFor = (amount: number) => {
+    const f = rates?.[native];
+    const t = rates?.[to];
+    return ready && f && t && native !== to ? (amount / f) * t : amount;
+  };
+
+  const show = (amount: number, decimals?: number) => buildDisplayPrice({
     amount,
     nativeCurrency: native,
     selectedCurrency: to,
     exchangeRates: rates,
     ratesReady: ready,
+    decimals,
   });
 
   // The headline figure is what leaves the card: subtotal PLUS fee.
@@ -301,8 +308,18 @@ export default function BookingRequest({
   const priceUnit = priceUnitShort;
 
   const chargeable = willCharge && fee.fee > 0;
-  const money = show(chargeable ? fee.total : (typeof total === "number" ? total : 0));
-  const feeMoney = { sub: show(fee.subtotal).display, fee: show(fee.fee).display };
+
+  // ONE PRECISION ACROSS THE WHOLE BILL, chosen by whichever line needs the
+  // most. Rounded on their own, £11.40 and £0.57 print as "£11" and "£1"
+  // over a total of "£12", which asks the reader to believe 11 + 1 = 12 and
+  // makes a fee LABELLED 5 percent look like nine. The charge was exactly
+  // 5.00 percent; this is the rendering catching up with it.
+  const billDp = billDecimals(
+    [fee.subtotal, fee.fee, fee.total].map((a) => convertedFor(a)),
+    to,
+  );
+  const money = show(chargeable ? fee.total : (typeof total === "number" ? total : 0), billDp);
+  const feeMoney = { sub: show(fee.subtotal, billDp).display, fee: show(fee.fee, billDp).display };
 
   // A DATE IS THE ONE THING THE NEXT STEP CANNOT INVENT. Everything else
   // on the first screen has a sensible default; without a date the request

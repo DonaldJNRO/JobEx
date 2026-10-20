@@ -28,10 +28,57 @@ export function getSymbolForCurrency(code?: string | null): string {
   return CURRENCY_SYMBOLS[code] || code + " ";
 }
 
-export function formatPriceWithCurrency(amount: number | string | null | undefined, currencyCode?: string | null): string {
+/**
+ * How many decimals a figure needs to stay TRUE, not how many look tidy.
+ *
+ * Whole units are right for a price: nobody wants "£11.00". They are a lie
+ * for a figure under a unit. A fee of £0.55 printed as "£1" is an 82 percent
+ * overstatement, and it appeared on a line LABELLED "(5%)" beside an £11
+ * price, so the website showed its own fee as nine percent. The charge was
+ * exactly 5.00 percent; only the rendering was wrong.
+ *
+ * Under a hundred units, a decimal currency shows its decimals when the
+ * figure HAS any: £50 stays "£50", £3.20 stops being "£3". A hundred is not
+ * a new boundary, it is the one listing-price.ts already uses, written when
+ * a 300 naira gate fee displayed as "from £0" and read as free. Two
+ * formatters on one site disagreeing about the same number is its own bug,
+ * and this is the half that was never brought in line.
+ *
+ * NGN and the other no-subunit currencies never show decimals.
+ */
+export function decimalsFor(amount: number, currencyCode?: string | null): number {
+  const code = String(currencyCode || "").toUpperCase();
+  if (NO_SUBUNIT.has(code)) return 0;
+  const n = Math.abs(Number(amount));
+  if (!Number.isFinite(n) || n === 0) return 0;
+  if (Math.round(n) === n) return 0;
+  return n < 100 ? 2 : 0;
+}
+
+/** Currencies nobody quotes in fractions, whatever the arithmetic says. */
+const NO_SUBUNIT = new Set(["NGN", "JPY", "KRW", "VND", "XOF", "XAF", "CLP", "ISK", "UGX", "RWF"]);
+
+export function formatPriceWithCurrency(
+  amount: number | string | null | undefined,
+  currencyCode?: string | null,
+  /** Force a precision, so every line of one bill shares it and they add up. */
+  decimals?: number,
+): string {
   if (amount === null || amount === undefined || isNaN(Number(amount))) return "";
   const symbol = currencyCode ? (CURRENCY_SYMBOLS[currencyCode] || currencyCode + " ") : "";
-  return `${symbol}${Number(amount).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+  const dp = decimals ?? decimalsFor(Number(amount), currencyCode);
+  return `${symbol}${Number(amount).toLocaleString(undefined, { minimumFractionDigits: dp, maximumFractionDigits: dp })}`;
+}
+
+/**
+ * THE PRECISION ONE BILL SHARES. Rounding each line on its own is how a
+ * breakdown stops adding up: £11.40 and £0.57 become "£11" and "£1" over a
+ * total of "£12", and the reader is asked to believe 11 + 1 = 12 while the
+ * fee looks like nine percent of the price. One precision for every line,
+ * chosen by whichever line needs the most.
+ */
+export function billDecimals(amounts: number[], currencyCode?: string | null): number {
+  return amounts.reduce((most, a) => Math.max(most, decimalsFor(a, currencyCode)), 0);
 }
 
 export interface DisplayPrice {
@@ -45,13 +92,15 @@ export interface DisplayPrice {
 }
 
 export function buildDisplayPrice({
-  amount, nativeCurrency, selectedCurrency, exchangeRates, ratesReady,
+  amount, nativeCurrency, selectedCurrency, exchangeRates, ratesReady, decimals,
 }: {
   amount: number | string | null | undefined;
   nativeCurrency?: string | null;
   selectedCurrency?: string | null;
   exchangeRates?: Record<string, number> | null;
   ratesReady?: boolean;
+  /** Forced precision, so every line of one bill shares it and they add up. */
+  decimals?: number;
 }): DisplayPrice {
   // NGN, NOT USD, when a listing does not say. Seven live listings carry no
   // currency and every one is a Lagos café, so "USD" meant a ₦3,000 plate
@@ -60,7 +109,7 @@ export function buildDisplayPrice({
   // assumes NGN; this one did not.
   const from = nativeCurrency || DEFAULT_CURRENCY;
   const to = selectedCurrency || DEFAULT_CURRENCY;
-  const nativeFormatted = formatPriceWithCurrency(amount, from);
+  const nativeFormatted = formatPriceWithCurrency(amount, from, decimals);
   if (amount == null || isNaN(Number(amount))) {
     return { display: "", original: "", isConverted: false, ready: true, nativeFormatted: "" };
   }
@@ -79,7 +128,7 @@ export function buildDisplayPrice({
   }
   const converted = (Number(amount) / fromRate) * toRate;
   return {
-    display: formatPriceWithCurrency(converted, to),
+    display: formatPriceWithCurrency(converted, to, decimals),
     original: `≈ ${nativeFormatted} ${from}`,
     isConverted: true,
     ready: true,

@@ -85,7 +85,12 @@ const conv = buildDisplayPrice({
   amount: 8000, nativeCurrency: 'NGN', selectedCurrency: 'GBP',
   exchangeRates: { NGN: 2000, GBP: 0.8 }, ratesReady: true,
 })
-is(conv.display, '£3', 'converted large, in the guest’s money')
+// £3.20, NOT "£3". This pinned a rounding that threw away 20p on a £3.20
+// price, the same rounding that printed a 55p service fee as "£1" on a line
+// labelled 5 percent. listing-price.ts fixed this for listings when a 300
+// naira gate fee displayed as "from £0"; display-price.ts was never brought
+// in line, and this assertion is why.
+is(conv.display, '£3.20', 'converted, to the penny, in the guest’s money')
 is(conv.original, '≈ ₦8,000 NGN', 'and the operator’s price underneath, marked approximate')
 
 const unknown = buildDisplayPrice({
