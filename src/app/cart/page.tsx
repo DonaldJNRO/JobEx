@@ -22,7 +22,7 @@ import { watchMyTrips, type Trip } from "@/lib/trips";
 import { loadCart, payCart, type Cart } from "@/lib/cart";
 import PayStep, { canPay } from "@/components/PayStep";
 import { useMoney } from "@/lib/useRates";
-import { formatPriceWithCurrency } from "@/lib/display-price";
+import { formatPriceWithCurrency, buildDisplayPrice } from "@/lib/display-price";
 
 function CartContents() {
   const { user, loading } = useAuth();
@@ -36,7 +36,22 @@ function CartContents() {
   const [secret, setSecret] = useState<string | null>(null);
   const [paid, setPaid] = useState(false);
   const [payError, setPayError] = useState<string | null>(null);
-  const { to } = useMoney();
+  const { rates, ready, to } = useMoney();
+  // THE GUEST'S OWN MONEY, like everywhere else on the site.
+  //
+  // This page printed the OPERATOR's currency with no conversion on the
+  // trip total, the Pay sheet's label and every line, while line 117
+  // charged in the guest's currency. So a London traveller read N120,000,
+  // pressed Pay, and Stripe asked for a pound figure that appeared nowhere
+  // on the screen. `to` was already imported and used only for the charge.
+  const price = (amount: number, native?: string | null) =>
+    buildDisplayPrice({
+      amount,
+      nativeCurrency: native || cart?.currency || "NGN",
+      selectedCurrency: to,
+      exchangeRates: rates,
+      ratesReady: ready,
+    }).display || formatPriceWithCurrency(amount, native || cart?.currency || "NGN");
 
   useEffect(() => {
     if (!loading && !user) router.push("/auth/login");
@@ -96,7 +111,7 @@ function CartContents() {
               <div>
                 <p className="text-caption uppercase tracking-wider text-ink-faint">Trip total</p>
                 <p className="mt-0.5 text-2xl font-bold tabular-nums text-ink">
-                  {formatPriceWithCurrency(cart.total, cart.currency || "NGN")}
+                  {price(cart.total)}
                 </p>
                 {cart.waiting > 0 && (
                   <p className="mt-1 text-xs text-ink-muted">
@@ -150,7 +165,7 @@ function CartContents() {
               <div className="mt-4 rounded-2xl border border-line bg-card p-4">
                 <PayStep
                   clientSecret={secret}
-                  amountLabel={formatPriceWithCurrency(cart.total, cart.currency || "NGN")}
+                  amountLabel={price(cart.total)}
                   onPaid={() => { setPaid(true); setSecret(null); }}
                   onCancel={() => setSecret(null)}
                 />
@@ -179,7 +194,7 @@ function CartContents() {
                     </div>
                     {i.totalPrice !== null && (
                       <p className="shrink-0 font-semibold tabular-nums text-ink">
-                        {formatPriceWithCurrency(i.totalPrice, i.currency || cart.currency || "NGN")}
+                        {price(i.totalPrice, i.currency)}
                       </p>
                     )}
                   </div>

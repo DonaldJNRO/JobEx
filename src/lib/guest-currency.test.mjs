@@ -24,7 +24,29 @@ const liveOf = (src) => src.split("\n")
 // tables it reads. Everything else must go through it.
 const FORMATTERS = new Set(["display-price.ts", "listing-price.ts", "currency.ts", "useRates.ts"]);
 
-const roots = [["src/components", readdirSync("src/components")], ["src/lib", readdirSync("src/lib")]];
+// src/app WAS NEVER SWEPT, and that is how two pages kept their own money
+// formatting. The cart printed the operator's currency on the trip total,
+// the Pay label and every line while charging in the guest's; the bookings
+// page carried a private four-entry symbol table with no rate lookup at
+// all. Both read correct in isolation and both showed a London traveller
+// naira. A rule that covers two of three directories is not a rule.
+function walk(dir) {
+  const out = [];
+  for (const name of readdirSync(dir, { withFileTypes: true })) {
+    if (name.isDirectory()) out.push(...walk(`${dir}/${name.name}`));
+    else out.push([dir, name.name]);
+  }
+  return out;
+}
+const roots = [
+  ...walk("src/components"),
+  ...walk("src/lib").map(([d, f]) => [d, f]),
+  ...walk("src/app"),
+].reduce((acc, [d, f]) => {
+  const bucket = acc.find((x) => x[0] === d);
+  if (bucket) bucket[1].push(f); else acc.push([d, [f]]);
+  return acc;
+}, []);
 let checked = 0;
 for (const [dir, files] of roots) {
   for (const f of files) {
@@ -58,6 +80,13 @@ for (const [name, path] of [
   const live = liveOf(readFileSync(path, "utf8"));
   ck(!/guestCurrency\(navigator\.language\)/.test(live),
     `${name} does not read navigator during render, it uses the hook that reads it in an effect`);
+}
+
+// THE TWO THAT ESCAPED, named so they cannot quietly revert.
+for (const [f, label] of [["src/app/cart/page.tsx", "the cart"], ["src/app/bookings/page.tsx", "the bookings page"]]) {
+  const live = liveOf(readFileSync(f, "utf8"));
+  ck(/buildDisplayPrice\(/.test(live), `${label} converts into the guest's money`);
+  ck(!/symbols: Record<string, string>/.test(live), `${label} keeps no symbol table of its own`);
 }
 
 console.log(fails ? `\n${fails} FAILED` : "\nALL PASSED");

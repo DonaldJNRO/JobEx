@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useMoney } from "@/lib/useRates";
+import { buildDisplayPrice, formatPriceWithCurrency } from "@/lib/display-price";
 import Button from "@/components/ui/Button";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -26,14 +28,27 @@ const STATUS_TONE: Record<string, { label: string; className: string }> = {
   refunded: { label: "Refunded", className: "bg-surface-sunken text-ink-muted" },
 };
 
-function money(amount: number | null, currency: string | null): string | null {
-  if (!amount) return null;
-  const symbols: Record<string, string> = { NGN: "₦", GBP: "£", USD: "$", EUR: "€" };
-  const symbol = currency ? symbols[currency] || `${currency} ` : "";
-  return `${symbol}${amount.toLocaleString("en-US")}`;
-}
+// A PRIVATE FOUR ENTRY SYMBOL TABLE USED TO LIVE HERE, with no rate lookup
+// at all, so every past booking was shown in the OPERATOR's money: a
+// traveller in London opened their bookings and read N120,000 for something
+// they had paid for in pounds.
+//
+// It survived because guest-currency.test.mjs sweeps src/components and
+// src/lib and never looked in src/app, which is also how the cart page kept
+// its own copy. The sweep covers the pages now.
 
 export default function BookingsPage() {
+  const { rates, ready, to } = useMoney();
+  const money = (amount: number | null, currency: string | null): string | null => {
+    if (!amount) return null;
+    return buildDisplayPrice({
+      amount,
+      nativeCurrency: currency || "NGN",
+      selectedCurrency: to,
+      exchangeRates: rates,
+      ratesReady: ready,
+    }).display || formatPriceWithCurrency(amount, currency || "NGN");
+  };
   const router = useRouter();
   const { user, loading } = useAuth();
   const [bookings, setBookings] = useState<TravellerBooking[] | null>(null);

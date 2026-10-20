@@ -272,7 +272,17 @@ export default function BookingRequest({
   });
 
   // The headline figure is what leaves the card: subtotal PLUS fee.
-  const money = show(fee.fee > 0 ? fee.total : (typeof total === "number" ? total : 0));
+  // THE FEE IS ONLY IN THE TOTAL WHERE THE FEE IS CHARGED.
+  //
+  // This added it whenever breakdownOf returned one, which for NGN, GBP, USD
+  // and EUR is always. But the itemised fee rows render only when willCharge,
+  // and the figure sent is the bare subtotal. So on a request-only listing
+  // the sheet showed a number 5 percent (or the floor) above every price on
+  // the page, under the sentence "No payment now. Nothing is charged until
+  // they accept.", with nothing explaining the difference, and showed the
+  // same inflated figure back on the Request sent panel.
+  const chargeable = willCharge && fee.fee > 0;
+  const money = show(chargeable ? fee.total : (typeof total === "number" ? total : 0));
   const feeMoney = { sub: show(fee.subtotal).display, fee: show(fee.fee).display };
 
   // A DATE IS THE ONE THING THE NEXT STEP CANNOT INVENT. Everything else
@@ -746,7 +756,13 @@ export default function BookingRequest({
             {money.display && dueNow !== null && dueNow !== total && (
               <div className="mb-2 flex items-baseline justify-between">
                 <span className="text-sm text-ink">Pay now</span>
-                <span className="text-lg font-semibold text-ink">{dueNow.toLocaleString("en-NG")}</span>
+                {/* THROUGH THE CONVERTER. This was the only money in the
+                    sheet that bypassed it: a raw operator-currency number
+                    with Nigerian digit grouping and no symbol at all, sat
+                    directly above a "Full price" line that HAD been
+                    converted. A London guest read "Pay now 326,900" over
+                    "Full price £240". */}
+                <span className="text-lg font-semibold text-ink">{show(dueNow).display || money.display}</span>
               </div>
             )}
             {/* THE FEE, SAID OUT LOUD. The server adds it on every booking
@@ -755,7 +771,7 @@ export default function BookingRequest({
                 nothing on the page admitting it. Only shown where money is
                 actually about to move: a request that is not paid for here
                 has no fee to disclose yet. */}
-            {willCharge && fee.fee > 0 && (dueNow === null || dueNow === total) && (
+            {chargeable && (dueNow === null || dueNow === total) && (
               <div className="mb-2 space-y-1.5">
                 <div className="flex items-baseline justify-between text-sm">
                   <span className="text-ink-muted">{chosen?.name || "Booking"}</span>
