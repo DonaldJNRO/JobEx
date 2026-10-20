@@ -631,12 +631,23 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
 
                   The visit badge is now READ, not asserted: visitedBySabie()
                   checks the record, and 6 of the 38 public listings do not
-                  carry the visit, so they correctly do not get the badge. The
-                  12 hour line needs no data because it is the model itself. */}
+                  carry the visit, so they correctly do not get the badge.
+
+                  "THE BUSINESS REPLIES WITHIN 12 HOURS" IS GONE, and it was
+                  not a wording problem. A traveller has never been able to
+                  message a business on this platform: the model is browse,
+                  basket, pay, and an operator hears at settlement and never
+                  at intent. So the line promised a channel that does not
+                  exist, under an icon implying somebody is waiting on the
+                  other end of it.
+
+                  The twelve hours is real, but it is the window an operator
+                  has to ACCEPT a request, which bookingTerms already says on
+                  the button itself where it applies. It is not a reply time
+                  and it belongs nowhere near a trust badge. */}
               <div className="space-y-3">
                 {([
                   ...(visitedBySabie(listing) ? [{ icon: Shield, text: "Visited by Sabię" }] : []),
-                  { icon: Clock, text: "The business replies within 12 hours" },
                 ]).map((badge) => (
                   <div key={badge.text} className="flex items-center gap-2.5 text-xs text-text-muted">
                     <badge.icon size={14} className="text-primary shrink-0" />

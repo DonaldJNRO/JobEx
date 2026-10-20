@@ -19,6 +19,7 @@ import { X, Check, Loader2, AlertTriangle, ChevronDown, MapPin } from "lucide-re
 import { sendBookingRequest, BookingError } from "@/lib/book";
 import { offersOf, slotsFor, policyLines, addressOf, type Offer } from "@/lib/shop-window";
 import { offerTotal } from "@/lib/offer-total";
+import { breakdownOf, feeLabel, TRAVELLER_FEE_PERCENT } from "@/lib/traveller-fee";
 import { useAuth } from "@/contexts/AuthContext";
 import { addToTrip } from "@/lib/cart";
 import { fetchBookingDecision, ASK, type BookingDecision } from "@/lib/booking-decision";
@@ -175,13 +176,25 @@ export default function BookingRequest({
   // large and "≈ ₦8,000 NGN" small beneath it, so nothing is hidden at the
   // moment it matters most.
   const { rates, ready, to } = useMoney();
-  const money = buildDisplayPrice({
-    amount: total,
-    nativeCurrency: nativeCurrencyOf(listing),
+  const native = nativeCurrencyOf(listing);
+
+  // THE FEE IS COMPUTED IN THE LISTING'S OWN MONEY, because that is where
+  // the server computes it: travellerFeeCents(operatorAmountCents,
+  // nativeCurrency). Working it out on the converted figure would apply a
+  // GBP floor to a naira booking and disagree with the charge.
+  const fee = breakdownOf(typeof total === "number" ? total : 0, native);
+
+  const show = (amount: number) => buildDisplayPrice({
+    amount,
+    nativeCurrency: native,
     selectedCurrency: to,
     exchangeRates: rates,
     ratesReady: ready,
   });
+
+  // The headline figure is what leaves the card: subtotal PLUS fee.
+  const money = show(fee.fee > 0 ? fee.total : (typeof total === "number" ? total : 0));
+  const feeMoney = { sub: show(fee.subtotal).display, fee: show(fee.fee).display };
 
   // EVERY HOOK IS ABOVE THIS LINE, and that is the whole point of where it
   // sits. `if (!open) return null` used to be ~16 lines higher, above
@@ -556,8 +569,33 @@ export default function BookingRequest({
                 <span className="text-lg font-semibold text-ink">{dueNow.toLocaleString("en-NG")}</span>
               </div>
             )}
+            {/* THE FEE, SAID OUT LOUD. The server adds it on every booking
+                this sheet creates, and the sheet used to show the subtotal
+                as "Total", so a £3 booking took £3.30 off the card with
+                nothing on the page admitting it. Only shown where money is
+                actually about to move: a request that is not paid for here
+                has no fee to disclose yet. */}
+            {willCharge && fee.fee > 0 && (dueNow === null || dueNow === total) && (
+              <div className="mb-2 space-y-1.5">
+                <div className="flex items-baseline justify-between text-sm">
+                  <span className="text-ink-muted">{chosen?.name || "Booking"}</span>
+                  <span className="text-ink">{feeMoney.sub}</span>
+                </div>
+                <div className="flex items-baseline justify-between text-sm">
+                  <span className="text-ink-muted">
+                    {feeLabel()}
+                    {/* A fixed floor is not 5 percent, and saying "5%" over a
+                        figure that is 10 percent of a small booking is how a
+                        fee stops being believed. */}
+                    {!fee.atFloor && <span className="text-ink-faint"> ({TRAVELLER_FEE_PERCENT}%)</span>}
+                  </span>
+                  <span className="text-ink">{feeMoney.fee}</span>
+                </div>
+              </div>
+            )}
+
             {money.display && (
-              <div className="mb-5 flex items-baseline justify-between">
+              <div className="mb-5 flex items-baseline justify-between border-t border-line pt-2.5">
                 <span className="text-sm text-ink-muted">
                   {dueNow !== null && dueNow !== total ? "Full price" : "Total"}
                 </span>
@@ -573,7 +611,10 @@ export default function BookingRequest({
                       <span className="text-sm font-normal text-ink-muted"> {(chosen?.name || "").toLowerCase()}</span>
                     )}
                   </span>
-                  {money.original && <span className="block text-xs text-ink-faint">{money.original}</span>}
+                  {/* The "about N5,000" line under the total is gone. The
+                      figure a visitor is committing to is the one in their
+                      own money, and a second currency beside it read as two
+                      prices rather than as one price explained. */}
                 </span>
               </div>
             )}

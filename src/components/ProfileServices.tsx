@@ -61,7 +61,17 @@ interface Props {
 export default function ProfileServices({ listing, currency, onPick }: Props) {
   const { services: shape, bookCta } = resolveProfileSections(listing);
   // The same word the button at the top of the page uses.
-  const cta = CTA_LABEL[bookCta];
+  // A ROW IS NOT THE PAGE. CTA_LABEL is the word for the ONE button at the
+  // top of a listing, where "See rooms" means "go and look at the list". On
+  // a row it was nonsense: every room in a guesthouse carried a button
+  // saying See rooms, and tapping one went straight to payment. The thing
+  // you tapped WAS the room, so there was nothing further to see, which is
+  // exactly what came back: "it says see rooms but when I tap on it it just
+  // says pay, nothing that shows the rooms".
+  //
+  // On a row the honest word is what tapping it does. A row with tiers
+  // behind it opens them; a row with one price books that price.
+  const cta = bookBookCtaRowWord(bookCta);
   const groups = serviceGroups(listing);
   const money = useMoney(currency);
   const menu = Array.isArray(listing.menu) ? (listing.menu as MenuCategory[]) : [];
@@ -117,6 +127,20 @@ export default function ProfileServices({ listing, currency, onPick }: Props) {
       </ul>
     </section>
   );
+}
+
+/**
+ * The word on a ROW, as against the word on the page's single button.
+ *
+ * "See rooms" and "Enquire" describe navigating to a list. Once you are IN
+ * the list, the row's action is the booking itself.
+ */
+function bookBookCtaRowWord(bookCta: string): string {
+  if (bookCta === "reserve") return "Reserve";
+  if (bookCta === "inquire") return "Ask";
+  // rooms and book both end at the same place from a row: this exact thing,
+  // at this exact price.
+  return "Book";
 }
 
 function ServiceRow(
