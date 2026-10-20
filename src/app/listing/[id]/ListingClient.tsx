@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { MapPin, Star, ChevronLeft, ChevronRight, ChevronDown, Wifi, Car, Coffee, Waves, Shield, ArrowRight, Download, Globe, Clock, Users, Check } from "lucide-react";
 import Button from "@/components/ui/Button";
+import { mapFor } from "@/lib/listing-map";
 import { resolveListing, getListingPrice, getListingPriceParts, getListingLocation, getListingType, getCategoryLabel, getFeaturedListings, visitedBySabie, Listing } from "@/lib/listings";
 import { useMoney } from "@/lib/useRates";
 import { buildDisplayPrice } from "@/lib/display-price";
@@ -50,6 +51,7 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
   const touchX = useRef<number | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
   const [roomNames, setRoomNames] = useState<string[]>([]);
+  const [showAllDescription, setShowAllDescription] = useState(false);
   // THE PRICE NEVER LEAVES THE SCREEN. Airbnb keeps "£466 total" and
   // Reserve pinned the whole way down a listing, because the two questions
   // somebody is holding while they scroll are what does it cost and how do
@@ -188,6 +190,7 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
   // said once, by whichever surface wants to style it.
   const priceBits = getListingPriceParts(listing, money);
   const location = getListingLocation(listing);
+  const placeMap = mapFor(listing as unknown as Record<string, unknown>, location || "");
   const category = getCategoryLabel(listing.role);
   const amenities = listing.selectedAmenities || listing.amenities || [];
   const openingWeek = openingRows(listing);
@@ -503,7 +506,29 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
             {listing.description && (
               <div className="reveal">
                 <h2 className="text-lg font-bold text-ink mb-4">About this place</h2>
-                <p className="text-text-muted leading-[1.8] whitespace-pre-line">{listing.description}</p>
+                {/* CLAMPED, WITH A WAY DOWN. 28 of 60 descriptions run past
+                    300 characters and one ran the full length of the page,
+                    which pushes the menu, the hours and the map below where
+                    anybody scrolls. Airbnb clamps to five lines and offers
+                    Show more, and the reason is the same: a description is
+                    worth reading, and it is not worth losing the rest of
+                    the page to. Expanded, it stays expanded. */}
+                <p
+                  className={`text-ink-body leading-[1.8] whitespace-pre-line ${
+                    showAllDescription ? "" : "line-clamp-6"
+                  }`}
+                >
+                  {listing.description}
+                </p>
+                {listing.description.length > 300 && !showAllDescription && (
+                  <button
+                    type="button"
+                    onClick={() => setShowAllDescription(true)}
+                    className="mt-3 text-sm font-semibold text-ink underline decoration-line-strong underline-offset-4 hover:decoration-ink"
+                  >
+                    Show more
+                  </button>
+                )}
               </div>
             )}
 
@@ -538,6 +563,39 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
                 direct line turns a marketplace into a directory, and the
                 booking request is the only thing that creates a record and
                 earns the commission that paid for the visit. */}
+            {/* WHERE YOU'LL BE. 50 of 60 live listings carry real
+                coordinates and this page has never drawn one: MapPin is
+                imported four times here purely as decoration.
+
+                A PRECISE PIN. Airbnb blurs a home to a radius and says the
+                exact address follows booking, because a home is somebody's
+                house. These are businesses, and being findable is the whole
+                point, so a vague circle would answer "where is it" worse
+                than no map at all. */}
+            {placeMap && (
+              <div className="reveal">
+                <h2 className="text-lg font-bold text-ink mb-1">Where you will be</h2>
+                <p className="mb-4 text-small text-ink-muted">{placeMap.label}</p>
+                <div className="overflow-hidden rounded-2xl border border-line bg-surface-sunken">
+                  <iframe
+                    src={placeMap.embedSrc}
+                    title={`Map of ${listing.businessName || "this place"}`}
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    className="block h-64 w-full border-0 sm:h-80"
+                  />
+                </div>
+                <a
+                  href={placeMap.mapsHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 inline-flex items-center gap-2 text-sm font-semibold text-secondary-ink underline underline-offset-4"
+                >
+                  <MapPin size={15} /> Open in maps
+                </a>
+              </div>
+            )}
+
             {(openingWeek.length > 0 || style || visitLine) && (
               <div className="reveal">
                 <h2 className="text-lg font-bold text-ink mb-5">Good to know</h2>
