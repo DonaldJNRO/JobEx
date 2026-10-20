@@ -68,14 +68,26 @@ ck(/export function fieldClass/.test(RECIPE), "there is one definition of a fiel
 ck(/"w-full min-w-0 text-ink/.test(RECIPE), "and it can shrink to its track");
 ck((SHEET.match(/fieldClass\(/g) || []).length >= 3,
   "and so can the date input, the time select and the time input");
-ck(/input\[type="date"\], input\[type="time"\], select \{[\s\S]{0,400}min-width: 0;/.test(CSS),
+ck(/input\[type="date"\], input\[type="time"\], select \{[\s\S]{0,900}min-width: 0;/.test(CSS),
   "with a CSS backstop, because iOS gives them an intrinsic width w-full does not beat");
-ck(/input\[type="date"\], input\[type="time"\], select \{[\s\S]{0,400}box-sizing: border-box;/.test(CSS),
+ck(/input\[type="date"\], input\[type="time"\], select \{[\s\S]{0,900}box-sizing: border-box;/.test(CSS),
   "and a pinned width, so a native control cannot widen its own grid track");
 // A SELECT IS SIZED BY ITS LONGEST OPTION, and the Time control IS a select
 // on the 17 listings carrying their own hours. The backstop covered the
 // two inputs and not the dropdown.
 ck(/, select \{/.test(CSS), "including the dropdown, which is what Time is when a listing has slots");
+
+// THE BOX INSIDE THE BOX. ::-webkit-date-and-time-value holds the date
+// TEXT inside the control and carries its own width on iOS, so min-width,
+// max-width and width on the INPUT were all honoured while the thing drawn
+// inside it pushed the borders apart anyway. Three rounds of pinning the
+// outside changed nothing; the room screen's pair looked right the whole
+// time because its inputs happened to set text-align on this.
+ck(/::-webkit-date-and-time-value \{[\s\S]{0,260}text-align: left;/.test(CSS),
+  "the value inside the control is pinned left, not centred");
+ck(/::-webkit-date-and-time-value \{[\s\S]{0,260}width: 100%;/.test(CSS),
+  "and no wider than the control that holds it");
+ck(/-webkit-appearance: none;/.test(CSS), "and the control does not size itself natively");
 
 // THE DAY DECIDES THE HOURS. Which slots are open depends on the date, so
 // offering the list first let somebody pick 10pm for no day at all.

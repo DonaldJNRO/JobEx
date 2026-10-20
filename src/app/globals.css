@@ -384,6 +384,16 @@ html[data-appstrip="off"] [data-app-strip] { display: none; }
    So when it is empty the native text is hidden and the form draws its own
    hint over the top, and the two fields match everywhere. The calendar
    button is left alone, because that is how the picker is opened. */
+input[type="date"]::-webkit-date-and-time-value,
+input[type="time"]::-webkit-date-and-time-value {
+  /* Left, and no wider than the control. Centred is the default, and a
+     centred value in a box with its own intrinsic width is what spread the
+     two pickers into each other. */
+  text-align: left;
+  min-width: 0;
+  width: 100%;
+}
+
 input[type="date"][data-empty="true"]::-webkit-datetime-edit,
 input[type="time"][data-empty="true"]::-webkit-datetime-edit { opacity: 0; }
 input[type="date"][data-empty="true"]::-moz-placeholder-shown { opacity: 0; }
@@ -399,7 +409,20 @@ input[type="date"][data-empty="true"]::-moz-placeholder-shown { opacity: 0; }
 input[type="date"], input[type="time"], select {
   /* Safari gives these an intrinsic width of their own and will widen a
      grid track to fit it, which is what pushed the two boxes together and
-     ran the second off the right edge. */
+     ran the second off the right edge.
+
+     THE ROOM SCREEN'S PAIR ALWAYS LOOKED RIGHT and the sheet's never did,
+     with near-identical grids. The difference was two properties on the
+     room's inputs that fieldClass never had: appearance-none, and
+     text-align on ::-webkit-date-and-time-value.
+
+     That pseudo-element is the box holding the date TEXT inside the
+     control, and on iOS it carries its own width. So min-width, max-width
+     and width on the input were all being honoured while the thing drawn
+     INSIDE it pushed the borders apart anyway. Which is why three rounds
+     of pinning the outside changed nothing. */
+  -webkit-appearance: none;
+  appearance: none;
   min-width: 0;
   max-width: 100%;
   width: 100%;
