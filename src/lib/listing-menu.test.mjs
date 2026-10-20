@@ -77,8 +77,14 @@ ck(/Choose/.test(live(SECTION)),
 
 ck(/\{pickedOffer\}/.test(live(PAGE)),
   "the top card names what they picked");
-ck(/\{pickedPrice \?\? price\}/.test(live(PAGE)),
+// THE PROPERTY, not the expression. This matched the literal text
+// `{pickedPrice ?? price}` and broke the moment the fallback grew a branch
+// to stop rendering "from from £4.50". What it means is that a chosen
+// row's price WINS over the listing's floor, wherever that is written.
+ck(/pickedPrice \?\?/.test(live(PAGE)),
   "and shows that price instead of the cheapest of everything");
+ck((live(PAGE).match(/pickedPrice \?\?/g) || []).length === 2,
+  "on the card and on the sticky bar, or one of them still quotes the floor after you have chosen");
 ck(/const ctaWord = CTA_LABEL\[/.test(live(PAGE)),
   "the top button uses the same word as the rows");
 
