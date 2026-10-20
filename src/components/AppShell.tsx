@@ -95,7 +95,12 @@ export default function AppShell({
       {show && (
         <nav
           aria-label="Sabię"
-          className="fixed left-0 top-16 bottom-0 z-30 hidden w-56 flex-col gap-1 border-r border-line bg-card px-3 py-5 lg:flex"
+          // md, NOT lg. An iPad in portrait is 768px wide and was getting the
+          // phone's bottom bar: 768 pixels of screen laid out for a thumb,
+          // with no rail and no sense that there is room for anything. The
+          // rail is 224px, which leaves 544 on the narrowest tablet, more
+          // than a phone has in total.
+          className="fixed left-0 top-16 bottom-0 z-30 hidden w-56 flex-col gap-1 border-r border-line bg-card px-3 py-5 md:flex"
         >
           {tabs.map((t) => {
             const active = t.exact ? pathname === t.href : pathname.startsWith(t.href);
@@ -130,8 +135,8 @@ export default function AppShell({
       {/* The rail is fixed, so the page is inset rather than pushed. The
           bottom padding is the phone bar plus the home indicator under it;
           the footer sits inside this, or the bar covers its last rows. */}
-      <div className={show ? "lg:pl-56" : undefined}>
-        <div data-chrome={bar ? "body" : undefined} className={bar ? "pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] lg:pb-0" : undefined}>
+      <div className={show ? "md:pl-56" : undefined}>
+        <div data-chrome={bar ? "body" : undefined} className={bar ? "pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] md:pb-0" : undefined}>
           {children}
           {/* NO FOOTER ON AN APP SURFACE. A feed you scroll for ever does not
               end in a sitemap, and TikTok, Snapchat and Amazon's own product
@@ -148,7 +153,7 @@ export default function AppShell({
           // A phone in landscape has about 380px of height and this bar
           // plus the navbar were taking a third of it.
           data-chrome="bar"
-          className="fixed inset-x-0 bottom-0 z-30 flex border-t border-line bg-card pb-[env(safe-area-inset-bottom,0px)] lg:hidden"
+          className="fixed inset-x-0 bottom-0 z-30 flex border-t border-line bg-card pb-[env(safe-area-inset-bottom,0px)] md:hidden"
         >
           {tabs.map((t) => {
             const active = t.exact ? pathname === t.href : pathname.startsWith(t.href);

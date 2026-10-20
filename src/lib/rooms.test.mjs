@@ -115,7 +115,19 @@ ok(/aria-modal="true"/.test(GAL), "announced as a dialog");
 // fix; z-index cannot touch it, because it is not a stacking problem.
 const OVERLAY = readFileSync("src/components/Overlay.tsx", "utf8");
 ok(/<Overlay>/.test(GAL), "the gallery goes through the shared overlay");
-ok(/createPortal\(children, document\.body\)/.test(OVERLAY), "which portals to the body, so no transformed ancestor can trap it");
+ok(/createPortal\(/.test(OVERLAY) && /document\.body,/.test(OVERLAY),
+  "which portals to the body, so no transformed ancestor can trap it");
+
+// AND IT HOLDS THE KEYBOARD. Three of four overlays trapped nothing: open a
+// room on a laptop, press Tab, and focus walked out into the page behind
+// it. Content you cannot see, still reachable, under a dialog claiming to
+// be modal. Nothing moved focus IN when it opened and nothing gave it back
+// when it closed, so Tab restarted from the top of the document.
+ok(/e\.key !== "Tab"/.test(OVERLAY), "Tab is intercepted");
+ok(/e\.shiftKey/.test(OVERLAY), "in both directions");
+ok(/\(first \?\? root\)\.focus/.test(OVERLAY), "focus lands inside the layer, not at the top of the document");
+ok(/opener\.focus/.test(OVERLAY), "and goes back to whatever opened it");
+ok(/document\.contains\(opener\)/.test(OVERLAY), "unless that thing is gone, which it is after a booking");
 // It bit twice on one page, so the sweep is part of the guard: every
 // full-screen layer goes through the same door.
 for (const f of ["src/components/CityPicker.tsx", "src/components/RoomGallery.tsx"]) {

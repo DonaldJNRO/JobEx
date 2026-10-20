@@ -60,6 +60,18 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  // THE KEYBOARD COVERED THE THING YOU WERE TYPING INTO.
+  //
+  // interactive-widget defaults to resizes-visual, which means the LAYOUT
+  // viewport does not shrink when the keyboard opens. A composer pinned
+  // with `fixed bottom-0` therefore stays where it was, behind the
+  // keyboard, and so does the booking sheet's footer and the listing's
+  // price bar. You tap the message box and the box you tapped disappears.
+  //
+  // resizes-content shrinks the layout viewport instead, so anything
+  // fixed to the bottom sits on top of the keyboard, and every dvh unit
+  // on this site measures the space actually left to look at.
+  interactiveWidget: "resizes-content",
 };
 
 export const metadata: Metadata = {
