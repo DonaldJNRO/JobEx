@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "echo 'next lint was removed in Next 16 and there is no ESLint config here. Use: npm run verify' && exit 1",
     "check:tokens": "node scripts/token-collision-check.mjs",
-    "test": "for f in src/lib/*.test.mjs; do printf \"\\n\u2014 %s\\n\" \"$f\"; tsx \"$f\" || exit 1; done",
+    "test": "for f in src/lib/*.test.mjs; do printf \"\\n— %s\\n\" \"$f\"; tsx \"$f\" || exit 1; done",
     "typecheck": "tsc --noEmit",
     "verify": "npm run typecheck && npm test && npm run check:tokens"
   },
@@ -27,6 +27,7 @@
   "devDependencies": {
     "@types/node": "^25.5.0",
     "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.3.0",
     "tsx": "^4.23.15",
     "typescript": "^6.0.2"
   },

@@ -106,6 +106,35 @@ ok(/<video/.test(GAL) && /<Image/.test(GAL), "which shows films as well as photo
 // guard matched a spelling instead of the thing.
 ok(!/\bautoPlay\b/.test(GAL.replace(/\/\/[^\n]*/g, "")), "and does not start a film talking at somebody unasked");
 ok(/aria-modal="true"/.test(GAL), "announced as a dialog");
+
+// THE ONE THAT MADE IT STUCK. `position: fixed` is NOT relative to the
+// viewport when an ancestor carries a transform: that ancestor becomes the
+// containing block. Every section on the listing page wears .reveal, which
+// animates translateY, so a fixed overlay inside one rendered as a black box
+// wedged into the scroll and clipped by the bottom bar. A portal is the only
+// fix; z-index cannot touch it, because it is not a stacking problem.
+const OVERLAY = readFileSync("src/components/Overlay.tsx", "utf8");
+ok(/<Overlay>/.test(GAL), "the gallery goes through the shared overlay");
+ok(/createPortal\(children, document\.body\)/.test(OVERLAY), "which portals to the body, so no transformed ancestor can trap it");
+// It bit twice on one page, so the sweep is part of the guard: every
+// full-screen layer goes through the same door.
+for (const f of ["src/components/CityPicker.tsx", "src/components/RoomGallery.tsx"]) {
+  const src = readFileSync(f, "utf8");
+  if (!/fixed inset-0/.test(src)) continue;
+  ok(/<Overlay>/.test(src), `${f.split("/").pop()} covers the screen rather than its own section`);
+}
+ok(/transform/.test(readFileSync("src/app/globals.css", "utf8").match(/html\.reveal-ready \.reveal \{[^}]*\}/)?.[0] || ""),
+  "and .reveal really does carry the transform that caused it, so this is not guarding a ghost");
+
+// On a phone the first thing anybody does to dismiss a full-screen layer is
+// press back. Without a history entry that leaves the listing entirely.
+ok(/pushState/.test(GAL), "opening pushes a history entry");
+ok(/popstate/.test(GAL), "so the back button closes it");
+ok(/history\.back\(\)/.test(GAL), "and closing any other way takes that entry back off the stack");
+
+// Eleven photos one at a time behind arrows is a slideshow. Airbnb gives you
+// the set in a column, which is how somebody actually decides on a room.
+ok(/overflow-y-auto/.test(GAL), "the set scrolls rather than advancing one at a time");
 ok(/Escape/.test(GAL), "with a keyboard way out, since it covers the whole page");
 ok(/document\.body\.style\.overflow/.test(GAL), "and the page behind does not scroll under it");
 

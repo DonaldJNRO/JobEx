@@ -18,6 +18,7 @@
 // catalogue read as a decision instead of a gap.
 
 import { useEffect, useRef, useState } from "react";
+import Overlay from "./Overlay";
 import { Check, ChevronDown, X } from "lucide-react";
 import { flagFor } from "@/lib/city-flag";
 import { CATEGORY_LABELS } from "@/lib/categories";
@@ -72,8 +73,13 @@ export default function CityPicker({
         <ChevronDown className="h-4 w-4 text-ink-muted" />
       </button>
 
+      {/* PORTALLED. This sheet lives inside the home page's sticky header,
+          which carries backdrop-blur, and backdrop-filter makes that header
+          the containing block for anything fixed inside it, by the same rule
+          as a transform. So the sheet was pinned to a sixty pixel bar. */}
       {open && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center bg-ink/40 sm:items-center">
+        <Overlay>
+        <div className="fixed inset-0 z-[100] flex items-end justify-center bg-ink/40 sm:items-center">
           <div
             ref={panel}
             role="dialog"
@@ -147,6 +153,7 @@ export default function CityPicker({
             </button>
           </div>
         </div>
+        </Overlay>
       )}
     </>
   );
