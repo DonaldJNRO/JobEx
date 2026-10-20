@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { Skeleton } from "@/components/ui/Skeleton";
+import EmptyState from "@/components/ui/EmptyState";
 import { cardClass } from "@/lib/ui-recipes";
 import LoadError from "@/components/ui/LoadError";
 import { useMoney } from "@/lib/useRates";
@@ -93,23 +95,18 @@ export default function BookingsPage() {
         {!failed && bookings === null && (
           <div className="space-y-4" aria-busy="true">
             {[0, 1].map((i) => (
-              <div key={i} className="h-40 rounded-2xl bg-surface-sunken animate-shimmer" />
+              <Skeleton key={i} className="h-40" />
             ))}
           </div>
         )}
 
         {!failed && bookings !== null && bookings.length === 0 && (
-          <div className={`py-20 text-center ${cardClass({ pad: "none" })}`}>
-            <Calendar size={44} className="mx-auto mb-4 text-text-muted/30" />
-            <h2 className="text-lg font-semibold text-ink">No bookings yet</h2>
-            <p className="mx-auto mt-1 max-w-sm text-sm text-text-muted">
-              When you book a stay, an experience or an event, it shows up here with
-              the code you need at the door.
-            </p>
-            <Button href="/" className="mt-6">
-              Browse listings
-            </Button>
-          </div>
+          <EmptyState
+            icon={<Calendar size={28} />}
+            title="No bookings yet"
+            body="When you book a stay, an experience or an event, it shows up here with the code you need at the door."
+            action={<Button href="/">Browse listings</Button>}
+          />
         )}
 
         {bookings !== null && bookings.length > 0 && (

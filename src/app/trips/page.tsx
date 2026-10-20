@@ -13,6 +13,8 @@
 // conversation look like one product.
 
 import { useEffect, useState } from "react";
+import EmptyState from "@/components/ui/EmptyState";
+import { fieldClass } from "@/lib/ui-recipes";
 import LoadError from "@/components/ui/LoadError";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -186,12 +188,11 @@ function TripsInner() {
           {convosFailed && <LoadError what="your conversations" />}
 
           {!convosFailed && convos?.length === 0 && (
-            <div className="px-6 py-16 text-center">
-              <p className="font-semibold text-ink">No conversations yet</p>
-              <p className="mt-1.5 text-sm leading-relaxed text-ink-muted">
-                Message someone, or start a trip and bring the people coming with you.
-              </p>
-            </div>
+            <EmptyState
+              bare
+              title="No conversations yet"
+              body="Message someone, or start a trip and bring the people coming with you."
+            />
           )}
 
           {(convos ?? [])
@@ -307,7 +308,7 @@ function TripsInner() {
                   onChange={(e) => setTerm(e.target.value)}
                   placeholder="Find someone by their handle"
                   aria-label="Find someone by their handle"
-                  className="w-full rounded-xl border border-line bg-surface px-3 py-2.5 text-ink placeholder:text-ink-faint"
+                  className={fieldClass()}
                 />
                 <ul className="mt-2 space-y-1">
                   {found.map((m) => {

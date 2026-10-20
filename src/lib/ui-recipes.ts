@@ -153,6 +153,31 @@ export const FIELD = {
 // action's gold, because seventeen services would then be seventeen gold
 // buttons and the one real action at the top of the page would be lost among
 // them.
+/**
+ * A field, as a string, for the same reason cardClass is one: most inputs
+ * sit inside a label that already carries layout, and the padding varies
+ * because some have an icon in the gutter.
+ *
+ * FOURTEEN TREATMENTS existed for one control. Radius rounded-2xl nine
+ * times, rounded-xl eleven, rounded-lg four. Background bg-card ten times
+ * and bg-surface fourteen. A focus ring on fourteen of twenty-four and
+ * ABSENT ON TEN, which is the part that was not cosmetic: a keyboard user
+ * could not see where they were in half the forms on the site.
+ */
+export function fieldClass(opts: { icon?: boolean; trailing?: boolean; invalid?: boolean; area?: boolean } = {}): string {
+  return cx(
+    "w-full min-w-0 text-ink placeholder:text-ink-faint bg-card",
+    RADIUS.control,
+    "border",
+    opts.invalid ? "border-alarm-line" : "border-line",
+    opts.area ? "px-3 py-2.5 resize-none" : "h-12",
+    !opts.area && (opts.icon ? "pl-11" : "pl-3"),
+    !opts.area && (opts.trailing ? "pr-12" : "pr-3"),
+    "transition-colors",
+    FOCUS,
+  );
+}
+
 export const ROW_ACTION = cx(
   "inline-flex items-center gap-1 shrink-0",
   RADIUS.control,

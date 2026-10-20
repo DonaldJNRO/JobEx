@@ -26,6 +26,7 @@
  */
 
 import Link from "next/link";
+import EmptyState from "@/components/ui/EmptyState";
 import LoadError from "@/components/ui/LoadError";
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { MapPin, Search, X } from "lucide-react";
@@ -260,15 +261,12 @@ export default function HomePage() {
       ) : (
         // Nothing to show is a thing to say plainly, not a thing to hide behind
         // an empty row with a heading over it.
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-5">
-            <MapPin size={26} className="text-primary/50" />
-          </div>
-          <h2 className="text-xl text-ink mb-2">Nothing here yet</h2>
-          <p className="text-sm text-ink-muted max-w-sm mx-auto">
-            We are adding places every week. Try again shortly.
-          </p>
-        </div>
+        <EmptyState
+          bare
+          icon={<MapPin size={26} />}
+          title="Nothing here yet"
+          body="We are adding places every week. Try again shortly."
+        />
       )}
 
 

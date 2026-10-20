@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { fieldClass } from "@/lib/ui-recipes";
 import Button from "@/components/ui/Button";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -87,21 +88,21 @@ export default function SignupPage() {
               <label htmlFor="signup-name" className="block text-small text-text-muted mb-1.5">Full name</label>
               <div className="relative">
                 <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" aria-hidden="true" />
-                <input id="signup-name" type="text" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} required className="w-full pl-11 pr-4 py-3 rounded-xl bg-surface border border-line text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                <input id="signup-name" type="text" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} required className={fieldClass({ icon: true })} />
               </div>
             </div>
             <div>
               <label htmlFor="signup-email" className="block text-small text-text-muted mb-1.5">Email</label>
               <div className="relative">
                 <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" aria-hidden="true" />
-                <input id="signup-email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required className="w-full pl-11 pr-4 py-3 rounded-xl bg-surface border border-line text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                <input id="signup-email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required className={fieldClass({ icon: true })} />
               </div>
             </div>
             <div>
               <label htmlFor="signup-password" className="block text-small text-text-muted mb-1.5">Password</label>
               <div className="relative">
                 <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-text-muted" aria-hidden="true" />
-                <input id="signup-password" type={showPassword ? "text" : "password"} autoComplete="new-password" aria-describedby="signup-password-hint" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full pl-11 pr-12 py-3 rounded-xl bg-surface border border-line text-sm focus:outline-none focus:ring-2 focus:ring-primary/30" />
+                <input id="signup-password" type={showPassword ? "text" : "password"} autoComplete="new-password" aria-describedby="signup-password-hint" value={password} onChange={(e) => setPassword(e.target.value)} required className={fieldClass({ icon: true, trailing: true })} />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}

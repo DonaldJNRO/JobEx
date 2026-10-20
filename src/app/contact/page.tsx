@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { fieldClass } from "@/lib/ui-recipes";
 import Button from "@/components/ui/Button";
 import { MapPin, Mail, Send, CheckCircle, AlertTriangle } from "lucide-react";
 import {
@@ -13,8 +14,12 @@ import {
 
 const EMPTY: ContactMessage = { name: "", email: "", subject: "", message: "" };
 
-const FIELD_CLASS =
-  "w-full px-4 py-3 rounded-xl bg-surface border border-line text-sm text-ink focus:outline-none focus:ring-2 focus:ring-primary/30";
+// THIS PAGE HOISTED ITS OWN. It was the tidiest of the fourteen input
+// treatments, which is why it survived every sweep: one constant, used
+// consistently, and still a fifteenth spelling of one control with its own
+// radius, its own background and its own focus ring.
+const FIELD_CLASS = fieldClass();
+const FIELD_AREA = fieldClass({ area: true });
 
 export default function ContactPage() {
   const [form, setForm] = useState<ContactMessage>(EMPTY);
@@ -123,7 +128,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <label htmlFor="contact-message" className="block text-sm font-medium text-ink mb-1.5">Message</label>
-                  <textarea id="contact-message" name="message" required rows={5} value={form.message} onChange={set("message")} className={`${FIELD_CLASS} resize-none`} />
+                  <textarea id="contact-message" name="message" required rows={5} value={form.message} onChange={set("message")} className={FIELD_AREA} />
                 </div>
 
                 {error && (

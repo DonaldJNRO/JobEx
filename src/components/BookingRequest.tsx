@@ -28,7 +28,7 @@ import { fetchBookingDecision, ASK, type BookingDecision } from "@/lib/booking-d
 import { buildDisplayPrice, formatPriceWithCurrency } from "@/lib/display-price";
 import PayStep, { canPay } from "./PayStep";
 import Button from "./ui/Button";
-import { ROW_ACTION } from "@/lib/ui-recipes";
+import { ROW_ACTION, fieldClass } from "@/lib/ui-recipes";
 import { startPayment, PayError, type PayIntent } from "@/lib/pay";
 import { useMoney } from "@/lib/useRates";
 import { nativeCurrencyOf } from "@/lib/listing-price";
@@ -540,7 +540,7 @@ export default function BookingRequest({
                     ref={firstField as React.RefObject<HTMLSelectElement>}
                     value={offer}
                     onChange={(e) => setOffer(e.target.value)}
-                    className="w-full h-12 pl-3 pr-11 rounded-2xl bg-card border border-line text-ink appearance-none focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-colors"
+                    className={`${fieldClass({ trailing: true })} appearance-none`}
                   >
                     {offers.map((o) => (
                       <option key={o.name} value={o.name}>
@@ -608,7 +608,7 @@ export default function BookingRequest({
                     value={date}
                     data-empty={date ? undefined : "true"}
                     onChange={(e) => setDate(e.target.value)}
-                    className="w-full min-w-0 h-12 px-3 rounded-2xl bg-card border border-line text-ink focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-colors"
+                    className={fieldClass()}
                   />
                   {!date && (
                     <span
@@ -632,7 +632,7 @@ export default function BookingRequest({
                     required
                     value={time}
                     onChange={(e) => setTime(e.target.value)}
-                    className="w-full min-w-0 h-12 px-3 rounded-2xl bg-card border border-line text-ink focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-colors"
+                    className={fieldClass()}
                   >
                     <option value="">Pick a time</option>
                     {/* EVERY SLOT, WITH THE GONE ONES DISABLED. A list that
@@ -653,7 +653,7 @@ export default function BookingRequest({
                     required
                     value={time}
                     onChange={(e) => setTime(e.target.value)}
-                    className="w-full min-w-0 h-12 px-3 rounded-2xl bg-card border border-line text-ink focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-colors"
+                    className={fieldClass()}
                   />
                 )}
               </label>
@@ -675,7 +675,7 @@ export default function BookingRequest({
                 required
                 value={guests}
                 onChange={(e) => setGuests(Math.max(1, Number(e.target.value) || 1))}
-                className="w-full min-w-0 h-12 px-3 rounded-2xl bg-card border border-line text-ink focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-colors"
+                className={fieldClass()}
               />
             </label>
 
@@ -694,7 +694,7 @@ export default function BookingRequest({
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full h-12 px-3 rounded-2xl bg-card border border-line text-ink focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-colors"
+                className={fieldClass()}
               />
             </label>
 
@@ -707,7 +707,7 @@ export default function BookingRequest({
                 placeholder="So they can reply"
                 value={contact}
                 onChange={(e) => setContact(e.target.value)}
-                className="w-full h-12 px-3 rounded-2xl bg-card border border-line text-ink placeholder:text-ink-faint focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-colors"
+                className={fieldClass()}
               />
             </label>
 
@@ -717,7 +717,7 @@ export default function BookingRequest({
                 rows={2}
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
-                className="w-full px-3 py-2.5 rounded-2xl bg-card border border-line text-ink resize-none focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-colors"
+                className={fieldClass({ area: true })}
               />
             </label>
 

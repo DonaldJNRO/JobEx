@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { fieldClass } from "@/lib/ui-recipes";
 import Button from "@/components/ui/Button";
 import { safeNext } from "@/lib/safe-next";
 import { useRouter } from "next/navigation";
@@ -102,7 +103,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="w-full pl-11 pr-4 py-3 rounded-xl bg-surface border border-line text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  className={fieldClass({ icon: true })}
                 />
               </div>
             </div>
@@ -119,7 +120,7 @@ export default function LoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  className="w-full pl-11 pr-12 py-3 rounded-xl bg-surface border border-line text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  className={fieldClass({ icon: true, trailing: true })}
                 />
                 {/* Was a 16x16 hit area. That is a quarter of the 44px minimum,
                     on the control most likely to be pressed by someone who has

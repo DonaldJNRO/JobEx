@@ -15,7 +15,7 @@
 
 import { useEffect, useState } from "react";
 import Button from "@/components/ui/Button";
-import { cardClass } from "@/lib/ui-recipes";
+import { cardClass, fieldClass } from "@/lib/ui-recipes";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -124,7 +124,7 @@ export default function AccountPage() {
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Your name"
                   aria-label="Your name"
-                  className="w-full rounded-lg border border-line bg-surface px-3 py-2 text-ink"
+                  className={fieldClass()}
                 />
                 <div className="flex items-center gap-1.5">
                   <span className="text-ink-muted">@</span>
@@ -133,7 +133,7 @@ export default function AccountPage() {
                     onChange={(e) => setHandle(e.target.value)}
                     placeholder="handle"
                     aria-label="Your handle"
-                    className="w-full rounded-lg border border-line bg-surface px-3 py-2 font-mono text-sm text-ink"
+                    className={`${fieldClass()} font-mono`}
                   />
                 </div>
               </div>

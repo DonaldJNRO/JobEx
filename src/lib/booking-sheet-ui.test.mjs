@@ -54,7 +54,15 @@ ck(!/How many/.test(SHEET.slice(gridStart, gridEnd)),
 // and the cell grows past its grid track.
 ck(/relative block w-full min-w-0/.test(SHEET),
   "the date wrapper can shrink to its track");
-ck((SHEET.match(/className="w-full min-w-0 h-12/g) || []).length >= 3,
+// THROUGH THE SHARED RECIPE NOW. This counted a literal class string, and
+// fourteen spellings of one input is exactly what that recipe exists to
+// end. The rule is unchanged and it is the rule that matters: these
+// controls must be able to shrink below their grid track, or Safari's
+// intrinsic width pushes them through it.
+const RECIPE = readFileSync("src/lib/ui-recipes.ts", "utf8");
+ck(/export function fieldClass/.test(RECIPE), "there is one definition of a field");
+ck(/"w-full min-w-0 text-ink/.test(RECIPE), "and it can shrink to its track");
+ck((SHEET.match(/fieldClass\(/g) || []).length >= 3,
   "and so can the date input, the time select and the time input");
 ck(/input\[type="date"\], input\[type="time"\] \{ min-width: 0/.test(CSS),
   "with a CSS backstop, because iOS gives them an intrinsic width w-full does not beat");

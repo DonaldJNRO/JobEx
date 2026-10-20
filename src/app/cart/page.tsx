@@ -13,6 +13,8 @@
 // them at the till.
 
 import { Suspense, useEffect, useState } from "react";
+import { Skeleton } from "@/components/ui/Skeleton";
+import EmptyState from "@/components/ui/EmptyState";
 import { cardClass } from "@/lib/ui-recipes";
 import Button from "@/components/ui/Button";
 import Link from "next/link";
@@ -85,23 +87,20 @@ function CartContents() {
 
         {trips === null && (
           <div className="mt-8 space-y-3" aria-busy="true">
-            {[0, 1].map((i) => <div key={i} className="h-28 rounded-2xl bg-surface-sunken animate-shimmer" />)}
+            {[0, 1].map((i) => <Skeleton key={i} className="h-28" />)}
           </div>
         )}
 
         {empty && (
           // The app's own empty state, in its own words: a trip is the thing
           // everything you book lives in, not a shopping bag.
-          <div className="mt-16 text-center">
-            <ShoppingBag className="mx-auto h-10 w-10 text-primary/30" />
-            <h2 className="mt-5 text-xl font-bold text-ink">Start your first trip</h2>
-            <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-text-muted">
-              A trip is where everything you book lives, on your own or with the people coming with you.
-            </p>
-            <Button href="/" className="mt-6">
-              Browse places <ArrowRight className="h-4 w-4" />
-            </Button>
-          </div>
+          <EmptyState
+            bare
+            icon={<ShoppingBag className="h-10 w-10" />}
+            title="Start your first trip"
+            body="A trip is where everything you book lives, on your own or with the people coming with you."
+            action={<Button href="/" iconRight={<ArrowRight className="h-4 w-4" />}>Browse places</Button>}
+          />
         )}
 
         {cart && cart.items.length > 0 && (
@@ -233,7 +232,7 @@ export default function CartPage() {
           <div className="mx-auto max-w-2xl px-4 py-8">
             <h1 className="text-2xl font-bold tracking-tight text-ink">My trip</h1>
             <div className="mt-8 space-y-3" aria-busy="true">
-              {[0, 1].map((i) => <div key={i} className="h-28 rounded-2xl bg-surface-sunken animate-shimmer" />)}
+              {[0, 1].map((i) => <Skeleton key={i} className="h-28" />)}
             </div>
           </div>
         </main>

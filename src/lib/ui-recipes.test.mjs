@@ -147,6 +147,8 @@ const tsxFiles = (dir) => rd(dir).flatMap((n) => {
   return st(f).isDirectory() ? tsxFiles(f) : /\.tsx$/.test(n) ? [f] : [];
 });
 const all = ["src/app", "src/components"].flatMap(tsxFiles).filter((f) => !f.includes("/ui/"));
+const RECIPE_SRC = readFileSync("src/lib/ui-recipes.ts", "utf8");
+const FIELD_CALLS = all.reduce((n, f) => n + (readFileSync(f, "utf8").match(/fieldClass\(/g) || []).length, 0);
 let rogue = [];
 for (const f of all) {
   const src = readFileSync(f, "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
@@ -156,6 +158,23 @@ for (const f of all) {
 }
 ok(all.length > 20, `swept ${all.length} components outside the primitives`);
 ok(rogue.length === 0, rogue.length ? `${rogue[0]} still spells a card by hand` : "every card goes through cardClass");
+
+console.log("\nand a field has one definition, not fourteen");
+// 14 treatments for one control: rounded-2xl nine times, rounded-xl eleven,
+// rounded-lg four; bg-card ten and bg-surface fourteen. And a focus ring on
+// fourteen of twenty-four, ABSENT ON TEN, so a keyboard user could not see
+// where they were in half the forms on this site.
+ok(/export function fieldClass/.test(RECIPE_SRC), "there is one");
+ok(FIELD_CALLS >= 14, `${FIELD_CALLS} inputs go through it`);
+ok(/FOCUS,/.test(RECIPE_SRC.slice(RECIPE_SRC.indexOf("export function fieldClass"))),
+  "and every one of them gets the focus ring, which ten never had");
+
+let rogueField = [];
+for (const f of all) {
+  const src = readFileSync(f, "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
+  if (/focus:ring-primary\/30/.test(src)) rogueField.push(f.replace("src/", ""));
+}
+ok(rogueField.length === 0, rogueField.length ? `${rogueField[0]} still spells its own focus ring` : "and none spells its own");
 
 console.log(fails ? `\n${fails} FAILED` : "\nALL PASSED");
 process.exit(fails ? 1 : 0);
