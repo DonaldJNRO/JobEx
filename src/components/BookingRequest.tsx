@@ -333,7 +333,7 @@ export default function BookingRequest({
         role="dialog"
         aria-modal="true"
         aria-label={sentId ? "Request sent" : `Ask ${business} to book`}
-        className="relative w-full sm:max-w-md max-h-[92vh] overflow-y-auto bg-card rounded-t-3xl sm:rounded-3xl border border-line p-5 sm:p-6"
+        className="relative w-full sm:max-w-md max-h-[92dvh] overflow-y-auto bg-card rounded-t-3xl sm:rounded-3xl border border-line p-5 sm:p-6"
       >
         <button
           type="button"

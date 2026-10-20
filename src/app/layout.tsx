@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -42,6 +42,25 @@ const fraunces = localFont({
   variable: "--font-display-local",
   fallback: ["Georgia", "Times New Roman", "serif"],
 });
+
+/**
+ * viewport-fit=cover, WITHOUT WHICH env(safe-area-inset-*) IS ZERO.
+ *
+ * Every bar and sheet built today pads itself with
+ * env(safe-area-inset-bottom) so it clears the iPhone home indicator. On
+ * iOS that inset resolves to 0 unless the page asks to draw into the safe
+ * area, and Next's default viewport does not. So the listing's price bar,
+ * the room screen's footer and both sheets were sitting under the
+ * indicator on every iPhone, and the padding that was supposed to prevent
+ * it was doing nothing at all.
+ *
+ * Nothing on a desktop or an Android changes: those insets are already 0.
+ */
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
 
 export const metadata: Metadata = {
   // metadataBase is what lets Next resolve the generated OG image below into an

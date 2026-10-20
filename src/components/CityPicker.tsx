@@ -85,7 +85,7 @@ export default function CityPicker({
             role="dialog"
             aria-modal="true"
             aria-label="Where are you going?"
-            className="max-h-[85vh] w-full overflow-y-auto rounded-t-3xl bg-card p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))] sm:max-w-md sm:rounded-3xl sm:pb-6"
+            className="max-h-[85dvh] w-full overflow-y-auto rounded-t-3xl bg-card p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))] sm:max-w-md sm:rounded-3xl sm:pb-6"
           >
             <div className="mx-auto mb-5 h-1 w-10 rounded-full bg-line sm:hidden" />
 

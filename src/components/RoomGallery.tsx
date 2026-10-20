@@ -136,7 +136,7 @@ export default function RoomGallery({
         // into whatever height is going and fills it, so there is no dead
         // space and no letterbox. A minimum, so it cannot be squeezed to a
         // strip when a room does have a lot to say.
-        className="flex min-h-[38vh] min-w-0 flex-1 snap-x snap-mandatory overflow-x-auto overflow-y-hidden overscroll-x-contain scroll-smooth bg-neutral-dark [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex min-h-[38dvh] min-w-0 flex-1 snap-x snap-mandatory overflow-x-auto overflow-y-hidden overscroll-x-contain scroll-smooth bg-neutral-dark [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {items.map((item, i) => (
           <div key={item.src} className="relative flex w-full shrink-0 snap-center items-center justify-center">
@@ -174,7 +174,7 @@ export default function RoomGallery({
           flex-1 as well, the photo and an almost empty body split the
           screen between them and the half holding the dots was blank
           cream. It takes what it needs and scrolls past a point. */}
-      <div className="min-w-0 shrink-0 overflow-y-auto overscroll-contain" style={{ maxHeight: "40vh" }}>
+      <div className="min-w-0 shrink-0 overflow-y-auto overscroll-contain" style={{ maxHeight: "40dvh" }}>
       {/* WHERE YOU ARE IN THE SET. Dots past about eight become a smear, so
           past that the count says it in words instead. */}
       {items.length > 1 && (

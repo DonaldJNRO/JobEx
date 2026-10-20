@@ -140,7 +140,7 @@ console.log("\nand the room screen is a page, not a letterbox");
 //
 // flex-1 AND object-cover is the pair: the photo grows into whatever height
 // is going and fills it. No dead space, no letterbox.
-ok(/min-h-\[38vh\] min-w-0 flex-1/.test(GALLERY), "the photo takes the space nobody else wants, with a floor");
+ok(/min-h-\[38dvh\] min-w-0 flex-1/.test(GALLERY), "the photo takes the space nobody else wants, with a floor");
 ok(!/object-contain/.test(GALLERY), "and fills it, rather than fitting inside it between bars");
 ok(/shrink-0 overflow-y-auto/.test(GALLERY), "the body takes only what it needs, or the two split the screen");
 

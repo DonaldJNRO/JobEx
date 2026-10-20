@@ -105,7 +105,7 @@ function TripsInner() {
     // A CONTAINED PANEL, the way LinkedIn's messaging sits: a card with the
     // page showing around it rather than chrome running edge to edge. On a
     // phone it fills the screen, because margins there are just lost width.
-    <div className="h-[calc(100vh-4rem)] overflow-hidden p-0 lg:p-4">
+    <div className="h-[calc(100dvh-4rem)] overflow-hidden p-0 lg:p-4">
       <div className="flex h-full min-h-0 overflow-hidden rounded-none border-line bg-card lg:rounded-2xl lg:border">
       {/* THE LIST. Full width on a phone until a trip is picked, then it
           steps aside; always there from lg up. */}
@@ -340,7 +340,7 @@ function TripsInner() {
 
 export default function TripsPage() {
   return (
-    <Suspense fallback={<div className="h-[calc(100vh-4rem)] bg-surface" />}>
+    <Suspense fallback={<div className="h-[calc(100dvh-4rem)] bg-surface" />}>
       <TripsInner />
     </Suspense>
   );
