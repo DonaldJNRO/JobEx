@@ -7,6 +7,8 @@ import Button from "./ui/Button";
 import Overlay from "./Overlay";
 import { ROW_ACTION, cardClass } from "@/lib/ui-recipes";
 import { OFFER_HERO } from "@/lib/screen-open";
+import { slotChoices } from "@/lib/slots";
+import { todayISO } from "@/lib/stay";
 import type { ServiceGroup } from "@/lib/shop-window";
 
 /**
@@ -35,7 +37,7 @@ export default function OfferScreen({
   money: (n: number | null) => string;
   onClose: () => void;
   /** The service, and the hour they chose, so the sheet does not ask again. */
-  onPick: (name: string, slot?: string) => void;
+  onPick: (name: string, slot?: string, day?: string) => void;
 }) {
   const media = [
     ...(group.videoUrl ? [{ kind: "video" as const, src: group.videoUrl }] : []),
@@ -43,6 +45,13 @@ export default function OfferScreen({
   ];
   const [at, setAt] = useState(0);
   const [slot, setSlot] = useState("");
+  const [day, setDay] = useState("");
+  // Which of the operator's hours are actually open on the chosen day.
+  const choices = slotChoices(day, {
+    slots: group.timeSlots ?? [],
+    availableDays: group.availableDays,
+    leadTimeHours: group.leadTimeHours,
+  });
   const track = useRef<HTMLDivElement | null>(null);
   // THE SCREEN WAS CLOSING ITSELF. This effect pushes a history entry on
   // mount and pops it on cleanup, and `close` depended on `onClose`, which
@@ -141,29 +150,58 @@ export default function OfferScreen({
                     not choose between, and then the next screen asked them
                     to pick one from a dropdown anyway. Tapping the hour you
                     want is the whole point of showing the hours. */}
+                {/* THE DAY, HERE, ABOVE THE HOURS. This screen listed the
+                    times and told you to pick one, then said the day came
+                    on the NEXT screen, which is backwards: which hours are
+                    open depends on the day. A Saturday-only experience
+                    runs none on a Tuesday and today's 11am has gone.
+                    Picking an hour for no date was picking from a list
+                    nothing had filtered.
+                    
+                    The room screen asks check in before it shows a price,
+                    and this is the same shape. */}
+                <label className="mb-3 block max-w-xs">
+                  <span className="mb-1 block text-caption font-semibold text-ink">Which day</span>
+                  <input
+                    type="date"
+                    value={day}
+                    min={todayISO()}
+                    onChange={(e) => { setDay(e.target.value); setSlot(""); }}
+                    className="w-full min-w-0 rounded-xl border border-line-strong bg-card px-3 py-2.5 text-small text-ink"
+                  />
+                </label>
+
                 <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="When it runs">
-                  {group.timeSlots!.map((t) => {
-                    const chosen = slot === t;
+                  {choices.map((c) => {
+                    const chosen = slot === c.slot;
                     return (
                       <button
-                        key={t}
+                        key={c.slot}
                         type="button"
                         role="radio"
                         aria-checked={chosen}
-                        onClick={() => setSlot(chosen ? "" : t)}
+                        disabled={!day || !c.available}
+                        title={c.reason ?? undefined}
+                        onClick={() => setSlot(chosen ? "" : c.slot)}
                         className={`rounded-full px-3.5 py-2 text-small font-semibold transition-colors ${
                           chosen
                             ? "bg-primary text-white"
-                            : "bg-ink-wash text-ink hover:bg-line"
+                            : !day || !c.available
+                              ? "cursor-not-allowed bg-ink-wash/60 text-ink-faint line-through"
+                              : "bg-ink-wash text-ink hover:bg-line"
                         }`}
                       >
-                        {t}
+                        {c.slot}
                       </button>
                     );
                   })}
                 </div>
                 <p className="mt-2 text-caption text-ink-muted">
-                  {slot ? "You pick the day on the next screen." : "Pick an hour, then the day on the next screen."}
+                  {!day
+                    ? "Pick a day to see which hours are open."
+                    : choices.some((c) => c.available)
+                      ? (slot ? "That is your slot." : "Pick an hour.")
+                      : "Nothing runs on that day."}
                 </p>
               </div>
             )}
@@ -178,7 +216,7 @@ export default function OfferScreen({
                     <li key={t.label}>
                       <button
                         type="button"
-                        onClick={() => onPick(`${group.name} (${t.label})`, slot || undefined)}
+                        onClick={() => onPick(`${group.name} (${t.label})`, slot || undefined, day || undefined)}
                         className="group flex w-full items-center justify-between gap-4 px-4 py-3.5 text-left hover:bg-surface-sunken"
                       >
                         <span className="min-w-0 text-ink">{t.label}</span>
@@ -202,7 +240,7 @@ export default function OfferScreen({
           <footer className="shrink-0 border-t border-line bg-card px-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] pt-4">
             <div className="flex items-center justify-between gap-4">
               <p className="text-heading font-extrabold text-ink">{money(group.fromPrice)}</p>
-              <Button size="lg" onClick={() => onPick(group.name, slot || undefined)}>Book this</Button>
+              <Button size="lg" onClick={() => onPick(group.name, slot || undefined, day || undefined)}>Book this</Button>
             </div>
           </footer>
         )}

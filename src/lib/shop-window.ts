@@ -99,6 +99,10 @@ export interface ServiceGroup {
   videoUrl?: string | null;
   /** The hours it runs, which 116 experiences carry and nothing showed. */
   timeSlots?: string[];
+  /** The days it runs, on 27 of them, which nothing read either. */
+  availableDays?: string[];
+  /** The notice it needs, on 7. */
+  leadTimeHours?: number;
 }
 
 /**
@@ -164,6 +168,15 @@ export function serviceGroups(l: OfferSource): ServiceGroup[] {
       timeSlots: Array.isArray((r as { timeSlots?: unknown }).timeSlots)
         ? ((r as { timeSlots: unknown[] }).timeSlots.filter((t) => typeof t === "string" && t.trim()) as string[])
         : [],
+      // CARRIED WITH THE HOURS, because an hour means nothing without the
+      // days it runs on: a Saturday-only experience offered every slot on a
+      // Tuesday while nothing had ever read this field.
+      availableDays: Array.isArray((r as { availableDays?: unknown }).availableDays)
+        ? ((r as { availableDays: unknown[] }).availableDays.filter((d) => typeof d === "string") as string[])
+        : undefined,
+      leadTimeHours: typeof (r as { leadTime?: unknown }).leadTime === "number"
+        ? (r as { leadTime: number }).leadTime
+        : undefined,
     });
   }
   return out;

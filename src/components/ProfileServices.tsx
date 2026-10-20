@@ -62,7 +62,7 @@ interface Props {
   listing: Record<string, unknown>;
   currency: string;
   /** Opens the booking sheet on a chosen row. */
-  onPick: (offerName: string, slot?: string) => void;
+  onPick: (offerName: string, slot?: string, day?: string) => void;
 }
 
 export default function ProfileServices({ listing, currency, onPick, hideNames, roomsShown }: Props) {
@@ -157,7 +157,7 @@ export default function ProfileServices({ listing, currency, onPick, hideNames, 
           group={showing}
           money={money}
           onClose={() => setShowing(null)}
-          onPick={(n, slot) => { setShowing(null); onPick(n, slot); }}
+          onPick={(n, slot, day) => { setShowing(null); onPick(n, slot, day); }}
         />
       )}
       <h2 className="text-heading font-bold text-ink mb-3">{heading}</h2>

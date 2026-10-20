@@ -105,11 +105,29 @@ const OFFER = readFileSync("src/components/OfferScreen.tsx", "utf8")
   .replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/[^\n]*/g, "");
 ok(/role="radiogroup"/.test(OFFER), "the hours are a group of choices");
 ok(/aria-checked=\{chosen\}/.test(OFFER), "each one says whether it is the chosen one");
-ok(/setSlot\(chosen \? "" : t\)/.test(OFFER), "and tapping the chosen one clears it, so a pick is reversible");
-ok(/onPick\(group\.name, slot \|\| undefined\)/.test(OFFER), "the hour travels with the booking");
+ok(/setSlot\(chosen \? "" : c\.slot\)/.test(OFFER), "and tapping the chosen one clears it, so a pick is reversible");
+
+// THE DAY COMES FIRST HERE TOO. This screen listed the hours and said the
+// day came on the NEXT one, which is backwards: which hours are open
+// depends on the day. I fixed the ordering in the booking sheet and left
+// the screen that feeds it, which is where somebody actually is.
+ok(/type="date"/.test(OFFER), "the offer screen asks which day");
+ok(/setDay\(e\.target\.value\); setSlot\(""\)/.test(OFFER),
+  "and changing it clears the hour, since that hour may not run on the new day");
+ok(/disabled=\{!day \|\| !c\.available\}/.test(OFFER), "no hour can be picked before a day");
+ok(/Pick a day to see which hours are open/.test(OFFER), "and it says why rather than sitting there greyed");
+ok(/Nothing runs on that day/.test(OFFER), "a day the thing does not run says so");
+
+// An hour needs the DAYS it runs on to mean anything.
+const SHOP2 = readFileSync("src/lib/shop-window.ts", "utf8");
+ok(/availableDays: Array\.isArray/.test(SHOP2), "the group carries the days it runs");
+ok(/leadTimeHours: typeof/.test(SHOP2), "and the notice it needs");
+ok(/onPick\(group\.name, slot \|\| undefined, day \|\| undefined\)/.test(OFFER),
+  "the hour travels with the booking, and the day with it");
 
 const SHEET2 = readFileSync("src/components/BookingRequest.tsx", "utf8");
 ok(/initialSlot/.test(SHEET2), "and the sheet starts from it rather than asking again");
+ok(/setDate\(initialDay\)/.test(SHEET2), "and opens on the day already chosen, rather than asking for that again either");
 
 console.log("\nand a bonfire is not a room");
 // On a lodging the services heading said "Pick a room", which was right
