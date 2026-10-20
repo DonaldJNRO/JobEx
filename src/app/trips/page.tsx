@@ -14,7 +14,7 @@
 
 import { useEffect, useState } from "react";
 import EmptyState from "@/components/ui/EmptyState";
-import { fieldClass, pillClass, COUNT_BADGE } from "@/lib/ui-recipes";
+import { fieldClass, pillClass, COUNT_BADGE, WIDTH } from "@/lib/ui-recipes";
 import LoadError from "@/components/ui/LoadError";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -111,7 +111,12 @@ function TripsInner() {
     // page showing around it rather than chrome running edge to edge. On a
     // phone it fills the screen, because margins there are just lost width.
     <div className="h-[calc(100dvh-4rem)] overflow-hidden p-0 lg:p-4">
-      <div className="flex h-full min-h-0 overflow-hidden rounded-none border-line bg-card lg:rounded-2xl lg:border">
+      {/* AND CAPPED, like every other page. This was the one surface with no
+          width at all, so a two-pane inbox stretched to whatever the monitor
+          was: a list column and a thread column each half a 27-inch screen
+          wide. Every design system that publishes a number lands between
+          about 960 and 1300, and none of them fills the screen. */}
+      <div className={`mx-auto flex h-full min-h-0 w-full ${WIDTH.page} overflow-hidden rounded-none border-line bg-card lg:rounded-2xl lg:border`}>
       {/* THE LIST. Full width on a phone until a trip is picked, then it
           steps aside; always there from lg up. */}
       <aside

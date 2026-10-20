@@ -63,5 +63,32 @@ ck(/md:rounded-/.test(PANEL), "and reads as a panel rather than a torn-off page"
 ck(/onClose/.test(PANEL) && /md:absolute md:inset-0/.test(PANEL),
   "and the dimmed ground closes it, which is the gesture a panel teaches");
 
+// ── one scale, not seven ────────────────────────────────────────────────
+// Measured across the design systems that publish a number: GOV.UK 1020,
+// NHS 960, USWDS 1024, Atlassian 1296 wide and 864 for long-form reading,
+// Scottish Government 1120. NOBODY FILLS THE SCREEN, and everybody lands
+// between about 960 and 1300.
+//
+// This site had seven answers, and the worst of them was that the navbar
+// and footer were WIDER than every page beneath them, so the wordmark and
+// the content under it did not share a left edge on a laptop.
+const RECIPES = readFileSync("src/lib/ui-recipes.ts", "utf8");
+ck(/WIDTH = \{/.test(RECIPES), "the scale is written down, with its reasons");
+ck(/page: "max-w-6xl"/.test(RECIPES), "a page is 1152, inside the range every system agrees on");
+ck(/panel: "max-w-4xl"/.test(RECIPES), "a panel is 896, Atlassian's long-form width");
+ck(/prose: "max-w-2xl"/.test(RECIPES), "prose is 672, which is about 66 characters");
+
+// THE CHROME MATCHES THE PAGE. A header wider than its content is visible
+// as a wordmark that does not line up with anything below it.
+const NAV = readFileSync("src/components/Navbar.tsx", "utf8");
+const FOOT = readFileSync("src/components/Footer.tsx", "utf8");
+const PAGE_W = /max-w-6xl/;
+ck(PAGE_W.test(NAV), "the navbar is the page's width");
+ck(PAGE_W.test(FOOT), "and so is the footer");
+
+// NO PAGE IS UNBOUNDED. /trips was the one surface with no width at all.
+const TRIPS = readFileSync("src/app/trips/page.tsx", "utf8");
+ck(/WIDTH\.page/.test(TRIPS), "the inbox is capped like everything else");
+
 console.log(fails ? `\n${fails} FAILED` : "\nALL PASSED");
 process.exit(fails ? 1 : 0);

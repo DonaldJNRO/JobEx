@@ -228,6 +228,38 @@ export const ROW = {
 
 // THE GUTTER FINALLY GETS A CONSUMER. --spacing-gutter has existed unused
 // while the side padding it exists for was written as px-4 forty-nine times.
+/**
+ * HOW WIDE A THING IS ALLOWED TO GET.
+ *
+ * Measured across the design systems that publish a number, because the
+ * instinct to fill the monitor is wrong and nothing here had checked:
+ *
+ *   GOV.UK          1020px default page width
+ *   NHS              960px
+ *   USWDS           1024px
+ *   Atlassian       1296px wide, 864px for long-form reading
+ *   Scottish Gov    1120px at its widest breakpoint
+ *
+ * Nobody fills the screen. Everybody lands between about 960 and 1300, and
+ * narrows to the 800s when the job is reading.
+ *
+ * This site had SEVEN answers: the navbar and footer at 1280, the listing
+ * page at 1152, about and contact at 1024, bookings at 768, cart and
+ * account at 672, the home page at 448, and /trips at no width at all. The
+ * header was therefore wider than every page under it, so on a laptop the
+ * wordmark and the content below it did not share a left edge.
+ *
+ * Three widths, and a reason for each.
+ */
+export const WIDTH = {
+  /** A page. 1152px, between GOV.UK's 1020 and Atlassian's 1296. */
+  page: "max-w-6xl",
+  /** A focused panel or dialog. 896px, Atlassian's long-form 864 rounded. */
+  panel: "max-w-4xl",
+  /** Prose. 672px is about 66 characters, which is the readable measure. */
+  prose: "max-w-2xl",
+} as const;
+
 export const CONTAINER = {
   base: "mx-auto w-full px-gutter sm:px-6 lg:px-8",
   width: { narrow: "max-w-2xl", page: "max-w-5xl", wide: "max-w-7xl" },

@@ -49,7 +49,7 @@ export function ScreenPanel({
           "relative flex h-full flex-col bg-surface",
           // CAPPED, AND NO TALLER THAN THE WINDOW. A panel that outgrows the
           // viewport scrolls the page behind it instead of itself.
-          "md:h-auto md:max-h-[90dvh] md:w-full md:max-w-3xl md:overflow-hidden md:rounded-3xl md:shadow-2xl",
+          "md:h-auto md:max-h-[90dvh] md:w-full md:max-w-4xl md:overflow-hidden md:rounded-3xl md:shadow-2xl",
           className,
         )}
       >

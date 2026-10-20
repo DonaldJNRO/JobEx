@@ -31,7 +31,7 @@ export default function Navbar() {
        it, because a blur behind an opaque layer renders nothing and costs
        the same. */
     <nav className="fixed top-0 left-0 right-0 z-50 bg-surface border-b border-line">
-      <div className="max-w-7xl mx-auto px-gutter sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto px-gutter sm:px-6 lg:px-8">
         <div data-chrome="top" className="flex items-center justify-between h-16">
           {/* Logo */}
           {/* THE WORDMARK ALREADY CONTAINS THE BEE, in the bowl of the b. It is
