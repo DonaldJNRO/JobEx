@@ -368,6 +368,12 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
         <div className="max-w-6xl mx-auto">
           <div
             className="relative aspect-[4/3] sm:aspect-[2.5/1] overflow-hidden sm:rounded-b-3xl select-none"
+            // THE OTHER END OF THE MORPH. The card sets this same name on
+            // the photo you tapped, so the browser treats the two as one
+            // element and animates between them: the picture travels from
+            // the wall to the top of this screen instead of the wall
+            // vanishing and a new picture appearing.
+            style={{ viewTransitionName: "listing-hero" }}
             onTouchStart={onTouchStart}
             onTouchEnd={onTouchEnd}
           >

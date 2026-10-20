@@ -24,7 +24,13 @@ export default function LoadingListing() {
       <span className="sr-only">Loading this listing</span>
 
       {/* The hero, at the hero's real shape. */}
-      <div className="aspect-[4/3] w-full bg-surface-sunken animate-shimmer sm:aspect-[2.5/1] sm:rounded-b-3xl" />
+      {/* THE SAME NAME, so the photo lands HERE while the rest of the page
+          is still loading, rather than waiting for the real hero and
+          morphing into a grey box in the meantime. */}
+      <div
+        className="aspect-[4/3] w-full bg-surface-sunken animate-shimmer sm:aspect-[2.5/1] sm:rounded-b-3xl"
+        style={{ viewTransitionName: "listing-hero" }}
+      />
 
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         {/* The price card, which is now always present on the real page. */}

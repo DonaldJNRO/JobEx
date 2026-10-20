@@ -391,3 +391,69 @@ input[type="date"][data-empty="true"]::-moz-placeholder-shown { opacity: 0; }
    beat, so in a two-column grid the cell grows past its track and the two
    boxes end up touching. This lets them shrink to the track they are in. */
 input[type="date"], input[type="time"] { min-width: 0; max-width: 100%; }
+
+/* ── THE SCREEN COMES OUT OF THE CARD ────────────────────────────────────
+   "They tap on it, it comes out at the top, it's like another screen."
+
+   Two separate animations, and they are not the same thing:
+
+   THE PHOTO MORPHS. The card and the hero share one view-transition-name,
+   so the browser treats them as one element and moves it. That needs no CSS
+   beyond timing; the default cross-fade of a morphing element is already
+   right, it is just too quick to read at the default 250ms.
+
+   THE REST OF THE PAGE ARRIVES FROM BELOW. The default is a cross-fade,
+   which reads as a page REPLACING another page. Sliding the incoming
+   content up a short distance is what makes it read as a screen arriving
+   over the one you were on, which is the thing being copied.
+
+   A browser without the API ignores every rule in this block and navigates
+   exactly as it did before, so there is nothing to feature-detect. */
+
+::view-transition-group(listing-hero) {
+  animation-duration: 420ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* The photo itself must not cross-fade while it travels: two photos
+   dissolving through each other during a move reads as a glitch, where one
+   photo moving reads as the same photo. */
+::view-transition-old(listing-hero),
+::view-transition-new(listing-hero) {
+  animation: none;
+  mix-blend-mode: normal;
+  height: 100%;
+  object-fit: cover;
+}
+
+@keyframes sabie-screen-in {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes sabie-screen-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+
+::view-transition-new(root) {
+  animation: sabie-screen-in 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+::view-transition-old(root) {
+  animation: sabie-screen-out 160ms ease both;
+}
+
+/* MOTION IS A PREFERENCE, and a full-screen slide is exactly what somebody
+   who turned it off was turning off. The morph stays, because a photo
+   moving between two positions is not the kind of motion that causes
+   trouble; the page slide goes. */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-new(root),
+  ::view-transition-old(root) {
+    animation: none !important;
+  }
+  ::view-transition-group(listing-hero) {
+    animation-duration: 200ms;
+  }
+}

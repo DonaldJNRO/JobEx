@@ -72,8 +72,24 @@ export default function ListingCard({
       // immediately and the page arrives when it arrives.
       className="group block transition-transform duration-150 ease-out active:scale-[0.985]"
       style={{ animationDelay: `${index * 0.06}s` }}
+      // THE PHOTO YOU TAPPED BECOMES THE PHOTO AT THE TOP.
+      //
+      // A view transition name has to be UNIQUE in the document, and this
+      // wall renders sixty cards, so naming them all `listing-hero` would
+      // name none of them. The name is therefore put on ONE card at the
+      // moment it is tapped, and taken off again if the navigation never
+      // happens, which is what makes the morph pick the right photo.
+      onClick={(e) => {
+        const box = (e.currentTarget as HTMLElement).querySelector<HTMLElement>("[data-hero]");
+        if (!box) return;
+        box.style.viewTransitionName = "listing-hero";
+        // A back-navigation, or a cancelled tap, must not leave the name
+        // behind: the next card tapped would then collide with it.
+        window.setTimeout(() => { box.style.viewTransitionName = ""; }, 1200);
+      }}
     >
       <div
+        data-hero
         className={`relative overflow-hidden rounded-2xl bg-surface-sunken ${masonry ? "" : "aspect-[4/3]"}`}
         // THE BOX IS RESERVED BEFORE THE IMAGE ARRIVES. The ratio is stored on
         // the listing, so the tile is already the right height on the first
