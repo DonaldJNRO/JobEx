@@ -28,6 +28,8 @@ import { fetchBookingDecision, ASK, type BookingDecision } from "@/lib/booking-d
 import { buildDisplayPrice, formatPriceWithCurrency, billDecimals } from "@/lib/display-price";
 import { watchBookingCode, type CodeState } from "@/lib/booking-code";
 import PayStep, { canPay } from "./PayStep";
+import KeepThisBooking from "./KeepThisBooking";
+import { oneLine as cancellationLine, OPERATOR_CANCELS } from "@/lib/cancellation";
 import Button from "./ui/Button";
 import { ROW_ACTION, ROW, fieldClass, cardClass } from "@/lib/ui-recipes";
 import { startPayment, PayError, type PayIntent } from "@/lib/pay";
@@ -483,6 +485,13 @@ export default function BookingRequest({
             <p className="text-caption text-ink-muted">
               Sabię holds your money until after your visit.
             </p>
+
+            {/* AFTER THE MONEY, NEVER BEFORE. A sign-in wall in front of a
+                checkout costs more bookings than it saves. Here the booking
+                exists, the code is on the screen, and the only offer is to
+                keep it reachable from a second device. Renders nothing at
+                all for somebody who already has an account. */}
+            <KeepThisBooking email={contact.includes("@") ? contact : null} />
           </div>
         ) : intent ? (
           <div className="pt-4">
@@ -956,6 +965,15 @@ export default function BookingRequest({
                       booking either way, so the honest line is the one
                       that says that. Operators need a unit on the price,
                       which is a Studio and Scout change, not a web one. */}
+                  {/* WHAT HAPPENS IF YOU CANCEL, before the money moves.
+                      Sabię has a ladder and the website never mentioned it,
+                      so somebody paid with no idea whether any of it came
+                      back and the operator had no agreed terms to point at.
+                      The numbers are the server's, held by a test. */}
+                  <p className="mt-2 text-caption leading-relaxed text-ink-muted">
+                    {cancellationLine()} {OPERATOR_CANCELS}
+                  </p>
+
                   {guests > 1 && !priceUnitShort && (
                     <p className="mt-1.5 text-caption text-ink-muted">
                       Your party of {guests} goes to the operator with the booking.
