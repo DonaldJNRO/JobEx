@@ -468,7 +468,7 @@ export default function BookingRequest({
                 <p className="text-caption text-ink-muted">Booking code</p>
                 <p className="text-title font-bold tracking-wide text-ink">{codeState.code}</p>
                 <p className="mt-1 text-caption text-ink-muted">
-                  Show this when you arrive. We have emailed it to you.
+                  Show this when you arrive.{contact.includes("@") ? " We have emailed it to you." : ""}
                 </p>
               </div>
             ) : codeState.status === "waiting" ? (
@@ -481,7 +481,14 @@ export default function BookingRequest({
                  rather than filling the gap with a string that matches
                  nothing. */
               <p className="text-small text-ink-muted mb-4">
-                Your booking code is on its way by email. {business} already has your booking.
+                {/* WE PROMISED AN EMAIL TO SOMEBODY WHO GAVE A PHONE NUMBER.
+                    The first real web booking left userEmail empty because
+                    the guest typed 07838286994, and the screen still said
+                    we had emailed them. The only copy of that code was in
+                    our database. */}
+                {contact.includes("@")
+                  ? <>Your booking code is on its way to {contact}. {business} already has your booking.</>
+                  : <>{business} already has your booking, and we will send your code to {contact || "you"}.</>}
               </p>
             )}
             <p className="text-caption text-ink-muted">

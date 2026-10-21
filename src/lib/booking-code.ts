@@ -17,7 +17,9 @@
 // says what is happening rather than filling the gap with a fiction.
 
 import { doc, onSnapshot, type Unsubscribe } from "firebase/firestore";
+import { httpsCallable } from "firebase/functions";
 import { db } from "./firebase";
+import { functions } from "./firebase";
 
 /** What the screen knows about the code at any moment. */
 export type CodeState =
@@ -45,33 +47,71 @@ export function codeOf(d: Record<string, unknown> | undefined | null): string | 
  * screen's ability to show the code on it. 10 seconds is generous against a
  * webhook that normally writes within two.
  */
+/**
+ * ASK THE SERVER, because a guest cannot read their own booking.
+ *
+ * firestore.rules:613 refuses an anonymous read of bookingRequests, and the
+ * website signs every visitor in anonymously, so the listener below is
+ * refused for exactly the person who needs the code. That rule is right and
+ * closing a real hole; a callable runs as the server and is the way round it
+ * without reopening anything.
+ *
+ * Measured 21 Oct 2026: the first real web booking showed "on its way by
+ * email" while SAB-R-000012 sat in the document.
+ */
+async function askServer(bookingRequestId: string): Promise<string | null> {
+  try {
+    const fn = httpsCallable<{ bookingRequestId: string }, { code: string | null }>(
+      functions, "getBookingCode",
+    );
+    const { data } = await fn({ bookingRequestId });
+    const code = data?.code;
+    return typeof code === "string" && code.trim() ? code.trim() : null;
+  } catch {
+    return null;
+  }
+}
+
 export function watchBookingCode(
   bookingRequestId: string,
   onState: (s: CodeState) => void,
   giveUpAfterMs = 10_000,
 ): Unsubscribe {
   let settled = false;
+  const done = (code: string) => {
+    if (settled) return;
+    settled = true;
+    clearTimeout(timer);
+    clearInterval(poll);
+    onState({ status: "ready", code });
+  };
   const timer = setTimeout(() => {
-    if (!settled) onState({ status: "unavailable" });
+    if (!settled) { clearInterval(poll); onState({ status: "unavailable" }); }
   }, giveUpAfterMs);
+
+  // BOTH, because neither alone is enough. The listener is instant for a
+  // signed-in traveller and refused for a guest; the callable works for
+  // everybody but has to be asked. Whichever answers first wins, and the
+  // webhook usually writes within two seconds.
+  const poll = setInterval(() => {
+    void askServer(bookingRequestId).then((c) => { if (c) done(c); });
+  }, 1500);
+  void askServer(bookingRequestId).then((c) => { if (c) done(c); });
 
   const stop = onSnapshot(
     doc(db, "bookingRequests", bookingRequestId),
     (snap) => {
       const code = codeOf(snap.data() as Record<string, unknown>);
       if (!code) return;
-      settled = true;
-      clearTimeout(timer);
-      onState({ status: "ready", code });
+      done(code);
       stop();
     },
     () => {
-      // A refused or dropped listener is not a reason to invent a code.
-      settled = true;
-      clearTimeout(timer);
-      onState({ status: "unavailable" });
+      // REFUSED IS ORDINARY HERE, not a failure: a guest is anonymous and
+      // the rule refuses them by design. The callable is still running, so
+      // this says nothing and lets it answer.
     },
   );
 
-  return () => { clearTimeout(timer); stop(); };
+  return () => { clearTimeout(timer); clearInterval(poll); stop(); };
 }

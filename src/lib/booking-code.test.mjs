@@ -39,8 +39,25 @@ ok(/onSnapshot\(/.test(LIB), "it watches the booking document");
 ok(/watchBookingCode\(id, setCodeState\)/.test(SHEET), "the screen subscribes once paid");
 ok(/status: "waiting"/.test(LIB) && /being issued/.test(SHEET),
   "says the code is coming rather than showing a blank");
-ok(/status: "unavailable"/.test(LIB) && /on its way by email/.test(SHEET),
+ok(/status: "unavailable"/.test(LIB) && /already has your booking/.test(SHEET),
   "and if it never lands, says so instead of inventing one");
+
+// AND IT DOES NOT PROMISE AN EMAIL TO A PHONE NUMBER. The first real web
+// booking left userEmail empty because the guest typed 07838286994, and the
+// screen still said we had emailed them. The only copy of that code was in
+// our database.
+ok(/contact\.includes\("@"\)/.test(SHEET), "the copy checks what they actually gave us");
+ok(/we will send your code to/.test(SHEET), "a phone number is told something true");
+
+// AND THE CODE IS ASKED FOR, not only watched. firestore.rules:613 refuses
+// an anonymous read of bookingRequests, and the website signs every visitor
+// in anonymously, so the listener is refused for exactly the person who
+// needs it. A callable runs as the server.
+ok(/httpsCallable/.test(LIB), "it asks a callable as well as watching");
+ok(/getBookingCode/.test(LIB), "by name");
+ok(/setInterval\(/.test(LIB), "and keeps asking until the webhook has written it");
+ok(/REFUSED IS ORDINARY HERE/.test(readFileSync("src/lib/booking-code.ts", "utf8")),
+  "a refused listener no longer reports unavailable, because the callable is still running");
 
 console.log("\nand a dropped listener is not a reason to make something up");
 ok(/\(\) => \{[\s\S]{0,220}status: "unavailable"/.test(LIB),
