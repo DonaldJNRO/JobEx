@@ -142,5 +142,23 @@ ck(/guests > 1 && !priceUnitShort/.test(SHEET),
 ck(/goes to the operator with the booking/.test(SHEET),
   "which is the one thing about it that is certain");
 
+// ── the wallet is a button, not a hoped-for tab ─────────────────────────
+// Apple Pay never appeared in the Payment Element's tab list, with the
+// domain registered (payment_method_domains says apple_pay: active) and the
+// intent carrying automatic_payment_methods. Airbnb does not rely on that
+// either: their checkout renders a black "Pay with Apple Pay" button of its
+// own above the card form. That is the Express Checkout Element, which asks
+// the BROWSER what it can pay with instead of hoping a list includes it.
+const PAY = readFileSync("src/components/PayStep.tsx", "utf8");
+ck(/<ExpressCheckoutElement/.test(PAY), "the wallet renders as its own button");
+ck(/onConfirm=\{onWalletConfirm\}/.test(PAY), "and confirms through the same intent as the card");
+ck(/Or pay with card/.test(PAY), "with the card form kept underneath as the fallback");
+// A WALLET CONFIRM THAT IS STILL PROCESSING IS NOT A PAID BOOKING. The card
+// path already refuses to read that as success; so must this one.
+ck(/onWalletConfirm[\s\S]{0,900}still deciding/.test(PAY),
+  "and a processing wallet payment is never reported as paid");
+ck(/walletReady !== false/.test(PAY),
+  "and a device with no wallet sees no empty box where the button would be");
+
 console.log(fails ? `\n${fails} FAILED` : "\nALL PASSED");
 process.exit(fails ? 1 : 0);

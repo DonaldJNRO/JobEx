@@ -16,7 +16,7 @@
 
 import { useState } from "react";
 import Button from "./ui/Button";
-import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
+import { Elements, ExpressCheckoutElement, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { loadStripe, type Stripe } from "@stripe/stripe-js";
 
 const KEY = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || "";
@@ -72,7 +72,32 @@ function CardForm({ amountLabel, onPaid, onCancel }: Props) {
   const stripeJs = useStripe();
   const elements = useElements();
   const [busy, setBusy] = useState(false);
+  // null while the browser is still being asked; false means no wallet on
+  // this device, which is most desktops, and the element renders nothing.
+  const [walletReady, setWalletReady] = useState<boolean | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // A WALLET CONFIRM IS THE SAME PAYMENT, so it goes through the same
+  // intent and the same outcome handling. Apple Pay returning "processing"
+  // is not a success and must not be read as one; the card path already
+  // says so and this path says it the same way.
+  const onWalletConfirm = async () => {
+    if (!stripeJs || !elements) return;
+    setBusy(true);
+    setError(null);
+    const { error: err, paymentIntent } = await stripeJs.confirmPayment({
+      elements,
+      redirect: "if_required",
+    });
+    if (err) {
+      setError(err.message || "That payment did not go through.");
+      setBusy(false);
+      return;
+    }
+    if (paymentIntent?.status === "succeeded") { onPaid(); return; }
+    setError("Your bank is still deciding. Do not pay again, we will email you as soon as it clears.");
+    setBusy(false);
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -111,6 +136,39 @@ function CardForm({ amountLabel, onPaid, onCancel }: Props) {
 
   return (
     <form onSubmit={submit} className="space-y-4">
+      {/* THE WALLET FIRST, AS ITS OWN BUTTON.
+          
+          Apple Pay never appeared in the Payment Element's tabs, which is
+          where it is SUPPOSED to turn up once a domain is registered and
+          the intent has automatic_payment_methods on. Both of those are
+          true. It still did not show.
+          
+          Airbnb does not rely on that either: on their checkout the wallet
+          is a black "Pay with Apple Pay" button of its own, above the card
+          form, and the card form is the fallback underneath. That is the
+          Express Checkout Element, which asks the BROWSER what it can pay
+          with and renders the real wallet buttons rather than hoping a tab
+          list includes them.
+          
+          It renders nothing at all when no wallet is available, so a
+          desktop Chrome with no card loses nothing and sees no empty box. */}
+      {walletReady !== false && (
+        <div className={walletReady ? "space-y-4" : "sr-only"}>
+          <ExpressCheckoutElement
+            options={{ buttonHeight: 48 }}
+            onReady={(e) => setWalletReady(Boolean(e.availablePaymentMethods))}
+            onConfirm={onWalletConfirm}
+          />
+          {walletReady && (
+            <div className="flex items-center gap-3" aria-hidden="true">
+              <span className="h-px flex-1 bg-line" />
+              <span className="text-caption text-ink-muted">Or pay with card</span>
+              <span className="h-px flex-1 bg-line" />
+            </div>
+          )}
+        </div>
+      )}
+
       <PaymentElement options={{ layout: "tabs" }} />
 
       {error && (
