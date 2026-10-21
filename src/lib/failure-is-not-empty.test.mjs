@@ -13,7 +13,8 @@
 //
 // Run: tsx src/lib/failure-is-not-empty.test.mjs
 
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, readdirSync } from "node:fs";
+import { join } from "node:path";
 
 let fails = 0;
 const ok = (cond, label) => {
@@ -28,20 +29,59 @@ ok(/role="alert"/.test(LE), "announced, not just drawn");
 ok(/onRetry/.test(LE), "and offers a way to try again");
 
 console.log("\nand the pages that take money or hold your things use it");
+// ── SWEPT, NOT LISTED ───────────────────────────────────────────────────
+// This had a hardcoded list of the three files I had been SHOWN. It was
+// written to stop me spot-fixing one case and missing its sibling, and it
+// was itself a spot-check: RoomList and the cart carried exactly this bug
+// while this test passed, because neither was on the list.
+//
+// A guard that only looks where it has already been told to look is a
+// record of past bugs, not a defence against the next one.
+const walk = (dir) => readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
+  const p = join(dir, e.name);
+  return e.isDirectory() ? walk(p) : (/\.tsx$/.test(e.name) ? [p] : []);
+});
+
+// The shape of the bug is a catch that CLEARS what is rendered and records
+// nothing, so the empty state below speaks for the failure. A catch that
+// clears AND raises a flag is the fix, not the bug, so the whole body is
+// read rather than its first statement.
+const CLEARS = /catch\s*\(([^)]*)\)\s*=>\s*(\{[\s\S]{0,220}?\}|[^;\n]{0,120})/g;
+const RECORDS_FAILURE = /set\w*(Failed|Error|Errored)\w*\(\s*true\s*\)/i;
+
+const offenders = [];
+for (const f of [...walk("src/app"), ...walk("src/components")]) {
+  const src = code(f);
+  // A read that cannot fail visibly is one nobody is waiting on: a
+  // best-effort extra like a city list or a background prefetch. Those
+  // swallow deliberately and have no empty state of their own.
+  if (!/(useState|useEffect)/.test(src)) continue;
+  for (const m of src.matchAll(CLEARS)) {
+    const body = m[2] || "";
+    if (!/set\w+\(\s*(\[\]|null)\s*\)/.test(body)) continue;   // clears nothing rendered
+    if (RECORDS_FAILURE.test(body)) continue;                      // clears AND says so: the fix
+    offenders.push(`${f}  →  ${m[0].slice(0, 54).replace(/\s+/g, " ")}…`);
+    break;
+  }
+}
+
+console.log("\nand no page anywhere turns a failure into an empty list");
+ok(offenders.length === 0,
+  offenders.length
+    ? `a failed read is rendered as "nothing here":\n        ${offenders.join("\n        ")}`
+    : "every read that can fail says so");
+
 for (const [f, label] of [
   ["src/app/page.tsx", "the home feed"],
   ["src/app/bookings/page.tsx", "the bookings page"],
   ["src/app/trips/page.tsx", "the inbox"],
+  ["src/app/cart/page.tsx", "the cart"],
+  ["src/components/RoomList.tsx", "the room list"],
 ]) {
   const src = code(f);
-  ok(/LoadError/.test(src), `${label} can say it failed`);
-  // THE SHAPE OF THE BUG: a catch that sets an empty array, which the
-  // empty state then renders as a fact about the data.
-  ok(
-    !/catch\s*\([^)]*\)\s*=>\s*set\w+\(\[\]\)/.test(src) && !/catch\s*\{\s*set\w+\(\[\]\);?\s*\}/.test(src),
-    `${label} does not catch a failure into an empty list`,
-  );
+  ok(/LoadError|failed|couldNotLoad/i.test(src), `${label} can say it failed`);
 }
+
 
 console.log("\nand a refused listener says so rather than emitting nothing");
 const CONV = code("src/lib/conversations.ts");

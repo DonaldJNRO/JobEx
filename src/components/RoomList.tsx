@@ -9,6 +9,7 @@ import { openAsScreen, ROOM_HERO } from "@/lib/screen-open";
 import { useMoney as useGuestRates } from "@/lib/useRates";
 import { buildDisplayPrice } from "@/lib/display-price";
 import RoomGallery from "./RoomGallery";
+import LoadError from "@/components/ui/LoadError";
 
 /**
  * The rooms, with the pictures that were always there.
@@ -49,6 +50,8 @@ export default function RoomList({
     }).display || String(amount);
   };
   const [rooms, setRooms] = useState<Room[] | null>(null);
+  const [failed, setFailed] = useState(false);
+  const [reloadAt, setReloadAt] = useState(0);
   const [showing, setShowing] = useState<Room | null>(null);
   const [at, setAt] = useState(0);
   const track = useRef<HTMLDivElement | null>(null);
@@ -60,13 +63,16 @@ export default function RoomList({
 
   useEffect(() => {
     let live = true;
+    setFailed(false);
     fetchRooms(role, docId)
       .then((r) => { if (live) { setRooms(r); onRoomsRef.current?.(r.map((x) => x.name)); } })
-      // A listing whose rooms will not load still has a page. The services
-      // list below remains the way in.
-      .catch(() => { if (live) setRooms([]); });
+      // A FAILED READ IS NOT AN EMPTY HOTEL. This set [], and the empty
+      // state below then told somebody the place has no rooms. Ten listings
+      // carry thirty rooms between them, so an outage hid a whole
+      // inventory behind a page that looked perfectly fine.
+      .catch(() => { if (live) { setRooms([]); setFailed(true); } });
     return () => { live = false; };
-  }, [role, docId]);
+  }, [role, docId, reloadAt]);
 
   if (rooms === null) {
     return (
@@ -84,6 +90,17 @@ export default function RoomList({
           ))}
         </div>
       </section>
+    );
+  }
+
+  // A FAILURE IS NOT AN EMPTY HOTEL. Rooms genuinely absent render nothing,
+  // which is right: the services list below is the way in. Rooms that would
+  // not LOAD say so, with a way to try again.
+  if (failed) {
+    return (
+      <div className="border-t border-line">
+        <LoadError what="the rooms here" onRetry={() => setReloadAt(Date.now())} />
+      </div>
     );
   }
 

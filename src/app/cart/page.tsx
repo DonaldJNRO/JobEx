@@ -26,6 +26,7 @@ import { loadCart, payCart, type Cart } from "@/lib/cart";
 import PayStep, { canPay } from "@/components/PayStep";
 import { useMoney } from "@/lib/useRates";
 import { formatPriceWithCurrency, buildDisplayPrice } from "@/lib/display-price";
+import LoadError from "@/components/ui/LoadError";
 
 function CartContents() {
   const { user, loading } = useAuth();
@@ -35,6 +36,8 @@ function CartContents() {
 
   const [trips, setTrips] = useState<Trip[] | null>(null);
   const [cart, setCart] = useState<Cart | null>(null);
+  const [cartFailed, setCartFailed] = useState(false);
+  const [cartReloadAt, setCartReloadAt] = useState(0);
   const [busy, setBusy] = useState(false);
   const [secret, setSecret] = useState<string | null>(null);
   const [paid, setPaid] = useState(false);
@@ -72,13 +75,20 @@ function CartContents() {
   useEffect(() => {
     if (!tripId) return;
     let live = true;
-    loadCart(tripId).then((c) => { if (live) setCart(c); }).catch(() => { if (live) setCart(null); });
+    // AN EMPTY BASKET IS NOT A FAILED READ. This set null on a failure,
+    // which renders the same "nothing in here" as a genuinely empty cart,
+    // to somebody who may have put things in it. The worst version of that
+    // is the traveller who adds everything again.
+    setCartFailed(false);
+    loadCart(tripId)
+      .then((c) => { if (live) setCart(c); })
+      .catch(() => { if (live) { setCart(null); setCartFailed(true); } });
     return () => { live = false; };
-  }, [tripId]);
+  }, [tripId, cartReloadAt]);
 
   if (loading || !user) return null;
 
-  const empty = trips?.length === 0 || (cart && cart.items.length === 0);
+  const empty = !cartFailed && (trips?.length === 0 || (cart && cart.items.length === 0));
 
   return (
     <main className="min-h-screen bg-surface">
@@ -89,6 +99,10 @@ function CartContents() {
           <div className="mt-8 space-y-3" aria-busy="true">
             {[0, 1].map((i) => <Skeleton key={i} className="h-28" />)}
           </div>
+        )}
+
+        {cartFailed && (
+          <LoadError what="your basket" onRetry={() => setCartReloadAt(Date.now())} />
         )}
 
         {empty && (

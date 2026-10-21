@@ -24,6 +24,7 @@ import { offersOf } from "@/lib/shop-window";
 import { resolveProfileSections, CTA_LABEL } from "@/lib/profile-sections";
 import type { ListingSnapshot } from "@/lib/listing-snapshot";
 import BookingRequest from "@/components/BookingRequest";
+import LoadError from "@/components/ui/LoadError";
 
 const AMENITY_ICONS: Record<string, typeof Wifi> = {
   wifi: Wifi, parking: Car, pool: Waves, coffee: Coffee, security: Shield,
@@ -40,6 +41,8 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
   // moment before that lands.
   const [listing, setListing] = useState<Listing | null>((snapshot as Listing) ?? null);
   const [loading, setLoading] = useState(!snapshot);
+  const [loadFailed, setLoadFailed] = useState(false);
+  const [reloadAt, setReloadAt] = useState(0);
   const [currentImage, setCurrentImage] = useState(0);
   // SWIPE, BECAUSE THE ARROWS ARE DESKTOP ONLY. They are hidden below sm to
   // keep a chevron off the business name, which left the dots as the only
@@ -90,6 +93,7 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
   useEffect(() => {
     if (!id) return;
     setLoading(true);
+    setLoadFailed(false);
     setCurrentImage(0);
     setImageLoaded(false);
     resolveListing(id)
@@ -104,9 +108,15 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
         if (!resolved.canonical) router.replace(`/listing/${resolved.slug}`, { scroll: false });
         getFeaturedListings(4).then(setSimilarListings).catch(() => {});
       })
-      .catch(() => setListing(null))
+      // A DROPPED CONNECTION IS NOT A DELETED BUSINESS. This caught every
+      // failure into null, and null renders "Listing not found. This
+      // listing may have been removed." So a Firestore blip, or a Lagos
+      // mobile signal dropping for a second, told a traveller that a real
+      // operator does not exist. Of the three places this sweep found, it
+      // is the only one that makes a false claim about somebody's business.
+      .catch(() => { setListing(null); setLoadFailed(true); })
       .finally(() => setLoading(false));
-  }, [id, router]);
+  }, [id, router, reloadAt]);
 
 
 
@@ -176,6 +186,9 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
   if (!listing) {
     return (
       <div className="min-h-screen bg-surface flex items-center justify-center">
+        {loadFailed ? (
+          <LoadError what="this listing" onRetry={() => setReloadAt(Date.now())} />
+        ) : (
         <div className="text-center">
           <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
             <MapPin size={32} className="text-primary/40" />
@@ -186,6 +199,7 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
             Browse Listings
           </Link>
         </div>
+        )}
       </div>
     );
   }
