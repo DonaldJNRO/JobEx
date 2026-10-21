@@ -50,7 +50,9 @@ function toMessage(id: string, d: DocumentData): ChatMessage {
     senderId: typeof d.senderId === "string" ? d.senderId : "",
     senderName: typeof d.senderName === "string" ? d.senderName : "Traveller",
     type: typeof d.type === "string" ? d.type : "text",
-    timestamp: d.timestamp ?? null,
+    // sentAt FIRST. The app writes both and orders by sentAt; this file
+    // read only `timestamp`, which 510 of 2,081 messages carry.
+    timestamp: d.sentAt ?? d.timestamp ?? null,
     imageUrl: typeof d.imageUrl === "string" ? d.imageUrl : null,
   };
 }
@@ -71,9 +73,22 @@ export function watchMessages(
   // to "trip" so every existing caller is unchanged.
   kind: ConversationKind = "trip",
 ): Unsubscribe {
+  // ORDER BY sentAt, WHICH IS THE FIELD THAT EXISTS.
+  //
+  // FIRESTORE DROPS ANY DOCUMENT MISSING THE orderBy FIELD. Not sorts it
+  // last: omits it from the result entirely. This ordered by `timestamp`,
+  // which 510 of 2,081 messages carry, while the app writes and orders by
+  // `sentAt`, which 2,076 carry.
+  //
+  // Measured 21 Oct 2026, across every conversation of ten messages or
+  // more: THE WEBSITE COULD SEE 22 PERCENT OF THEM AND THE APP SAW 100.
+  // The longest thread has 1,094 messages and the website rendered 116. One
+  // 67-message conversation rendered two. Nothing errored, nothing logged,
+  // and the thread looked like a short conversation rather than a broken
+  // read, which is why it survived a redesign of this very screen.
   const q = query(
     collection(db, ...messagesPath(kind, tripId)),
-    orderBy("timestamp", "asc"),
+    orderBy("sentAt", "asc"),
     limitToLast(PAGE),
   );
   return onSnapshot(
@@ -122,6 +137,11 @@ export async function sendMessage(
     type: "text",
     senderId: sender.id,
     senderName: sender.name,
+    // BOTH FIELDS, as the app's ChatScreen writes both. sentAt is what
+    // every reader orders by; timestamp is kept so nothing older that still
+    // reads it loses sight of a web-sent message. A message written with
+    // only one of them is invisible to whichever surface sorts by the other.
+    sentAt: serverTimestamp(),
     timestamp: serverTimestamp(),
     // The sender has by definition seen and received their own message.
     seenBy: { [sender.id]: true },
