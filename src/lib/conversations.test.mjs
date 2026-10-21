@@ -134,7 +134,10 @@ ok(/keyOf\(c\)/.test(PAGE), "every row's link carries its kind, so a chat id can
 ok(/trip\.kind/.test(THREAD), "the thread reads whichever collection its conversation names");
 ok(/watchMessages\(trip\.id, setMessages, trip\.kind\)/.test(THREAD), "including for its messages");
 ok(/markTripRead\(trip\.id, me\.id, trip\.kind\)/.test(THREAD), "and clears the badge on the right document");
-ok(/sendMessage\(trip\.id, me, body, trip\.memberIds, trip\.kind\)/.test(THREAD), "and replies into it");
+// The send now carries a clientMessageId too, so the sender's own screen can
+// show the message before the server has it and drop the local copy when
+// that very document arrives back.
+ok(/sendMessage\(trip\.id, me, body, trip\.memberIds, trip\.kind, cid\)/.test(THREAD), "and replies into it");
 
 // BOTH SPELLINGS OF THE LAST SENDER. A trip names it lastMessageSenderName;
 // a chat names it senderName, and that is what the mobile app's inbox reads.

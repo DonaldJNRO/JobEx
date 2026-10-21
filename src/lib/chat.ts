@@ -39,6 +39,12 @@ export interface ChatMessage {
   imageUrl?: string | null;
   /** True while this one is only in the browser, not yet acknowledged. */
   pending?: boolean;
+  /** It did not send. Still on screen, with a way to try again. */
+  failed?: boolean;
+  /** The sender's own id, which joins a local copy to the document that
+   *  comes back. Matching on text instead would make the second of two
+   *  identical messages vanish when the first arrived. */
+  clientMessageId?: string | null;
 }
 
 const PAGE = 60;
@@ -54,6 +60,7 @@ function toMessage(id: string, d: DocumentData): ChatMessage {
     // read only `timestamp`, which 510 of 2,081 messages carry.
     timestamp: d.sentAt ?? d.timestamp ?? null,
     imageUrl: typeof d.imageUrl === "string" ? d.imageUrl : null,
+    clientMessageId: typeof d.clientMessageId === "string" ? d.clientMessageId : null,
   };
 }
 
@@ -124,6 +131,8 @@ export async function sendMessage(
   text: string,
   memberIds: string[],
   kind: ConversationKind = "trip",
+  /** The sender's own id for this message. See the note at the write. */
+  clientMessageId?: string | null,
 ): Promise<void> {
   const body = text.trim();
   if (!body) return;
@@ -148,6 +157,12 @@ export async function sendMessage(
     deliveredTo: { [sender.id]: true },
     // Where it came from, the same way bookingDetails.source names the web.
     source: "web",
+    // THE SENDER'S OWN ID FOR THIS MESSAGE, so their screen can show it
+    // before the server has it and drop its local copy when this very
+    // document arrives back. 1,456 of 2,081 production messages already
+    // carry one, written by the app, so this is the field both surfaces
+    // agree on rather than a web invention.
+    clientMessageId: clientMessageId ?? null,
   });
   // merge, because the parent already exists and this must not clobber it.
   //

@@ -26,6 +26,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { addToTrip } from "@/lib/cart";
 import { fetchBookingDecision, ASK, type BookingDecision } from "@/lib/booking-decision";
 import { buildDisplayPrice, formatPriceWithCurrency, billDecimals } from "@/lib/display-price";
+import { watchBookingCode, type CodeState } from "@/lib/booking-code";
 import PayStep, { canPay } from "./PayStep";
 import Button from "./ui/Button";
 import { ROW_ACTION, ROW, fieldClass, cardClass } from "@/lib/ui-recipes";
@@ -307,6 +308,17 @@ export default function BookingRequest({
   })();
   const priceUnit = priceUnitShort;
 
+  // THE CODE IS MINTED BY THE STRIPE WEBHOOK, not by this form, so it does
+  // not exist when this screen first draws. Watch for it rather than invent
+  // one. See src/lib/booking-code.ts for the whole story.
+  const [codeState, setCodeState] = useState<CodeState>({ status: "waiting" });
+  useEffect(() => {
+    const id = intent?.bookingRequestId;
+    if (!paid || !id) return;
+    setCodeState({ status: "waiting" });
+    return watchBookingCode(id, setCodeState);
+  }, [paid, intent?.bookingRequestId]);
+
   const chargeable = willCharge && fee.fee > 0;
 
   // ONE PRECISION ACROSS THE WHOLE BILL, chosen by whichever line needs the
@@ -440,10 +452,34 @@ export default function BookingRequest({
             <p className="text-small text-ink-muted mb-1">
               {business} has your booking for {date ? readableDate(date) : ""}{time ? ` at ${time}` : ""}.
             </p>
-            <p className="text-small text-ink-muted mb-4">
-              Your booking reference is <span className="font-semibold text-ink">{intent?.bookingRequestId?.slice(0, 8).toUpperCase()}</span>.
-              Show it when you arrive. We have emailed it to you.
-            </p>
+            {/* THE REAL CODE, OR AN HONEST WAIT.
+                This printed eight characters of the Firestore document id
+                and called it a booking reference. The operator's till and
+                the app's My Bookings both read publicCode, so a traveller
+                arrived with 1U2BO0BF while the operator looked for
+                SAB-R-DEMO1. The two strings had nothing to do with
+                each other. */}
+            {codeState.status === "ready" ? (
+              <div className="mb-4 rounded-2xl border border-line bg-surface-sunken px-4 py-3">
+                <p className="text-caption text-ink-muted">Booking code</p>
+                <p className="text-title font-bold tracking-wide text-ink">{codeState.code}</p>
+                <p className="mt-1 text-caption text-ink-muted">
+                  Show this when you arrive. We have emailed it to you.
+                </p>
+              </div>
+            ) : codeState.status === "waiting" ? (
+              <p className="text-small text-ink-muted mb-4" aria-live="polite">
+                Your booking code is being issued. It will appear here in a moment, and we are emailing it to you.
+              </p>
+            ) : (
+              /* The booking is real, paid and with the operator. Only this
+                 screen could not show the code in time, so it says that
+                 rather than filling the gap with a string that matches
+                 nothing. */
+              <p className="text-small text-ink-muted mb-4">
+                Your booking code is on its way by email. {business} already has your booking.
+              </p>
+            )}
             <p className="text-caption text-ink-muted">
               Sabię holds your money until after your visit.
             </p>

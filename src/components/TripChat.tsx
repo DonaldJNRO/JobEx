@@ -14,9 +14,12 @@
 // tick for delivered against two for seen. An operator and a traveller
 // looking at the same conversation should be looking at the same object.
 
-import { useEffect, useRef, useState } from "react";
-import { Send, Loader2, Check, CheckCheck, MessageSquare } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Send, Loader2, Check, CheckCheck, Clock, MessageSquare } from "lucide-react";
 import { watchMessages, sendMessage, markTripRead, type ChatMessage } from "@/lib/chat";
+import {
+  queue, markFailed, markSending, reconcile, retryable, newClientMessageId, type Pending,
+} from "@/lib/outbox";
 import { tripAvatar } from "@/lib/trip-visual";
 import type { Conversation } from "@/lib/conversations";
 
@@ -43,7 +46,9 @@ export default function TripChat({
 }) {
   const [messages, setMessages] = useState<ChatMessage[] | null>(null);
   const [draft, setDraft] = useState("");
-  const [sending, setSending] = useState(false);
+  const [pending, setPending] = useState<Pending[]>([]);
+  const pendingRef = useRef<Pending[]>([]);
+  pendingRef.current = pending;
   const bottom = useRef<HTMLDivElement>(null);
   const first = useRef(true);
 
@@ -58,21 +63,55 @@ export default function TripChat({
     first.current = false;
   }, [messages?.length]);
 
+  // OPTIMISTIC, BECAUSE A SECOND OF SILENCE READS AS BEING IGNORED.
+  //
+  // This awaited the round trip and showed nothing until it came back. On
+  // the mobile data travellers and reps actually use that is a thread that
+  // appears to have swallowed you, and the only sign of failure was the
+  // text reappearing in the box with no explanation.
+  //
+  // The message goes on the screen first, carrying a clientMessageId, and
+  // its local copy is dropped when the very document it became arrives
+  // through onSnapshot. See src/lib/outbox.ts for why that id exists and
+  // why matching on text instead would be wrong.
+  const deliver = useCallback(async (body: string, cid: string) => {
+    try {
+      await sendMessage(trip.id, me, body, trip.memberIds, trip.kind, cid);
+    } catch {
+      setPending((list) => markFailed(list, cid));
+    }
+  }, [trip.id, trip.memberIds, trip.kind, me]);
+
   const send = async (e: React.FormEvent) => {
     e.preventDefault();
     const body = draft.trim();
-    if (!body || sending) return;
-    setSending(true);
+    if (!body) return;
+    const cid = newClientMessageId();
     setDraft("");
-    try {
-      await sendMessage(trip.id, me, body, trip.memberIds, trip.kind);
-    } catch {
-      // Put it back rather than losing what they typed.
-      setDraft(body);
-    } finally {
-      setSending(false);
-    }
+    setPending((list) => [...list, queue(body, cid)]);
+    await deliver(body, cid);
   };
+
+  const retry = useCallback((cid: string) => {
+    const item = pendingRef.current.find((p) => p.clientMessageId === cid);
+    if (!item) return;
+    setPending((list) => markSending(list, cid));
+    void deliver(item.text, cid);
+  }, [deliver]);
+
+  // A RECONNECT REPLAYS WHAT FAILED, oldest first, so a thread that went out
+  // while the signal dropped arrives in the order it was typed.
+  useEffect(() => {
+    const onBack = () => retryable(pendingRef.current).forEach(retry);
+    window.addEventListener("online", onBack);
+    return () => window.removeEventListener("online", onBack);
+  }, [retry]);
+
+  // Dropped as soon as the server echoes each one back.
+  useEffect(() => {
+    if (!messages?.length) return;
+    setPending((list) => reconcile(list, messages));
+  }, [messages]);
 
   const avatar = tripAvatar(trip.title, trip.id);
   let lastDay = "";
@@ -111,7 +150,25 @@ export default function TripChat({
           )}
 
           <div className="space-y-2">
-            {(messages ?? []).map((m, i) => {
+            {/* THE THREAD, PLUS WHAT HAS NOT LANDED YET. A pending message
+                is a real ChatMessage with pending or failed on it, so every
+                bubble below renders it the same way and only the tail
+                differs. Appended, never merged by time: they are by
+                definition the newest thing in the conversation. */}
+            {[
+              ...(messages ?? []),
+              ...pending.map((q): ChatMessage => ({
+                id: q.clientMessageId,
+                text: q.text,
+                senderId: me.id,
+                senderName: me.name,
+                type: "text",
+                timestamp: { toMillis: () => q.at },
+                clientMessageId: q.clientMessageId,
+                pending: q.state === "sending",
+                failed: q.state === "failed",
+              })),
+            ].map((m, i) => {
               const mine = m.senderId === me.id;
               const ms = msOf(m);
               const day = ms ? new Date(ms).toDateString() : "";
@@ -140,16 +197,33 @@ export default function TripChat({
                       {!mine && !grouped && (
                         <p className="mb-0.5 text-caption font-semibold text-ink-muted">{m.senderName}</p>
                       )}
-                      <p className="whitespace-pre-wrap break-words leading-relaxed">{m.text}</p>
+                      <p className={`whitespace-pre-wrap break-words leading-relaxed ${m.pending ? "opacity-70" : ""}`}>{m.text}</p>
                       <div className={`mt-0.5 flex items-center gap-1 ${mine ? "justify-end" : "justify-start"}`}>
                         <span className={`text-caption tabular-nums ${mine ? "text-white/60" : "text-ink-faint"}`}>
                           {timeOf(m)}
                         </span>
-                        {mine && (
+                        {/* FOUR STATES, NOT TWO. Sending, failed, delivered,
+                            seen. A clock means it is still going; a tick
+                            means the server has it. Collapsing the first two
+                            into "no tick yet" is how a message that never
+                            left looks exactly like one that did. */}
+                        {mine && m.failed ? (
+                          <button
+                            type="button"
+                            onClick={() => retry(m.clientMessageId as string)}
+                            className="text-caption font-semibold text-white underline underline-offset-2"
+                          >
+                            Not sent. Tap to retry
+                          </button>
+                        ) : mine && m.pending ? (
+                          <span className="text-white/60" aria-label="Sending">
+                            <Clock className="h-3 w-3" />
+                          </span>
+                        ) : mine ? (
                           <span className="text-white/60">
                             {seen ? <CheckCheck className="h-3 w-3" /> : <Check className="h-3 w-3" />}
                           </span>
-                        )}
+                        ) : null}
                       </div>
                     </div>
                   </div>
@@ -171,11 +245,11 @@ export default function TripChat({
         />
         <button
           type="submit"
-          disabled={!draft.trim() || sending}
+          disabled={!draft.trim()}
           aria-label="Send"
           className="shrink-0 rounded-xl bg-primary px-4 text-white disabled:opacity-40"
         >
-          {sending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
+          <Send className="h-5 w-5" />
         </button>
       </form>
     </div>
