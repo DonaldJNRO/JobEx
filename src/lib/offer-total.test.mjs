@@ -57,5 +57,35 @@ const live = src
 ok(/offerTotal\(/.test(live), "BookingRequest calls offerTotal");
 ok(!/unit \* Math\.max\(1, guests\)/.test(live), "and no longer multiplies the unit by the head count");
 
+// ── an operator can now SAY what the price covers ───────────────────────
+// Measured 21 Oct 2026: 159 services carried a price and not one said what
+// it was for. No field existed and no name contained "per person", so every
+// price was read as per booking. That default is the safe one and it stays:
+// a service whose unit nobody has set is charged exactly as listed, so
+// adding this field changes no existing charge.
+console.log("\na declared unit beats a word in the name");
+// "Spa day for one person" is a per BOOKING price with "person" in it,
+// which is exactly the case a name cannot settle and a field can.
+ok(offerTotal("Spa day for one person", 100, 3).amount === 300,
+  "the name alone still multiplies, right or wrong");
+ok(offerTotal("Spa day for one person", 100, 3, "booking").amount === 100,
+  "a declared booking unit overrules it");
+ok(offerTotal("Spa day for one person", 100, 3, "booking").unit === "booking",
+  "and the screen is told which it was");
+ok(offerTotal("Skate Nights", 11, 5, "per person").amount === 55,
+  "a declared person unit multiplies");
+
+console.log("\nand no unit is still the safe default");
+ok(offerTotal("Skate Nights", 11, 5).amount === 11,
+  "charged as listed, which is what the 159 already were");
+ok(offerTotal("Skate Nights", 11, 5).unit === null,
+  "and the screen knows nobody has said");
+
+console.log("\na rate is still a rate");
+ok(offerTotal("Room", 50, 2, "per night").isRate === true,
+  "a declared nightly price is a rate this form cannot total");
+ok(offerTotal("Room", 50, 2, "per night").amount === 50,
+  "and shows the rate rather than a guess");
+
 console.log(fails ? `\n${fails} FAILED\n` : "\nALL PASSED\n");
 process.exit(fails ? 1 : 0);

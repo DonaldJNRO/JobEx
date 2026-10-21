@@ -36,14 +36,18 @@ export function isShopWindow(slug: string | null | undefined): boolean {
 export interface Offer {
   name: string;
   price?: number;
+  /** What this price covers, where the operator said. Carried from the
+   *  SERVICE first and the listing second, because a listing priced per
+   *  night can still sell a per person add-on. */
+  pricingUnit?: string | null;
 }
 
 interface RawTier { label?: unknown; price?: unknown }
 interface RawOfferRow { name?: string; price?: unknown; tiers?: unknown }
 
 export interface OfferSource {
-  services?: { name?: string; price?: number }[];
-  packages?: { name?: string; price?: number }[];
+  services?: { name?: string; price?: number; pricingUnit?: string | null }[];
+  packages?: { name?: string; price?: number; pricingUnit?: string | null }[];
   customPrice?: { price?: number };
   pricingUnit?: string;
 }
@@ -284,14 +288,20 @@ export function offersOf(l: OfferSource): Offer[] {
     // `r.price` left all seventeen of Naileditbyd's services with no price in
     // the dropdown: the guest picked "plain short" and was shown nothing, and
     // the request reached the operator with totalPrice undefined.
+    // THE SERVICE'S OWN UNIT FIRST, the listing's second. A stay priced
+    // per night can still sell a per person breakfast, and the row knows
+    // which it is where the listing cannot.
+    const rowUnit = (r as { pricingUnit?: string | null }).pricingUnit
+      ?? (l as { pricingUnit?: string | null }).pricingUnit
+      ?? null;
     if (priced.length > 1) {
       // Genuinely different choices at different prices, so they are
       // different offers. Gel nails are 12,000 short and 14,000 medium.
-      for (const t of priced) out.push({ name: t.label ? `${name} (${t.label})` : name, price: t.price });
+      for (const t of priced) out.push({ name: t.label ? `${name} (${t.label})` : name, price: t.price, pricingUnit: rowUnit });
     } else if (priced.length === 1) {
-      out.push({ name, price: priced[0].price });
+      out.push({ name, price: priced[0].price, pricingUnit: rowUnit });
     } else if (Number.isFinite(own) && own > 0) {
-      out.push({ name, price: own });
+      out.push({ name, price: own, pricingUnit: rowUnit });
     } else {
       // Named but unpriced. Still bookable: the operator says what it costs
       // when they accept, which is what "ask to book" means.

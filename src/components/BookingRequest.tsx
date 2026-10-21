@@ -228,7 +228,9 @@ export default function BookingRequest({
   const stayNights = checkOut ? nightsBetween(date, checkOut) : 0;
   const stayBits = stayNights > 0 ? { checkOut, nights: stayNights } : {};
 
-  const { amount: rawTotal, isRate } = offerTotal(chosen?.name, unit, guests);
+  const { amount: rawTotal, isRate, unit: priceCovers } = offerTotal(
+    chosen?.name, unit, guests, chosen?.pricingUnit,
+  );
   // A NIGHTLY RATE TIMES THE NIGHTS, now that there are nights.
   //
   // offerTotal returns undefined for a per-night price, and it was right to:
@@ -974,11 +976,25 @@ export default function BookingRequest({
                     {cancellationLine()} {OPERATOR_CANCELS}
                   </p>
 
-                  {guests > 1 && !priceUnitShort && (
+                  {/* WHAT THE PRICE COVERS, now that an operator can say.
+                      159 services carried a price and not one said what it
+                      was for, so "5 people" over "Total 12" was a figure
+                      nobody could look up. Where the operator HAS said, this
+                      says it back. Where they have not, it still says only
+                      the thing that is certain. */}
+                  {priceCovers === "person" ? (
+                    <p className="mt-1.5 text-caption text-ink-muted">
+                      Priced per person, so this covers {guests === 1 ? "one guest" : `all ${guests}`}.
+                    </p>
+                  ) : priceCovers === "booking" ? (
+                    <p className="mt-1.5 text-caption text-ink-muted">
+                      Priced per booking, so this covers the whole party.
+                    </p>
+                  ) : guests > 1 ? (
                     <p className="mt-1.5 text-caption text-ink-muted">
                       Your party of {guests} goes to the operator with the booking.
                     </p>
-                  )}
+                  ) : null}
                   {/* The "about N5,000" line under the total is gone. The
                       figure a visitor is committing to is the one in their
                       own money, and a second currency beside it read as two

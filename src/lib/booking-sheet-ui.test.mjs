@@ -137,8 +137,14 @@ ck(/per \$\{m\[1\]\}/.test(SHEET),
 // unit, nor says "per person" in its name. So "5 people" over "Total 12"
 // is a figure nobody can look up. Multiplying would overcharge a flat
 // session fee; silence sends a per head booking up short at the door.
-ck(/guests > 1 && !priceUnitShort/.test(SHEET),
-  "a party with no unit on the price gets told where the headcount goes");
+// AN OPERATOR CAN SAY IT NOW, so the screen says it back. Where nobody has
+// said, it still says only the thing that is certain: the headcount reaches
+// the operator. Guessing either way would overcharge a flat fee or send a
+// per head booking up short.
+ck(/priceCovers === "person"/.test(SHEET), "a per person price says it covers the party");
+ck(/priceCovers === "booking"/.test(SHEET), "a per booking price says it covers the whole party");
+ck(/\) : guests > 1 \?/.test(SHEET),
+  "and with no unit set, a party is still told where the headcount goes");
 ck(/goes to the operator with the booking/.test(SHEET),
   "which is the one thing about it that is certain");
 
