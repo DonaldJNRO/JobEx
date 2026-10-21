@@ -239,6 +239,35 @@ export function getCategoryLabel(role: string): string {
   return categoryLabelOf(role) || role;
 }
 
+/**
+ * THE WHOLE PUBLIC CATALOGUE, for a page that FILTERS.
+ *
+ * getFeaturedListings samples: it reads at most
+ * ceil(count / 6) * 2 documents PER ROLE, shuffles, and slices to `count`.
+ * At count 40 that is 14 per role against 30 food listings, then a random
+ * 40 of whatever survived.
+ *
+ * That is right for a featured strip and WRONG for anything that then
+ * narrows by city, because the narrowing runs on a sample. Nita Cocktails
+ * is the only listing in Nottingham: it appeared if the sample happened to
+ * include it and the city read as empty if it did not. Same for Bamako,
+ * Nouakchott and London's two, which is every thin city on the platform.
+ *
+ * Filtering a sample and calling the result a city is the bug this family
+ * keeps repeating: a users list of 200 against a cap of 100 did it, and so
+ * did a search that read 100 rows and reported "no results".
+ *
+ * 63 documents is a trivial read. WHEN THE CATALOGUE OUTGROWS ONE FETCH,
+ * this becomes a per-city query rather than a bigger sample, because a
+ * bigger sample has exactly the same bug further out.
+ */
+export async function getPublicCatalogue(): Promise<Listing[]> {
+  const all = await getAllListings();
+  return all
+    .filter((l) => (l as { imageUrls?: unknown[] }).imageUrls?.length || (l as { coverImage?: string }).coverImage)
+    .filter(isPublicListing);
+}
+
 // Fetch featured listings from all collections
 export async function getFeaturedListings(count: number = 12): Promise<Listing[]> {
   const all: Listing[] = [];

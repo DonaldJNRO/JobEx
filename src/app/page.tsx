@@ -33,7 +33,7 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import { MapPin, Search, X } from "lucide-react";
 import AppStrip from "@/components/AppStrip";
 import MasonryFeed from "@/components/MasonryFeed";
-import { getFeaturedListings, listingPlace, categoryOf, categoryLabelOf, getListingImage, getListingPriceParts, CATEGORY_IDS, CATEGORY_LABELS, Listing } from "@/lib/listings";
+import { getPublicCatalogue, listingPlace, categoryOf, categoryLabelOf, getListingImage, getListingPriceParts, CATEGORY_IDS, CATEGORY_LABELS, Listing } from "@/lib/listings";
 import { getKnownCities, inCity, areaIndexFrom, type KnownCity } from "@/lib/listings";
 import CityPicker from "@/components/CityPicker";
 import { matchesSearch } from "@/lib/listing-search";
@@ -60,7 +60,7 @@ export default function HomePage() {
   const load = useCallback(() => {
     setFailed(false);
     setLoading(true);
-    getFeaturedListings(40)
+    getPublicCatalogue()
       .then(setListings)
       .catch(() => setFailed(true))
       .finally(() => setLoading(false));
