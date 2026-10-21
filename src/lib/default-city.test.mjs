@@ -55,5 +55,16 @@ if (existsSync(APP)) {
   console.log("  --   sabie-v53-main not on this machine, skipped");
 }
 
+console.log("\nand the list is ordered by what is in it");
+// The cities collection's `order` had London at 2, ahead of Abuja's 12 and
+// Jos's 10, on the strength of TWO listings, plus a tie at 4. A hand-set
+// rank nobody maintains sends people to the emptiest city first.
+ok(/counts\?\.\[b\.id\] \?\? -1\) - \(counts\?\.\[a\.id\] \?\? -1\)/.test(PICKER),
+  "deepest city first, by real count");
+ok(/\(a\.order \?\? 99\) - \(b\.order \?\? 99\)/.test(PICKER),
+  "falling back to the stored order while counts are still arriving");
+ok(/localeCompare/.test(PICKER),
+  "and a stable tiebreak, so the sheet does not reshuffle under a thumb");
+
 console.log(fails ? `\n${fails} FAILED` : "\nALL PASSED");
 process.exit(fails ? 1 : 0);

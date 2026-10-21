@@ -70,7 +70,22 @@ export default function CityPicker({
     };
   }, [open]);
 
-  const live = cities.filter((c) => !c.status || c.status === "live");
+  // ORDERED BY WHAT IS ACTUALLY THERE, not by the collection's `order`
+  // field. That field had London at 2, ahead of Abuja's 12 and Jos's 10,
+  // on the strength of two listings, and a tie at 4 between Bamako and
+  // Jos. Nobody maintains it, and a hand-set rank that disagrees with the
+  // catalogue is a rank that sends people to the emptiest city first.
+  //
+  // Falls back to `order` when counts are not in yet, so the sheet never
+  // reshuffles under somebody's thumb as the feed arrives.
+  const live = cities
+    .filter((c) => !c.status || c.status === "live")
+    .slice()
+    .sort((a, b) => {
+      const byDepth = (counts?.[b.id] ?? -1) - (counts?.[a.id] ?? -1);
+      if (byDepth) return byDepth;
+      return (a.order ?? 99) - (b.order ?? 99) || a.name.localeCompare(b.name);
+    });
   const current = live.find((c) => c.id === selected);
 
   return (
