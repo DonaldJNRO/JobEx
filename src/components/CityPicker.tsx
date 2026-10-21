@@ -28,10 +28,23 @@ export default function CityPicker({
   cities,
   selected,
   onSelect,
+  counts,
 }: {
   cities: KnownCity[];
   selected: string | null;
   onSelect: (cityId: string | null) => void;
+  /**
+   * HOW MANY PLACES ARE ACTUALLY THERE, by city id.
+   *
+   * London sits at order 2 in the cities collection, second after Lagos,
+   * and has two listings behind it. A picker that shows six equal rows
+   * sends somebody into a city with nothing in it and lets them find out
+   * afterwards, which is the slowest possible way to learn it.
+   *
+   * Saying the number on the row costs nothing and is the same honesty the
+   * uncovered-country policy already applies to trips.
+   */
+  counts?: Record<string, number>;
 }) {
   const [open, setOpen] = useState(false);
   const panel = useRef<HTMLDivElement>(null);
@@ -121,7 +134,14 @@ export default function CityPicker({
                     >
                       {flag && <span className="text-title leading-none" aria-hidden="true">{flag}</span>}
                       <span className="min-w-0 flex-1">
-                        <span className="block text-heading font-bold text-ink">{c.name}</span>
+                        <span className="flex items-baseline gap-2">
+                          <span className="text-heading font-bold text-ink">{c.name}</span>
+                          {counts && (
+                            <span className="text-caption text-ink-muted">
+                              {counts[c.id] === 1 ? "1 place" : `${counts[c.id] ?? 0} places`}
+                            </span>
+                          )}
+                        </span>
                         {!!c.categories?.length && (
                           <span className="mt-1.5 flex flex-wrap gap-1.5">
                             {c.categories.map((id) => (

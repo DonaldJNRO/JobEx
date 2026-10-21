@@ -132,6 +132,25 @@ export interface CityOption {
  * A city as the shared `cities` collection records it, which is the same
  * source Scout's picker and admin read. Only the two fields this needs.
  */
+/**
+ * WHERE SABIĘ OPENS, WHEN NOBODY HAS SAID OTHERWISE.
+ *
+ * The app has had this since it shipped: GridHomeScreen's DEFAULT_CITY is
+ * 'Lagos'. The website had the picker and the filtering and no default, so
+ * it opened on every city at once, which is a different product from the
+ * one the phone sells.
+ *
+ * Lagos because that is where the inventory is, measured 21 Oct 2026:
+ * 31 of 62 listings are in Lagos, 54 of 62 are in Nigeria, and the four in
+ * the UK carry no services between them. Airbnb opens where YOU are
+ * because Airbnb has listings where you are. Opening on a visitor's own
+ * city here would show somebody in Nottingham a shop with nothing in it.
+ *
+ * It is a default, not a cage: the picker is the first control on the page
+ * and a choice is remembered.
+ */
+export const DEFAULT_CITY_ID = "lagos";
+
 export interface KnownCity {
   /** Document id: "lagos", "port-harcourt". */
   id: string;

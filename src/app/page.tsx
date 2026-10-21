@@ -38,6 +38,7 @@ import { getKnownCities, inCity, areaIndexFrom, type KnownCity } from "@/lib/lis
 import CityPicker from "@/components/CityPicker";
 import { matchesSearch } from "@/lib/listing-search";
 import { useReveal } from "@/lib/useReveal";
+import { DEFAULT_CITY_ID } from "@/lib/listing-place";
 
 // Built from the one table, not typed out again. A pill whose id no filter
 // recognises is the same failure as a row heading that leads nowhere.
@@ -86,23 +87,50 @@ export default function HomePage() {
     const c = new URLSearchParams(window.location.search).get("category");
     if (c) setTab(c);
   }, []);
+  // The sentinel for a deliberate "everywhere", so it survives a reload.
+  const ALL_CITIES = "__all__";
   const [cities, setCities] = useState<KnownCity[]>([]);
   const [city, setCity] = useState<string | null>(null);
 
   useEffect(() => { getKnownCities().then(setCities).catch(() => {}); }, []);
 
+  // LAGOS UNLESS SOMEBODY HAS SAID OTHERWISE, which is what the app does
+  // and the website did not. This opened on every city at once, so the two
+  // front doors sold different products.
+  //
+  // The saved choice still wins, and "All cities" is a real saved choice:
+  // it is stored as a sentinel rather than by removing the key, or somebody
+  // who deliberately chose to see everything would be put back in Lagos on
+  // their next visit.
   useEffect(() => {
     try {
       const saved = window.localStorage.getItem("sabie.city");
-      if (saved) setCity(saved);
-    } catch { /* private window, or storage blocked */ }
+      if (saved === ALL_CITIES) { setCity(null); return; }
+      setCity(saved || DEFAULT_CITY_ID);
+    } catch {
+      // A private window cannot remember, so it gets the default rather
+      // than the whole catalogue.
+      setCity(DEFAULT_CITY_ID);
+    }
   }, []);
+
+  // WHAT IS ACTUALLY IN EACH CITY, counted from the feed we already hold
+  // rather than fetched again. A city row that says "2 places" is the
+  // cheapest possible version of the uncovered-country honesty: it is said
+  // BEFORE somebody picks, not after.
+  const cityCounts = useMemo(() => {
+    const idx = areaIndexFrom(listings);
+    const out: Record<string, number> = {};
+    for (const c of cities) {
+      out[c.id] = listings.filter((l) => inCity(l, c.id, cities, idx)).length;
+    }
+    return out;
+  }, [listings, cities]);
 
   const pickCity = (id: string | null) => {
     setCity(id);
     try {
-      if (id) window.localStorage.setItem("sabie.city", id);
-      else window.localStorage.removeItem("sabie.city");
+      window.localStorage.setItem("sabie.city", id ?? ALL_CITIES);
     } catch { /* the choice still applies to this visit */ }
   };
 
@@ -167,7 +195,7 @@ export default function HomePage() {
       <div data-sticky-filters className="sticky top-16 z-20 border-b border-line bg-surface/95 backdrop-blur">
         <div className="flex flex-wrap items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
           {cities.length > 0 && (
-            <CityPicker cities={cities} selected={city} onSelect={pickCity} />
+            <CityPicker cities={cities} selected={city} onSelect={pickCity} counts={cityCounts} />
           )}
 
           <div className="relative min-w-0 flex-1 sm:max-w-sm">
