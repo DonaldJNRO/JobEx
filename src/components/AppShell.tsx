@@ -52,6 +52,44 @@ const TABS = [
   { href: "/account", label: "Account", icon: User, needsAuth: true },
 ];
 
+/**
+ * IS THE KEYBOARD UP?
+ *
+ * There is no CSS for this that works everywhere. env(keyboard-inset-height)
+ * needs the VirtualKeyboard API, which is Chrome only and has to be opted
+ * into from script anyway, so a few lines of script it is.
+ *
+ * visualViewport is the part of the window you can actually see. When the
+ * keyboard opens it shrinks and the layout viewport does not, so the gap
+ * between them IS the keyboard. 120px rather than zero because the gap is
+ * never quite zero: a browser's own toolbars slide in and out by tens of
+ * pixels as you scroll, and treating that as a keyboard would hide the tab
+ * bar while somebody was only reading.
+ *
+ * The flag goes on <html> so CSS can answer, which keeps the layout in the
+ * stylesheet rather than threading a boolean through every component that
+ * sits above the fold.
+ */
+function useKeyboardFlag() {
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const root = document.documentElement;
+    const read = () => {
+      const covered = window.innerHeight - vv.height;
+      if (covered > 120) root.setAttribute("data-kb", "open");
+      else root.removeAttribute("data-kb");
+    };
+    read();
+    vv.addEventListener("resize", read);
+    return () => {
+      vv.removeEventListener("resize", read);
+      // Leaving it set would hide the tab bar on the next page.
+      root.removeAttribute("data-kb");
+    };
+  }, []);
+}
+
 export default function AppShell({
   children,
   // Passed as a slot rather than imported, so Footer stays a server component
@@ -82,6 +120,7 @@ export default function AppShell({
   // Three questions, not one. See src/lib/app-shell.ts: conflating them is
   // what put a footer under the chat and scrolled the page instead of the
   // thread.
+  useKeyboardFlag();
   const show = showsShell(pathname);
   const bar = showsBottomBar(pathname);
   const withFooter = showsFooter(pathname);
@@ -145,7 +184,7 @@ export default function AppShell({
           bottom padding is the phone bar plus the home indicator under it;
           the footer sits inside this, or the bar covers its last rows. */}
       <div className={show ? "md:pl-56" : undefined}>
-        <div data-chrome={bar ? "body" : undefined} className={bar ? "pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] md:pb-0" : undefined}>
+        <div data-chrome={bar ? "body" : undefined} className={bar ? "pb-[var(--app-bar-h)]" : undefined}>
           {children}
           {/* NO FOOTER ON AN APP SURFACE. A feed you scroll for ever does not
               end in a sitemap, and TikTok, Snapchat and Amazon's own product
@@ -162,6 +201,7 @@ export default function AppShell({
           // A phone in landscape has about 380px of height and this bar
           // plus the navbar were taking a third of it.
           data-chrome="bar"
+          data-app-bar=""
           className="fixed inset-x-0 bottom-0 z-30 flex border-t border-line bg-card pb-[env(safe-area-inset-bottom,0px)] md:hidden"
         >
           {tabs.map((t) => {

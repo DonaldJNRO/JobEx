@@ -551,3 +551,29 @@ input[type="date"], input[type="time"], select {
     position: static;
   }
 }
+
+/* THE BOTTOM BAR'S HEIGHT, AS ONE NUMBER.
+ *
+ * Three places needed it and each carried its own copy: the shell padded the
+ * page by it, the trips column subtracted it, and the bar itself was it. A
+ * number written three times is a number that disagrees with itself, and it
+ * did the moment the keyboard opened.
+ *
+ * WHY THE KEYBOARD MATTERS HERE. The viewport meta says
+ * interactive-widget=resizes-content, so the layout viewport and every dvh
+ * SHRINK when the keyboard appears. The chat column then subtracted a bar
+ * from an already-shrunken window while the shell still padded underneath
+ * it, and the composer ended up floating half a screen above the keyboard
+ * with a band of empty cream below it.
+ *
+ * With the keyboard up the bar is gone, so its height is zero and the whole
+ * shrunken window belongs to the thread and the box you are typing in. From
+ * md the bar does not exist at all and the rail takes over. */
+:root { --app-bar-h: calc(4.5rem + env(safe-area-inset-bottom, 0px)); }
+:root[data-kb="open"] { --app-bar-h: 0px; }
+@media (min-width: 768px) { :root { --app-bar-h: 0px; } }
+
+/* Out of the way while somebody is typing, the way a native app does it.
+   Four tabs between the composer and the keyboard is four tabs nobody can
+   reach and a composer nobody can see. */
+:root[data-kb="open"] [data-app-bar] { display: none; }

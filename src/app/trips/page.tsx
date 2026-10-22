@@ -183,10 +183,12 @@ function TripsInner() {
     // into a chat left no visible way out, and the name of who you were
     // talking to was half gone.
     //
-    // 8.5rem is the navbar plus that bar, and the safe area under it on a
-    // phone. From md the bar is hidden and the rail takes over, so the old
-    // number is right again.
-    <div className="h-[calc(100dvh-8.5rem-env(safe-area-inset-bottom,0px))] overflow-hidden p-0 md:h-[calc(100dvh-4rem)] lg:p-4">
+    // ONE VARIABLE, not a second copy of the number. --app-bar-h is the bar
+    // plus the home indicator under it, zero from md where the rail takes
+    // over, and zero while the keyboard is up: the viewport has already
+    // shrunk by then, so subtracting a bar that is no longer on screen left
+    // the composer floating above a band of empty cream.
+    <div className="h-[calc(100dvh-4rem-var(--app-bar-h))] overflow-hidden p-0 lg:p-4">
       {/* AND CAPPED, like every other page. This was the one surface with no
           width at all, so a two-pane inbox stretched to whatever the monitor
           was: a list column and a thread column each half a 27-inch screen
