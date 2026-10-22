@@ -37,6 +37,22 @@ export interface ChatMessage {
   type: string;
   timestamp: { toMillis?: () => number; seconds?: number } | null;
   imageUrl?: string | null;
+  /**
+   * A MOMENT, which is a picture and not a sentence.
+   *
+   * CameraCreatorScreen writes `type: 'moment'` with the photos under
+   * momentData, and a text of "📸 Shared a Moment" for anywhere that can
+   * only show a line. The website showed only that line, so a thread of
+   * moments read as the same sentence over and over with nothing to look at.
+   *
+   * Two photos, because a moment is taken on both cameras at once: back is
+   * the scene, front is the face.
+   */
+  moment?: {
+    backImageUrl?: string | null;
+    frontImageUrl?: string | null;
+    caption?: string | null;
+  } | null;
   /** True while this one is only in the browser, not yet acknowledged. */
   pending?: boolean;
   /** It did not send. Still on screen, with a way to try again. */
@@ -60,6 +76,17 @@ function toMessage(id: string, d: DocumentData): ChatMessage {
     // read only `timestamp`, which 510 of 2,081 messages carry.
     timestamp: d.sentAt ?? d.timestamp ?? null,
     imageUrl: typeof d.imageUrl === "string" ? d.imageUrl : null,
+    moment: (() => {
+      const m = d.momentData as Record<string, unknown> | undefined;
+      if (!m || typeof m !== "object") return null;
+      const str = (v: unknown) => (typeof v === "string" && v.trim() ? v : null);
+      const back = str(m.backImageUrl);
+      const front = str(m.frontImageUrl);
+      // A moment with neither picture is a line of text, and the text is
+      // already there. Only claim one when there is something to show.
+      if (!back && !front) return null;
+      return { backImageUrl: back, frontImageUrl: front, caption: str(m.caption) };
+    })(),
     clientMessageId: typeof d.clientMessageId === "string" ? d.clientMessageId : null,
   };
 }
@@ -105,7 +132,7 @@ export function watchMessages(
         .map((d) => toMessage(d.id, d.data()))
         // The app writes hidden placeholders for Bie and for moments mid-send.
         // Rendering them shows an empty bubble that never fills.
-        .filter((m) => m.text || m.imageUrl),
+        .filter((m) => m.text || m.imageUrl || m.moment),
     ),
     () => onMessages([]),
   );

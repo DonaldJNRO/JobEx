@@ -18,6 +18,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Send, Sparkles, Loader2, Check, CheckCheck, Clock, MessageSquare } from "lucide-react";
 import { watchMessages, sendMessage, markTripRead, type ChatMessage } from "@/lib/chat";
 import { askBie, isBieChat } from "@/lib/bie";
+import { withBold } from "@/lib/rich-text";
 import dynamic from "next/dynamic";
 
 // The player and the 86KB of vectors stay out of the page that does not
@@ -241,7 +242,43 @@ export default function TripChat({
                       {!mine && !grouped && (
                         <p className="mb-0.5 text-caption font-semibold text-ink-muted">{m.senderName}</p>
                       )}
-                      <p className={`whitespace-pre-wrap break-words leading-relaxed ${m.pending ? "opacity-70" : ""}`}>{m.text}</p>
+                      {/* THE MOMENT ITSELF, not a sentence about one.
+                          Both cameras fired at once: the back is the scene,
+                          the front is the face, inset the way it was taken.
+                          The caption sits under it, and the "📸 Shared a
+                          Moment" line is dropped, because the picture is now
+                          saying that. */}
+                      {m.moment ? (
+                        <>
+                          <div className="relative overflow-hidden rounded-xl">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={m.moment.backImageUrl ?? m.moment.frontImageUrl ?? ""}
+                              alt={m.moment.caption || `A moment from ${m.senderName}`}
+                              loading="lazy"
+                              className="block max-h-80 w-full max-w-xs object-cover"
+                            />
+                            {m.moment.backImageUrl && m.moment.frontImageUrl && (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                src={m.moment.frontImageUrl}
+                                alt=""
+                                loading="lazy"
+                                className="absolute left-2 top-2 h-20 w-16 rounded-lg border-2 border-white/80 object-cover shadow"
+                              />
+                            )}
+                          </div>
+                          {m.moment.caption && (
+                            <p className="mt-1.5 whitespace-pre-wrap break-words leading-relaxed">
+                              {m.moment.caption}
+                            </p>
+                          )}
+                        </>
+                      ) : (
+                        <p className={`whitespace-pre-wrap break-words leading-relaxed ${m.pending ? "opacity-70" : ""}`}>
+                          {withBold(m.text)}
+                        </p>
+                      )}
                       <div className={`mt-0.5 flex items-center gap-1 ${mine ? "justify-end" : "justify-start"}`}>
                         <span className={`text-caption tabular-nums ${mine ? "text-white/60" : "text-ink-faint"}`}>
                           {timeOf(m)}

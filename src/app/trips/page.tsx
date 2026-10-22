@@ -174,7 +174,19 @@ function TripsInner() {
     // A CONTAINED PANEL, the way LinkedIn's messaging sits: a card with the
     // page showing around it rather than chrome running edge to edge. On a
     // phone it fills the screen, because margins there are just lost width.
-    <div className="h-[calc(100dvh-4rem)] overflow-hidden p-0 lg:p-4">
+    // THE BOTTOM BAR IS PART OF THE WINDOW TOO.
+    //
+    // This subtracted the navbar and nothing else, while AppShell pads every
+    // page by 4.5rem on a phone to clear its fixed bottom bar. So the column
+    // was one bar taller than the screen, the PAGE scrolled, and the thread
+    // header went up under the navbar with the back arrow inside it: tapping
+    // into a chat left no visible way out, and the name of who you were
+    // talking to was half gone.
+    //
+    // 8.5rem is the navbar plus that bar, and the safe area under it on a
+    // phone. From md the bar is hidden and the rail takes over, so the old
+    // number is right again.
+    <div className="h-[calc(100dvh-8.5rem-env(safe-area-inset-bottom,0px))] overflow-hidden p-0 md:h-[calc(100dvh-4rem)] lg:p-4">
       {/* AND CAPPED, like every other page. This was the one surface with no
           width at all, so a two-pane inbox stretched to whatever the monitor
           was: a list column and a thread column each half a 27-inch screen
