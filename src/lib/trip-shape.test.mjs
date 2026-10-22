@@ -21,6 +21,8 @@
 
 import { readFileSync } from "node:fs";
 
+import { readSibling, skipNote } from "./sibling.mjs";
+
 let fails = 0;
 const ok = (cond, label) => {
   if (!cond) { console.error("  FAIL " + label); fails++; } else { console.log("  ok   " + label); }
@@ -59,6 +61,43 @@ for (const [label, src] of [["pay.ts", pay], ["trips.ts", trips]]) {
 console.log("\nthe creator is in their own trip");
 ok(/memberIds: \[(me\.id|uid)\]/.test(pay), "pay.ts puts the payer in memberIds");
 ok(/memberIds: \[me\.id\]/.test(trips), "trips.ts puts the creator in memberIds");
+
+
+// ── A WEB TRIP IS A TRIP BIE CAN READ ───────────────────────────────────
+//
+// callBieAI reads a trip's destination and dates and then tells itself:
+// "you already know this is a Lagos trip, never ask". A trip carrying none
+// of those fields makes Bie open by asking the one question it is built
+// never to ask, which is what every web-made trip did until today.
+//
+// The field names are not this file's to invent, so they are PARSED out of
+// the function that reads them. If somebody renames one there, this fails
+// here rather than Bie quietly losing the context.
+console.log("\nand a web trip carries what Bie reads");
+const fn = readSibling("sabie-v53-main", "functions", "index.js");
+if (!fn) {
+  console.log(skipNote("sabie-v53-main"));
+} else {
+  const reader = fn.match(/const dest = t\.primaryDestination[^;]+;/)?.[0] ?? "";
+  ok(reader.length > 0, "found the line in callBieAI that reads a destination");
+  ok(/primaryDestination/.test(reader) && /primaryDestination/.test(trips),
+    "trips.ts writes primaryDestination, which Bie reads first");
+  ok(/destinations/.test(reader) && /destinations: \[dest\]/.test(trips),
+    "and destinations[], which Bie falls back to");
+  ok(/t\.startDate/.test(fn) && /startDate: start/.test(trips),
+    "startDate is written under the name Bie reads");
+  ok(/t\.endDate/.test(fn) && /endDate: end/.test(trips),
+    "and endDate");
+}
+
+// NOON, NOT MIDNIGHT. "2026-12-24" parsed as UTC midnight is the 23rd at
+// 11pm anywhere west of London, so a trip reads as starting a day early.
+ok(/T12:00:00/.test(trips), "a picked date is anchored at midday, not midnight");
+
+// Absent, not empty. A trip with no destination yet is a real state, and the
+// one every trip made before today is in.
+ok(/\.\.\.\(dest\s*\n?\s*\?/.test(trips) || /\.\.\.\(dest \?/.test(trips),
+  "a trip with no destination writes no destination fields at all");
 
 console.log(fails ? `\n${fails} FAILED\n` : "\nALL PASSED\n");
 process.exit(fails ? 1 : 0);

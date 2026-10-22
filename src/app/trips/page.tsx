@@ -22,6 +22,7 @@ import { Suspense } from "react";
 import { Plus, Loader2, ArrowLeft, UserPlus, Check, Search, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { createTrip, addTripMember, findTravellers, type TripMember } from "@/lib/trips";
+import { getKnownCities, type KnownCity } from "@/lib/listings";
 import { watchMyConversations, fetchPeople, withPeople, keyOf, parseKey, type Conversation } from "@/lib/conversations";
 import { tripAvatar, previewOf } from "@/lib/trip-visual";
 import TripChat, { NoTripPicked } from "@/components/TripChat";
@@ -61,6 +62,13 @@ function TripsInner() {
   const [composing, setComposing] = useState(false);
   const [groupName, setGroupName] = useState("");
   const [chosen, setChosen] = useState<TripMember[]>([]);
+  // WHERE AND WHEN. Not decoration: callBieAI reads a trip's destination and
+  // dates and tells itself not to ask for them. A trip without them makes Bie
+  // open by asking what it is built never to ask.
+  const [where, setWhere] = useState("");
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
+  const [cities, setCities] = useState<KnownCity[]>([]);
 
   useEffect(() => { if (!loading && !user) router.push("/auth/login?next=/trips"); }, [user, loading, router]);
   // A chat document carries participant uids and nothing else, so a
@@ -84,6 +92,16 @@ function TripsInner() {
     return () => { live = false; stop(); };
   }, [user]);
 
+  // THE CITIES WE ARE ACTUALLY IN, from the shared collection both apps read.
+  // A free-text box would let somebody start a trip to a city with nothing in
+  // it, which is the uncovered-countries policy arriving by the back door.
+  useEffect(() => {
+    if (!composing || cities.length) return;
+    let live = true;
+    getKnownCities().then((c) => { if (live) setCities(c); }).catch(() => {});
+    return () => { live = false; };
+  }, [composing, cities.length]);
+
   useEffect(() => {
     if ((!adding && !composing) || term.trim().length < 2) { setFound([]); return; }
     let live = true;
@@ -106,6 +124,9 @@ function TripsInner() {
     setChosen([]);
     setTerm("");
     setFound([]);
+    setWhere("");
+    setFrom("");
+    setTo("");
   };
 
   const toggleChosen = (m: TripMember) =>
@@ -117,7 +138,14 @@ function TripsInner() {
     try {
       // The name first, so the trip is never called "New trip" unless that
       // is genuinely what somebody typed.
-      const id = await createTrip(user, userProfile, groupName.trim() || "New trip");
+      const city = cities.find((c) => c.id === where);
+      const id = await createTrip(user, userProfile, groupName.trim() || "New trip", {
+        destination: city
+          ? { name: city.name, location: `${city.name}, ${city.country ?? ""}`.replace(/,\s*$/, "") }
+          : null,
+        startDate: from || null,
+        endDate: to || null,
+      });
       // THEN the people, one at a time, because addTripMember writes all
       // three member fields and arrayUnion makes a repeat harmless. One
       // failing invite must not lose the trip that was already created, so
@@ -215,6 +243,56 @@ function TripsInner() {
                 className={fieldClass()}
                 autoFocus
               />
+              {/* WHERE AND WHEN, both optional. A group chat with no trip
+                  behind it is a real thing people make, and refusing to
+                  create one until a date is picked would be the form telling
+                  somebody they are using it wrong. Filled in, they are what
+                  Bie reads. */}
+              <label htmlFor="trip-where" className="mb-1.5 mt-3 block text-caption font-semibold text-ink-muted">
+                Where to? <span className="font-normal">Optional</span>
+              </label>
+              <select
+                id="trip-where"
+                value={where}
+                onChange={(e) => setWhere(e.target.value)}
+                className={fieldClass()}
+              >
+                <option value="">Not decided yet</option>
+                {cities.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}{c.country ? `, ${c.country}` : ""}
+                  </option>
+                ))}
+              </select>
+
+              <div className="mt-3 flex gap-2">
+                <div className="min-w-0 flex-1">
+                  <label htmlFor="trip-from" className="mb-1.5 block text-caption font-semibold text-ink-muted">
+                    From
+                  </label>
+                  <input
+                    id="trip-from"
+                    type="date"
+                    value={from}
+                    onChange={(e) => setFrom(e.target.value)}
+                    className={fieldClass()}
+                  />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <label htmlFor="trip-to" className="mb-1.5 block text-caption font-semibold text-ink-muted">
+                    To
+                  </label>
+                  <input
+                    id="trip-to"
+                    type="date"
+                    value={to}
+                    min={from || undefined}
+                    onChange={(e) => setTo(e.target.value)}
+                    className={fieldClass()}
+                  />
+                </div>
+              </div>
+
               {/* WHO IS IN, as chips, because a list of names you have
                   chosen is the one part of this you need to see at a
                   glance. Tapping one takes them out again. */}
