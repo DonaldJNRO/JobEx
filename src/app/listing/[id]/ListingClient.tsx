@@ -5,18 +5,14 @@ import { cardClass } from "@/lib/ui-recipes";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { MapPin, Star, ChevronLeft, ChevronRight, ChevronDown, Wifi, Car, Coffee, Waves, Shield, ArrowRight, Download, Globe, Clock, Users, Check } from "lucide-react";
+import { MapPin, ChevronLeft, ChevronRight, ChevronDown, Wifi, Car, Coffee, Waves, Shield, ArrowRight, Download, Globe, Clock, Users, Check } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { mapFor } from "@/lib/listing-map";
-import { resolveListing, getListingPrice, getListingPriceParts, getListingLocation, getListingType, getCategoryLabel, getFeaturedListings, visitedBySabie, Listing } from "@/lib/listings";
+import { resolveListing, getListingPrice, getListingPriceParts, getListingLocation, getListingType, getCategoryLabel, visitedBySabie, Listing } from "@/lib/listings";
 import { useMoney } from "@/lib/useRates";
 import { buildDisplayPrice } from "@/lib/display-price";
 import { openingRows, openNow, serviceStyle, verificationLine, amenityLabel } from "@/lib/operator-info";
-import ListingCard from "@/components/ListingCard";
 import { useReveal } from "@/lib/useReveal";
-import { useAuth } from "@/contexts/AuthContext";
-import { APP_STORE_URL } from "@/lib/app-links";
-import { isShopWindow } from "@/lib/shop-window";
 import { fetchBookingDecision, ASK, type BookingDecision } from "@/lib/booking-decision";
 import ProfileServices, { hasPickableList } from "@/components/ProfileServices";
 import RoomList from "@/components/RoomList";
@@ -75,7 +71,6 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
   // never a price in two places at once.
   const priceCardRef = useRef<HTMLDivElement | null>(null);
   const [priceGone, setPriceGone] = useState(false);
-  const [similarListings, setSimilarListings] = useState<Listing[]>([]);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [slug, setSlug] = useState("");
   const [booking, setBooking] = useState(false);
@@ -84,7 +79,6 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
   // difference between a menu and a form.
   const [pickedOffer, setPickedOffer] = useState("");
   const revealRef = useReveal();
-  const { user } = useAuth();
   // ABOVE THE EARLY RETURNS, with the other hooks. Placed beside the price it
   // feeds, it sat after `if (loading)` and `if (!listing)`, so it was called on
   // some renders and not others: a conditional hook, which React throws on.
@@ -106,7 +100,6 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
         // so Back still goes where the visitor came from. replace(), never
         // push(), or a truncated link becomes a Back button that does nothing.
         if (!resolved.canonical) router.replace(`/listing/${resolved.slug}`, { scroll: false });
-        getFeaturedListings(4).then(setSimilarListings).catch(() => {});
       })
       // A DROPPED CONNECTION IS NOT A DELETED BUSINESS. This caught every
       // failure into null, and null renders "Listing not found. This
@@ -232,7 +225,6 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
   /* THE SHOP WINDOW. On these listings the page belongs to the operator: no
      other businesses, no app poster, and Book finishes here. Everywhere else
      renders exactly as it did before, until the founder has seen these two. */
-  const shopWindow = isShopWindow(slug || id);
   const instant = bookMode.mode === "instant" || bookMode.mode === "deposit";
   // THE BUTTON SAYS WHAT IT DOES. A café "Books" nothing, it requests a
   // table; a stay shows rooms. Same resolver as the services section, so the
@@ -341,8 +333,7 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
         </span>
       </div>
       <p className="text-small text-ink-muted mb-6">{priceUnit || "\u00A0"}</p>
-      {shopWindow ? (
-        <>
+      <>
           {/* BOOK FINISHES HERE. It used to be a link to the App Store, which
               asked a guest who arrived from an Instagram bio to install an app
               before they could ask a question. Now it opens the request form,
@@ -375,19 +366,6 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
                 : "Ask first, pay later. They have 12 hours to accept."}
           </p>
         </>
-      ) : (
-        <>
-          <a
-            href={APP_STORE_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-shine w-full flex items-center justify-center gap-2.5 bg-primary hover:bg-primary-dark text-white font-bold py-4 rounded-xl transition-all hover:shadow-lg hover:shadow-primary/20"
-          >
-            {ctaWord} <ArrowRight size={18} />
-          </a>
-          <p className="text-caption text-text-muted text-center mt-3">Book and manage your trip in the Sabię app</p>
-        </>
-      )}
     </>
   );
 
@@ -495,11 +473,6 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
               <div className="max-w-6xl mx-auto">
                 <div className="flex items-center gap-2 mb-2">
                   <span className="bg-black/55 text-white text-caption font-semibold px-3 py-1 rounded-full backdrop-blur-sm">{category}</span>
-                  {listing.rating && (
-                    <span className="bg-black/55 text-white text-caption font-semibold px-3 py-1 rounded-full flex items-center gap-1 backdrop-blur-sm">
-                      <Star size={10} className="fill-secondary text-secondary" /> {listing.rating}
-                    </span>
-                  )}
                 </div>
                 <h1 className="text-title sm:text-display font-extrabold text-white drop-shadow-lg">{name}</h1>
                 {location && (
@@ -546,11 +519,6 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
                 {type && (
                   <span className="inline-flex items-center gap-1.5 bg-primary/10 text-primary text-caption font-semibold px-3.5 py-2 rounded-xl">
                     <Globe size={12} /> {type}
-                  </span>
-                )}
-                {location && !shopWindow && (
-                  <span className="inline-flex items-center gap-1.5 bg-surface-sunken text-text-muted text-caption font-medium px-3.5 py-2 rounded-xl">
-                    <MapPin size={12} /> {location}
                   </span>
                 )}
               </div>
@@ -778,18 +746,6 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
                     <span className="font-semibold text-ink text-right max-w-[60%]">{type}</span>
                   </div>
                 )}
-                {location && !shopWindow && (
-                  <div className="flex justify-between">
-                    <span className="text-text-muted">Location</span>
-                    <span className="font-semibold text-ink text-right max-w-[60%]">{location}</span>
-                  </div>
-                )}
-                {!shopWindow && (listing.viewsCount || listing.views) && (
-                  <div className="flex justify-between">
-                    <span className="text-text-muted">Views</span>
-                    <span className="font-semibold text-ink">{(listing.viewsCount || listing.views || 0).toLocaleString()}</span>
-                  </div>
-                )}
               </div>
 
               <div className="my-6 border-t border-line" />
@@ -842,35 +798,12 @@ export default function ListingClient({ snapshot }: { snapshot?: ListingSnapshot
         </div>
       </div>
 
-      {/* Similar Listings */}
-      {!shopWindow && similarListings.length > 0 && (
-        <section className="py-section bg-card border-t border-line">
-          <div className="max-w-6xl mx-auto px-gutter sm:px-6 lg:px-8">
-            <div className="flex items-end justify-between mb-8 reveal">
-              <div>
-                <p className="text-caption font-bold text-primary uppercase tracking-[0.2em] mb-2">More to explore</p>
-                <h2 className="text-title font-extrabold text-ink">Similar Listings</h2>
-              </div>
-              <Link href="/" className="text-small font-bold text-primary hover:underline underline-offset-4">
-                View all <ChevronRight size={14} className="inline" />
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 stagger-children">
-              {similarListings.map((l, i) => (
-                <div key={l.id} className="reveal">
-                  <ListingCard listing={l} index={i} />
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* THE BAR. At the page root, not inside a section, because every
           section here wears .reveal and a transform makes its own containing
           block for anything fixed. That is the bug that put the room gallery
           in the middle of the page. */}
-      {shopWindow && listing && (
+      {listing && (
         <>
         <div
           className={`fixed inset-x-0 bottom-0 z-40 border-t border-line bg-card px-4 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] pt-3 transition-transform duration-200 lg:hidden ${
