@@ -18,6 +18,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Send, Sparkles, Loader2, Check, CheckCheck, Clock, MessageSquare } from "lucide-react";
 import { watchMessages, sendMessage, markTripRead, type ChatMessage } from "@/lib/chat";
 import { askBie } from "@/lib/bie";
+import dynamic from "next/dynamic";
+
+// The player and the 86KB of vectors stay out of the page that does not
+// need them. ssr:false because lottie-web touches the DOM on import.
+const BieBee = dynamic(() => import("./BieBee"), { ssr: false });
 import {
   queue, markFailed, markSending, reconcile, retryable, newClientMessageId, type Pending,
 } from "@/lib/outbox";
@@ -262,6 +267,19 @@ export default function TripChat({
                 </div>
               );
             })}
+            {/* BIE IS THINKING, SAID OUT LOUD.
+                Until now tapping Ask Bie did nothing visible: the
+                placeholder renders as nothing on purpose, so there is no
+                empty bubble, and the wait showed as a thread that had
+                swallowed the question. Several seconds of that on a Lagos
+                connection reads as broken, which is the same failure the
+                portal claim had this morning. */}
+            {asking && (
+              <div className="flex items-center gap-2 px-1 py-1">
+                <BieBee size={30} />
+                <span className="text-caption text-ink-muted">Bie is thinking</span>
+              </div>
+            )}
             <div ref={bottom} />
           </div>
         </div>
