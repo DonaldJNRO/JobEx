@@ -53,38 +53,44 @@ const TABS = [
 ];
 
 /**
- * IS THE KEYBOARD UP?
+ * IS SOMEBODY TYPING?
  *
- * There is no CSS for this that works everywhere. env(keyboard-inset-height)
- * needs the VirtualKeyboard API, which is Chrome only and has to be opted
- * into from script anyway, so a few lines of script it is.
+ * The first version of this measured the keyboard: innerHeight minus
+ * visualViewport.height, keyboard when the gap passed 120px. It was wrong on
+ * the founder's own phone within the hour, and wrong in the worst direction.
  *
- * visualViewport is the part of the window you can actually see. When the
- * keyboard opens it shrinks and the layout viewport does not, so the gap
- * between them IS the keyboard. 120px rather than zero because the gap is
- * never quite zero: a browser's own toolbars slide in and out by tens of
- * pixels as you scroll, and treating that as a keyboard would hide the tab
- * bar while somebody was only reading.
+ * His browser draws its address bar at the BOTTOM, floating over the page.
+ * visualViewport is therefore permanently shorter than innerHeight by about
+ * that bar's height, with no keyboard anywhere. The gap never fell under the
+ * threshold, the flag never cleared, and the tab bar stayed hidden on every
+ * page whether or not anyone was typing.
  *
- * The flag goes on <html> so CSS can answer, which keeps the layout in the
- * stylesheet rather than threading a boolean through every component that
- * sits above the fold.
+ * So: ask the question we actually care about. A phone shows its keyboard
+ * when a text field takes focus, and the only reason this flag exists is to
+ * get the tab bar out from between the composer and that keyboard. Focus is
+ * the thing itself rather than a measurement of its side effect, it cannot
+ * be confused by browser chrome, and it clears the moment the field blurs.
+ *
+ * Coarse pointers only: a focused input on a laptop summons no keyboard, and
+ * hiding a nav that is not in the way would be a fix with no bug.
  */
-function useKeyboardFlag() {
+function useTypingFlag() {
   useEffect(() => {
-    const vv = window.visualViewport;
-    if (!vv) return;
+    if (!window.matchMedia("(pointer: coarse)").matches) return;
     const root = document.documentElement;
-    const read = () => {
-      const covered = window.innerHeight - vv.height;
-      if (covered > 120) root.setAttribute("data-kb", "open");
-      else root.removeAttribute("data-kb");
+    const typing = (el: EventTarget | null) => {
+      const t = el as HTMLElement | null;
+      if (!t) return false;
+      const tag = t.tagName;
+      return tag === "INPUT" || tag === "TEXTAREA" || t.isContentEditable;
     };
-    read();
-    vv.addEventListener("resize", read);
+    const on = (e: FocusEvent) => { if (typing(e.target)) root.setAttribute("data-kb", "open"); };
+    const off = () => root.removeAttribute("data-kb");
+    document.addEventListener("focusin", on);
+    document.addEventListener("focusout", off);
     return () => {
-      vv.removeEventListener("resize", read);
-      // Leaving it set would hide the tab bar on the next page.
+      document.removeEventListener("focusin", on);
+      document.removeEventListener("focusout", off);
       root.removeAttribute("data-kb");
     };
   }, []);
@@ -120,7 +126,7 @@ export default function AppShell({
   // Three questions, not one. See src/lib/app-shell.ts: conflating them is
   // what put a footer under the chat and scrolled the page instead of the
   // thread.
-  useKeyboardFlag();
+  useTypingFlag();
   const show = showsShell(pathname);
   const bar = showsBottomBar(pathname);
   const withFooter = showsFooter(pathname);

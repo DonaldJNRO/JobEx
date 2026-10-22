@@ -17,6 +17,11 @@ const shell = readFileSync(new URL("../components/AppShell.tsx", import.meta.url
 const trips = readFileSync(new URL("../app/trips/page.tsx", import.meta.url), "utf8");
 const layout = readFileSync(new URL("../app/layout.tsx", import.meta.url), "utf8");
 
+// CODE, not comments. Twice now a note explaining WHY something moved has
+// failed an assertion about the thing it moved away from. A note that cannot
+// name its own subject is a note nobody can follow.
+const code = (src) => src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "").replace(/^\s*\*.*$/gm, "");
+
 let fails = 0;
 const ok = (c, l) => { if (!c) { console.error("  FAIL " + l); fails += 1; } else console.log("  ok   " + l); };
 
@@ -31,20 +36,23 @@ ok(/min-width: 768px\) \{ :root \{ --app-bar-h: 0px/.test(css),
 console.log("\nand read, never re-typed");
 ok(/pb-\[var\(--app-bar-h\)\]/.test(shell), "the shell pads by the variable");
 ok(/h-\[calc\(100dvh-4rem-var\(--app-bar-h\)\)\]/.test(trips), "the chat column subtracts the variable");
-// CODE, not comments. The note above the className explains WHY the number
-// moved out, and a note that cannot mention the number it is about is a
-// note nobody can follow.
-const code = (src) => src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
 ok(!/4\.5rem/.test(code(trips)) && !/8\.5rem/.test(code(trips)),
   "and no copy of the number survives in the column's own markup");
 
-console.log("\nthe keyboard is detected, since no CSS can do it everywhere");
-ok(/visualViewport/.test(shell), "visualViewport, which both iOS and Android have");
-ok(/window\.innerHeight - vv\.height/.test(shell), "the gap between the two IS the keyboard");
-ok(/> 120/.test(shell),
-  "and a threshold, because a browser's own toolbars slide by tens of pixels");
-ok(/root\.removeAttribute\("data-kb"\)[\s\S]{0,400}\}, \[\]\)/.test(shell),
-  "the flag is cleared on unmount, or the next page loses its tab bar");
+console.log("\ntyping is detected by FOCUS, not by measuring the keyboard");
+// The first version measured it: innerHeight minus visualViewport.height,
+// keyboard past 120px. The founder's browser draws its address bar at the
+// BOTTOM, so visualViewport is permanently shorter with no keyboard at all.
+// The gap never fell under the threshold, the flag never cleared, and the
+// tab bar stayed hidden on every page whether or not anyone was typing.
+ok(!/visualViewport/.test(code(shell)),
+  "no viewport arithmetic, which browser chrome can and did defeat");
+ok(/focusin/.test(shell) && /focusout/.test(shell),
+  "focus in and out, which is the thing itself rather than a side effect");
+ok(/pointer: coarse/.test(shell),
+  "and only where a focused field actually summons a keyboard");
+ok(/root\.removeAttribute\("data-kb"\)/.test(shell),
+  "the flag is cleared, or a page keeps hiding a bar nothing is covering");
 ok(/\[data-kb="open"\] \[data-app-bar\] \{ display: none/.test(css),
   "and the bar hides while typing, as a native app does");
 ok(/data-app-bar=""/.test(shell), "which needs the bar to carry the hook");
