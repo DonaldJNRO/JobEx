@@ -15,8 +15,9 @@
 // looking at the same conversation should be looking at the same object.
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Send, Loader2, Check, CheckCheck, Clock, MessageSquare } from "lucide-react";
+import { Send, Sparkles, Loader2, Check, CheckCheck, Clock, MessageSquare } from "lucide-react";
 import { watchMessages, sendMessage, markTripRead, type ChatMessage } from "@/lib/chat";
+import { askBie } from "@/lib/bie";
 import {
   queue, markFailed, markSending, reconcile, retryable, newClientMessageId, type Pending,
 } from "@/lib/outbox";
@@ -81,6 +82,37 @@ export default function TripChat({
       setPending((list) => markFailed(list, cid));
     }
   }, [trip.id, trip.memberIds, trip.kind, me]);
+
+  // ASKING BIE IS THE SAME TYPED LINE, SENT TWICE OVER.
+  //
+  // The group sees the question, because a trip chat where one person is
+  // quietly consulting an oracle reads as them talking to themselves. Then
+  // Bie answers into the same thread, which is exactly what the app does.
+  //
+  // Trips only. Bie's whole advantage is knowing where the trip is and when,
+  // and a one-to-one chat has no destination to know.
+  const [asking, setAsking] = useState(false);
+  const ask = async () => {
+    const body = draft.trim();
+    if (!body || asking) return;
+    setAsking(true);
+    const cid = newClientMessageId();
+    setDraft("");
+    setPending((list) => [...list, queue(body, cid)]);
+    try {
+      await deliver(body, cid);
+      // null while the thread is still loading: Bie gets the trip context
+      // from the server either way, so an empty history is a thinner question
+      // rather than a broken one.
+      await askBie(trip.id, body, messages ?? []);
+    } catch {
+      // The question is already in the thread and Bie's placeholder renders
+      // as nothing, so the worst case is a question nobody answered, which
+      // is a state a group chat is allowed to be in.
+    } finally {
+      setAsking(false);
+    }
+  };
 
   const send = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -243,6 +275,18 @@ export default function TripChat({
           aria-label="Write a message"
           className="min-w-0 flex-1 rounded-xl border border-line bg-surface px-3.5 py-2.5 text-ink placeholder:text-ink-faint"
         />
+        {trip.kind === "trip" && (
+          <button
+            type="button"
+            onClick={ask}
+            disabled={!draft.trim() || asking}
+            aria-label="Ask Bie"
+            title="Ask Bie"
+            className="shrink-0 rounded-xl border border-line px-3 text-ink-muted hover:text-ink disabled:opacity-40"
+          >
+            <Sparkles className="h-5 w-5" />
+          </button>
+        )}
         <button
           type="submit"
           disabled={!draft.trim()}
