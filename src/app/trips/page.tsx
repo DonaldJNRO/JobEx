@@ -23,7 +23,7 @@ import { Plus, Loader2, ArrowLeft, UserPlus, Check, Search, X } from "lucide-rea
 import { useAuth } from "@/contexts/AuthContext";
 import { createTrip, addTripMember, findTravellers, type TripMember } from "@/lib/trips";
 import { getKnownCities, type KnownCity } from "@/lib/listings";
-import { watchMyConversations, fetchPeople, withPeople, keyOf, parseKey, BIE_ID, type Conversation } from "@/lib/conversations";
+import { watchMyConversations, fetchPeople, withPeople, keyOf, parseKey, BIE_ID, rowStatus, type Conversation } from "@/lib/conversations";
 import { tripAvatar, previewOf } from "@/lib/trip-visual";
 import TripChat, { NoTripPicked } from "@/components/TripChat";
 
@@ -467,14 +467,17 @@ function TripsInner() {
                       <span className="shrink-0 text-caption text-ink-faint">{whenOf(c.lastMessageAtMs)}</span>
                     </span>
                     <span className={`mt-0.5 block truncate text-small ${c.unread > 0 ? "font-semibold text-ink" : "text-ink-muted"}`}>
-                      {c.lastMessage
-                        // A NAME ONLY WHERE IT TELLS YOU SOMETHING. In a
-                        // one-to-one the only other person is the one in
-                        // the row, so "Ada: hi" says Ada twice.
-                        ? (!isChat && c.lastMessageSenderName ? `${c.lastMessageSenderName}: ${c.lastMessage}` : c.lastMessage)
-                        : isChat
-                          ? "Say something"
-                          : `${c.memberIds.length} ${c.memberIds.length === 1 ? "person" : "people"}`}
+                      {/* THE TITLE SAYS WHO, THE STATUS SAYS WHAT.
+                          This printed the message instead: "DonaldJnr: hi
+                          baby, just testing the web app". That is WhatsApp's
+                          convention in a list the app rebuilt on Snapchat's,
+                          so the same inbox said two different things
+                          depending on which surface you opened.
+
+                          Echoing your own words back is the clearest case:
+                          you wrote them. The fact you do not have is whether
+                          they have been read. See rowStatus. */}
+                      {rowStatus(c, user.uid)}
                     </span>
                   </span>
                   {c.unread > 0 && (

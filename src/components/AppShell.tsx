@@ -38,8 +38,17 @@ import { showsShell, showsBottomBar, showsFooter } from "@/lib/app-shell";
 const TABS = [
   { href: "/", label: "Home", icon: Home, exact: true },
   { href: "/trips", label: "Chat", icon: MessageSquare, needsAuth: true, badge: true },
-  // The app's bottom bar ends on the bag, and so does this.
-  { href: "/cart", label: "Trip", icon: ShoppingBag, needsAuth: true },
+  // CART, WHICH IS WHAT THE APP CALLS IT.
+  //
+  // This said "Trip", one tab along from "Chat", which points at /trips. So
+  // the tab named Trip was the basket and the tab named Chat was the trips,
+  // and the founder read the bar and tapped the wrong one: "trips, for some
+  // people, even when you confuse me, I thought it was our chat".
+  //
+  // The app's bottom bar is Home, Wander, Search, Inbox, Cart
+  // (MinimalCustomTabBar.js:835). It ends on the bag and calls it Cart, so
+  // this does too.
+  { href: "/cart", label: "Cart", icon: ShoppingBag, needsAuth: true },
   { href: "/account", label: "Account", icon: User, needsAuth: true },
 ];
 

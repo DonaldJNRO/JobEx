@@ -34,6 +34,14 @@ export interface Conversation {
   lastMessage?: string | null;
   lastMessageAtMs: number;
   lastMessageSenderName?: string | null;
+  /** Who sent the last one, so a row can tell yours from theirs. */
+  lastMessageSenderId?: string | null;
+  /** Who has read it, stamped on the same write that clears their unread. */
+  lastMessageSeenBy?: Record<string, boolean> | null;
+  /** Everyone's unread count, because it beats seenBy when they disagree. */
+  unreadCounts?: Record<string, number> | null;
+  /** 'moment' reads differently: you VIEW a photo and OPEN a message. */
+  lastMessageType?: string | null;
   unread: number;
   /** A trip's people, for the avatar stack. */
   memberNames?: string[];
@@ -138,6 +146,87 @@ export function isRealConversation(v: Record<string, unknown>): boolean {
   return true;
 }
 
+/**
+ * HOW MANY OTHER PEOPLE HAVE READ THE LAST MESSAGE.
+ *
+ * Ported from TripItem.js, including both corrections it carries, because
+ * each was a real row lying in production:
+ *
+ * NO UID, NO CLAIM. `uid !== myUid` excludes nobody when myUid is undefined,
+ * so a seenBy holding only YOUR OWN read counted one reader and the row said
+ * "Opened by 1" about a message nobody else had opened.
+ *
+ * UNREAD BEATS seenBy. lastMessageSeenBy is denormalised and goes stale when
+ * a write path forgets to reset it; unreadCounts cannot drift that way,
+ * because it is incremented by arrival and cleared only by the recipient's
+ * own device. Somebody with unread messages has not seen the last one,
+ * whatever seenBy claims.
+ */
+export function countOtherReaders(
+  seenBy: Record<string, boolean> | null | undefined,
+  myUid: string | undefined,
+  unreadCounts?: Record<string, number> | null,
+): number {
+  if (!seenBy || !myUid) return 0;
+  let n = 0;
+  for (const uid of Object.keys(seenBy)) {
+    if (uid === myUid || !seenBy[uid]) continue;
+    if (unreadCounts && (unreadCounts[uid] || 0) > 0) continue;
+    n += 1;
+  }
+  return n;
+}
+
+/**
+ * WHAT A ROW SAYS UNDER THE NAME.
+ *
+ * The app's rule, ported: the TITLE says who, the STATUS says what. A row is
+ * a STATE, never content. This website printed the message instead, which is
+ * WhatsApp's convention in a list built on Snapchat's, so the same inbox said
+ * two different things on two surfaces.
+ *
+ * Echoing your own words back at you is the clearest case: you wrote them.
+ * The one fact you do not have is whether they have been read, which is the
+ * whole reason the row exists.
+ */
+export function rowStatus(c: Conversation, me: string): string {
+  const unread = c.unread || 0;
+  const isMoment = c.lastMessageType === "moment";
+  const direct = c.kind === "chat";
+  const first = (n?: string | null) => (n || "Someone").split(" ")[0];
+
+  if (!c.lastMessage && !c.lastMessageAtMs) return "Tap to chat";
+
+  if (unread > 0) {
+    if (isMoment) {
+      return unread > 1
+        ? `${unread} new Moments`
+        : direct ? "New Moment" : `${first(c.lastMessageSenderName)}'s Moment`;
+    }
+    return unread > 1 ? `${unread} new messages` : "New message";
+  }
+
+  if (c.lastMessageSenderId && c.lastMessageSenderId === me) {
+    const readers = countOtherReaders(c.lastMessageSeenBy, me, c.unreadCounts);
+    if (readers > 0) {
+      // VIEWED FOR A MOMENT, OPENED FOR A MESSAGE. You open a message: it is
+      // sealed and opening is the act. You view a photo: there is nothing to
+      // unseal, you just looked at it.
+      const word = isMoment ? "Viewed" : "Opened";
+      return direct ? word : `${word} by ${readers}`;
+    }
+    // SENT, not Delivered. The message reached the server, which is delivery
+    // for a chat that lives in Firestore. What is not known is whether anyone
+    // opened it, and "Delivered" claims a receipt nothing here checks.
+    return "Sent";
+  }
+
+  // Theirs, and read. A Moment you have already seen says so rather than
+  // spending the line reporting that nothing is waiting.
+  if (isMoment) return "Moment";
+  return c.lastMessage ? "Received" : "Tap to chat";
+}
+
 export function messagesPath(kind: ConversationKind, id: string): [string, string, string] {
   return [kind === "chat" ? "chats" : "trips", id, "messages"];
 }
@@ -202,6 +291,14 @@ export function watchMyConversations(
           lastMessageAtMs: millisOf(v.lastMessageTime || v.updatedAt),
           lastMessageSenderName: typeof v.senderName === "string" ? v.senderName : null,
           unread: unreadFor(v.unreadCounts, me),
+          lastMessageSenderId: typeof v.lastMessageSenderId === "string" ? v.lastMessageSenderId : null,
+          lastMessageSeenBy: (v.lastMessageSeenBy ?? null) as Record<string, boolean> | null,
+          unreadCounts: (v.unreadCounts ?? null) as Record<string, number> | null,
+          lastMessageType: (() => {
+            const lm = v.lastMessage as Record<string, unknown> | string | undefined;
+            if (lm && typeof lm === "object" && typeof lm.type === "string") return lm.type;
+            return typeof v.lastMessageType === "string" ? v.lastMessageType : null;
+          })(),
         };
       });
       ready.chats = true;
@@ -235,6 +332,14 @@ export function watchMyConversations(
           lastMessageAtMs: millisOf(v.lastMessageTime || v.updatedAt || v.createdAt),
           lastMessageSenderName: typeof v.lastMessageSenderName === "string" ? v.lastMessageSenderName : null,
           unread: unreadFor(v.unreadCounts, me),
+          lastMessageSenderId: typeof v.lastMessageSenderId === "string" ? v.lastMessageSenderId : null,
+          lastMessageSeenBy: (v.lastMessageSeenBy ?? null) as Record<string, boolean> | null,
+          unreadCounts: (v.unreadCounts ?? null) as Record<string, number> | null,
+          lastMessageType: (() => {
+            const lm = v.lastMessage as Record<string, unknown> | string | undefined;
+            if (lm && typeof lm === "object" && typeof lm.type === "string") return lm.type;
+            return typeof v.lastMessageType === "string" ? v.lastMessageType : null;
+          })(),
           memberNames: selected
             .map((u) => (typeof u.name === "string" ? u.name : typeof u.displayName === "string" ? u.displayName : ""))
             .filter(Boolean),
