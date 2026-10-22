@@ -38,6 +38,18 @@ is(p.status, 'pending', "status is 'pending', which is what Studio's inbox filte
 is(p.businessOwnerId, 'owner-9', 'businessOwnerId, the other half of that filter')
 is(p.requestedAt, null, 'requestedAt is null here and serverTimestamp() at write')
 is(p.userId, 'anon-uid-1', 'userId, read by convertRequestToBooking')
+
+// THE SLOT, LIFTED OUT OF bookingDetails. onBookingRequestCreated counts a
+// slot from the top-level pair first, and until 22 Oct 2026 this copy wrote
+// neither: every website booking was riding the nested fallback, and anything
+// reading the obvious name would have missed all of them without a word.
+is(p.bookingDate, '2026-10-02', 'bookingDate is lifted to the top level, as the app does')
+is(p.bookingTime, null, 'bookingTime is null, not undefined, when no time was chosen')
+
+const timed = buildBookingRequestPayload({
+  bookingDetails: { date: '2026-10-02', time: '11:00' },
+})
+is(timed.bookingTime, '11:00', 'and carries the time up when there is one')
 is(p.itemId, 'ad123', 'itemId, same')
 is(p.adId, 'ad123', 'adId falls back to itemId so both readers agree')
 is(p.bookingDetails.date, '2026-10-02', 'bookingDetails.date')
@@ -135,6 +147,35 @@ if (!appSrc) {
   for (const leg of ["currency", "bookingDetails?.currency", "bookingDetails?.rooms?.[0]?.currency"]) {
     is(appChain.includes(leg) ? webChain.includes(leg) : true, true, `falls back to ${leg}, as the app does`);
   }
+
+  // ── THE SAME TOP-LEVEL KEYS ────────────────────────────────────────────
+  //
+  // The currency check above caught one leg of one field. What it could not
+  // see was a whole field missing: this copy wrote no bookingDate and no
+  // bookingTime for months, and the only reason nothing broke is that
+  // onBookingRequestCreated reads a five-rung ladder that happens to find
+  // the date nested under bookingDetails. A reader of the obvious name would
+  // have missed every booking made on the website, silently.
+  //
+  // So compare the SHAPE, not one field. The app's payload is a whitelist by
+  // its own description: anything not named in it is dropped without a word.
+  // A key it names and this one does not is the same bug again.
+  console.log("\nand the same top-level keys the app writes");
+  const topKeys = (src) => {
+    const body = src.slice(src.lastIndexOf("return {"));
+    const out = new Set();
+    for (const line of body.split("\n")) {
+      const m = line.match(/^ {4}([A-Za-z_$][\w$]*):/);
+      if (m) out.add(m[1]);
+    }
+    return out;
+  };
+  const appKeys = topKeys(appSrc);
+  const webKeys = topKeys(webSrc);
+  is(appKeys.size > 10, true, `the app's payload still parses (${appKeys.size} keys)`);
+  const missing = [...appKeys].filter((k) => !webKeys.has(k));
+  is(missing.join(",") || "none", "none",
+    "every top-level key the app writes, this copy writes too");
 }
 
 console.log(fails ? `\n${fails} FAILED` : '\nALL PASSED')

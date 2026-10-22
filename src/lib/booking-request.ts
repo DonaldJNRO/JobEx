@@ -23,6 +23,10 @@ export interface BookingDetails {
   /** The offer the guest chose, by name. Studio renders this as a row. */
   package?: string;
   date?: string;
+  /** Declared rather than left to the index signature, because the top-level
+   *  bookingTime is derived from it and `unknown` would have slipped a
+   *  non-string through to Firestore without tsc saying a word. */
+  time?: string;
   guests?: number;
   note?: string;
   totalPrice?: number;
@@ -46,12 +50,15 @@ export interface BookingRequestInput {
   currency?: string | null;
   adId?: string;
   role?: string | null;
+  /** The slot, at the top level. Falls back to bookingDetails.date/.time. */
+  bookingDate?: string | null;
+  bookingTime?: string | null;
 }
 
 export function buildBookingRequestPayload({
   userId, userName, userEmail, tripId, itemId, businessOwnerId,
   businessName, businessImageUrl, bookingDetails, idempotencyKey,
-  currency, adId, role,
+  currency, adId, role, bookingDate, bookingTime,
 }: BookingRequestInput = {}) {
   // 2026-07-10, from the original: currency became load-bearing. Without it,
   // MyBookingsScreen and BookingReceiptModal display an operator's ₦20,000 as
@@ -95,6 +102,25 @@ export function buildBookingRequestPayload({
     respondedAt: null,
     userEmail: userEmail || "",
     tripId: tripId || null,
+    // THE SLOT, AT THE TOP LEVEL, as the app writes it. bookingDetails carries
+    // the date as a full ISO instant and no time at all, which is enough to
+    // show a traveller their booking and not enough for the server to count
+    // one. Instant confirmation has to know that two people want 11am on the
+    // same day before it sells the second.
+    //
+    // THIS COPY WENT WITHOUT THEM UNTIL 22 Oct 2026. It worked only because
+    // onBookingRequestCreated (functions/index.js:12547) reads a five-rung
+    // ladder, `data.bookingDate || data.bookingDetails?.date || ...`, whose
+    // own comment records that an earlier version read the top-level name
+    // alone, found nothing, and left every request pending with "no date".
+    // So every booking made on the website was riding the fallback, and the
+    // next thing to read the obvious field name would have missed all of
+    // them silently. Same shape as the booking mirror reading zero.
+    //
+    // Fall back to bookingDetails so no caller has to change: the value
+    // written is the one the ladder would have found anyway.
+    bookingDate: bookingDate || bookingDetails?.date || null,
+    bookingTime: bookingTime || bookingDetails?.time || null,
     idempotencyKey: idempotencyKey || null,
   };
 }
