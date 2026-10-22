@@ -23,7 +23,7 @@ import { Plus, Loader2, ArrowLeft, UserPlus, Check, Search, X } from "lucide-rea
 import { useAuth } from "@/contexts/AuthContext";
 import { createTrip, addTripMember, findTravellers, type TripMember } from "@/lib/trips";
 import { getKnownCities, type KnownCity } from "@/lib/listings";
-import { watchMyConversations, fetchPeople, withPeople, keyOf, parseKey, type Conversation } from "@/lib/conversations";
+import { watchMyConversations, fetchPeople, withPeople, keyOf, parseKey, BIE_ID, type Conversation } from "@/lib/conversations";
 import { tripAvatar, previewOf } from "@/lib/trip-visual";
 import TripChat, { NoTripPicked } from "@/components/TripChat";
 
@@ -82,7 +82,12 @@ function TripsInner() {
       if (!live) return;
       setConvosFailed(!!failed);
       setConvos(list);
-      const ids = list.filter((c) => c.kind === "chat").map((c) => c.otherId || "").filter(Boolean);
+      // Bie is not a user document, so asking for it is a read that can
+      // only come back empty, and it already has its name.
+      const ids = list
+        .filter((c) => c.kind === "chat" && c.otherId !== BIE_ID)
+        .map((c) => c.otherId || "")
+        .filter(Boolean);
       if (ids.length === 0) return;
       const people = await fetchPeople(ids);
       // The await means this can land after the component is gone, and a

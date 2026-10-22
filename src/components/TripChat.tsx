@@ -17,7 +17,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Send, Sparkles, Loader2, Check, CheckCheck, Clock, MessageSquare } from "lucide-react";
 import { watchMessages, sendMessage, markTripRead, type ChatMessage } from "@/lib/chat";
-import { askBie } from "@/lib/bie";
+import { askBie, isBieChat } from "@/lib/bie";
 import dynamic from "next/dynamic";
 
 // The player and the 86KB of vectors stay out of the page that does not
@@ -97,6 +97,11 @@ export default function TripChat({
   // Trips only. Bie's whole advantage is knowing where the trip is and when,
   // and a one-to-one chat has no destination to know.
   const [asking, setAsking] = useState(false);
+  // A THREAD WHOSE ONLY OTHER PARTICIPANT IS BIE. Sending in one of those
+  // IS asking: typing "Hi bie" and getting silence, because the ask lived
+  // behind a button that only appeared on trips, is what this is for.
+  // 52 of the 74 chat documents in production are these.
+  const bieThread = trip.kind === "chat" && isBieChat(trip.id);
   const ask = async () => {
     const body = draft.trim();
     if (!body || asking) return;
@@ -109,7 +114,7 @@ export default function TripChat({
       // null while the thread is still loading: Bie gets the trip context
       // from the server either way, so an empty history is a thinner question
       // rather than a broken one.
-      await askBie(trip.id, body, messages ?? []);
+      await askBie(trip.id, body, messages ?? [], trip.kind);
     } catch {
       // The question is already in the thread and Bie's placeholder renders
       // as nothing, so the worst case is a question nobody answered, which
@@ -123,6 +128,8 @@ export default function TripChat({
     e.preventDefault();
     const body = draft.trim();
     if (!body) return;
+    // In Bie's own thread there is nobody else to send to.
+    if (bieThread) { void ask(); return; }
     const cid = newClientMessageId();
     setDraft("");
     setPending((list) => [...list, queue(body, cid)]);
@@ -293,7 +300,7 @@ export default function TripChat({
           aria-label="Write a message"
           className="min-w-0 flex-1 rounded-xl border border-line bg-surface px-3.5 py-2.5 text-ink placeholder:text-ink-faint"
         />
-        {trip.kind === "trip" && (
+        {trip.kind === "trip" && !bieThread && (
           <button
             type="button"
             onClick={ask}

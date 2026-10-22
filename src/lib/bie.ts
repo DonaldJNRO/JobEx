@@ -17,7 +17,7 @@
 import { doc, collection, setDoc, serverTimestamp } from "firebase/firestore";
 import { httpsCallable } from "firebase/functions";
 import { db, functions } from "./firebase";
-import { messagesPath } from "./conversations";
+import { messagesPath, type ConversationKind } from "./conversations";
 import type { ChatMessage } from "./chat";
 
 /** Who Bie is in a messages collection. The app writes this id and the web
@@ -29,10 +29,19 @@ export const BIE_NAME = "Bie";
  *  the other one", not so many that an old trip sends a novel on every ask. */
 const CONTEXT_MESSAGES = 12;
 
+/** A personal Bie chat is chats/bie_{uid}. 52 of the 74 chat documents in
+ *  production are these, and the function detects one by that prefix. */
+export function isBieChat(id: string): boolean {
+  return id.startsWith("bie_");
+}
+
 interface BieCall {
   messages: { role: "user" | "assistant"; content: string }[];
-  streamToDoc: { tripId: string; messageId: string };
-  tripId: string;
+  /** tripId for a trip chat, chatId for a personal one. The function reads
+   *  whichever is present and writes into the matching collection. */
+  streamToDoc: { tripId?: string; chatId?: string; messageId: string };
+  tripId?: string;
+  model?: string;
   useTools: boolean;
 }
 
@@ -52,9 +61,11 @@ const callBieAI = httpsCallable<BieCall, { content?: string; provider?: string }
  * by then, because the document it wrote into is the one being watched.
  */
 export async function askBie(
-  tripId: string,
+  id: string,
   question: string,
   history: ChatMessage[],
+  /** "trip" for a group chat, "chat" for a personal Bie thread. */
+  kind: ConversationKind = "trip",
 ): Promise<void> {
   const body = question.trim();
   if (!body) return;
@@ -69,8 +80,8 @@ export async function askBie(
   // text starts empty on purpose. The same listener drops a message with no
   // text, so there is no empty grey bubble while Bie thinks, and if a tool
   // posts a card instead the server blanks this doc and it stays invisible.
-  const messageId = doc(collection(db, ...messagesPath("trip", tripId))).id;
-  await setDoc(doc(db, ...messagesPath("trip", tripId), messageId), {
+  const messageId = doc(collection(db, ...messagesPath(kind, id))).id;
+  await setDoc(doc(db, ...messagesPath(kind, id), messageId), {
     text: "",
     type: "text",
     senderId: BIE_SENDER_ID,
@@ -96,10 +107,13 @@ export async function askBie(
   // No system message. The function builds its own and enriches it with the
   // trip's destination, dates and group size; sending one from here would be
   // a second prompt competing with the one that knows where the trip is.
-  await callBieAI({
-    messages,
-    streamToDoc: { tripId, messageId },
-    tripId,
-    useTools: true,
-  });
+  // A PERSONAL CHAT IS NOT A TRIP. The function picks the parent collection
+  // from which id it is given, and a personal thread also asks for sonnet:
+  // it is the one with no trip behind it to lean on, so the reasoning has to
+  // come from the model rather than the context.
+  await callBieAI(
+    kind === "chat"
+      ? { messages, model: "sonnet", streamToDoc: { chatId: id, messageId }, useTools: true }
+      : { messages, streamToDoc: { tripId: id, messageId }, tripId: id, useTools: true },
+  );
 }

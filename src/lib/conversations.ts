@@ -74,6 +74,10 @@ export function previewOf(raw: unknown): string | null {
 }
 
 /** The person on the other side of a two-person chat. */
+/** Bie's id in a participants list. Not a user document, so it never
+ *  resolves to a person and must not be looked up as one. */
+export const BIE_ID = "sabie_ai";
+
 export function otherOf(memberIds: string[], me: string): string | null {
   return memberIds.find((u) => u && u !== me) || null;
 }
@@ -183,7 +187,15 @@ export function watchMyConversations(
           kind: "chat" as const,
           // Filled in by the caller from the users it resolves: a chat
           // document does not carry the other person's name.
-          title: "",
+          // BIE IS NOT "SOMEONE". 52 of the 74 chat documents in production
+          // are personal Bie threads: participants [uid, 'sabie_ai'], marked
+          // isBieChat. sabie_ai has no user document, so resolving it found
+          // nothing and nameOf fell through to its last resort. Two thirds of
+          // the one-to-one rows on this website read "Someone".
+          //
+          // Named here rather than in withPeople, so it is right on the first
+          // paint instead of correcting itself once the people resolve.
+          title: v.isBieChat === true || otherOf(members, me) === BIE_ID ? "Bie" : "",
           otherId: otherOf(members, me),
           memberIds: members,
           lastMessage: previewOf(v.lastMessage),
@@ -302,6 +314,8 @@ export async function fetchPeople(uids: string[]): Promise<Map<string, Person>> 
 export function withPeople(list: Conversation[], people: Map<string, Person>): Conversation[] {
   return list.map((c) => {
     if (c.kind !== "chat") return c;
+    // Bie already has its name and no person to resolve.
+    if (c.otherId === BIE_ID) return c;
     const p = c.otherId ? people.get(c.otherId) : null;
     return {
       ...c,

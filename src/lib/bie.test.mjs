@@ -42,7 +42,15 @@ if (!fn) {
 } else {
   ok(/streamToDoc\?\.messageId && \(streamToDoc\?\.tripId/.test(fn),
     "the function streams when given messageId + tripId");
-  ok(/streamToDoc: \{ tripId, messageId \}/.test(bie), "which is what this sends");
+  ok(/streamToDoc: \{ tripId: id, messageId \}/.test(bie),
+    "which is what this sends for a trip");
+  // A PERSONAL BIE CHAT IS THE OTHER HALF, and the bigger one: 52 of the 74
+  // chat documents in production are chats/bie_{uid}. The function picks the
+  // parent collection from which id it is handed.
+  ok(/streamToDoc\?\.chatId/.test(fn), "the function also streams into a chat");
+  ok(/streamToDoc: \{ chatId: id, messageId \}/.test(bie), "which this sends too");
+  ok(/startsWith\('bie_'\)/.test(fn) && /startsWith\("bie_"\)/.test(bie),
+    "and both recognise a personal thread by the same prefix");
   ok(/senderId: 'sabie_ai'/.test(fn) && /BIE_SENDER_ID = "sabie_ai"/.test(bie),
     "and both name Bie the same way in a messages collection");
   // The server UPDATES the doc. If it ever created it instead, the web's

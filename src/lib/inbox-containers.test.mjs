@@ -12,7 +12,7 @@
 // Run: tsx src/lib/inbox-containers.test.mjs
 
 import { readFileSync } from "node:fs";
-import { isRealConversation } from "./conversations.ts";
+import { isRealConversation, BIE_ID } from "./conversations.ts";
 import { readSibling, skipNote } from "./sibling.mjs";
 
 const trips = readFileSync(new URL("./trips.ts", import.meta.url), "utf8");
@@ -54,6 +54,19 @@ if (!app) {
   ok(/createdVia === undefined/.test(app) && /memberCount <= 1/.test(app),
     "and falls back to member count only for trips written before the flag");
 }
+
+// ── AND BIE IS CALLED BIE ───────────────────────────────────────────────
+// 52 of the 74 chat documents are personal Bie threads: participants
+// [uid, 'sabie_ai'], marked isBieChat. sabie_ai has no user document, so
+// resolving it found nothing and the row fell through to "Someone". Two
+// thirds of the one-to-one rows on the website read "Someone".
+console.log("\nand Bie is not Someone");
+const convos = readFileSync(new URL("./conversations.ts", import.meta.url), "utf8");
+ok(BIE_ID === "sabie_ai", "Bie's id is the one the app writes");
+ok(/isBieChat === true \|\| otherOf\(members, me\) === BIE_ID \? "Bie"/.test(convos),
+  "a Bie thread is titled at map time, so it never flashes Someone first");
+ok(/if \(c\.otherId === BIE_ID\) return c;/.test(convos),
+  "and withPeople leaves it alone rather than overwriting the name");
 
 console.log(fails ? `\n${fails} FAILED` : "\nALL PASSED");
 process.exit(fails ? 1 : 0);
