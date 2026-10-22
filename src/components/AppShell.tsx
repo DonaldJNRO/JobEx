@@ -53,42 +53,61 @@ const TABS = [
 ];
 
 /**
- * IS SOMEBODY TYPING?
+ * HOW TALL THE WINDOW ACTUALLY IS, and whether somebody is typing.
  *
- * The first version of this measured the keyboard: innerHeight minus
- * visualViewport.height, keyboard when the gap passed 120px. It was wrong on
- * the founder's own phone within the hour, and wrong in the worst direction.
+ * TWO WRONG ANSWERS GOT SHIPPED BEFORE THIS ONE, both on the same day.
  *
- * His browser draws its address bar at the BOTTOM, floating over the page.
- * visualViewport is therefore permanently shorter than innerHeight by about
- * that bar's height, with no keyboard anywhere. The gap never fell under the
- * threshold, the flag never cleared, and the tab bar stayed hidden on every
- * page whether or not anyone was typing.
+ * First, dvh. layout.tsx asks for interactive-widget=resizes-content, which
+ * makes the LAYOUT viewport shrink when the keyboard opens so dvh follows it.
+ * That works on Chromium 108 and up and SAFARI IGNORES IT: iOS shrinks only
+ * the visual viewport, and the CSSWG has an open issue saying there is no
+ * standards-based answer for a fixed composer over a scrolling thread, naming
+ * this exact layout. So dvh is right on Android and wrong on iPhone, which is
+ * the worst kind of right.
  *
- * So: ask the question we actually care about. A phone shows its keyboard
- * when a text field takes focus, and the only reason this flag exists is to
- * get the tab bar out from between the composer and that keyboard. Focus is
- * the thing itself rather than a measurement of its side effect, it cannot
- * be confused by browser chrome, and it clears the moment the field blurs.
+ * Second, measuring the keyboard as innerHeight minus visualViewport.height.
+ * The founder's browser draws its address bar at the BOTTOM, floating, so
+ * that gap is permanently one address bar tall with no keyboard anywhere. The
+ * flag never cleared and the tab bar stayed hidden on every page.
  *
- * Coarse pointers only: a focused input on a laptop summons no keyboard, and
- * hiding a nav that is not in the way would be a fix with no bug.
+ * visualViewport.height is the one number both platforms get right: the part
+ * of the window you can actually see, keyboard and browser chrome already
+ * taken off. Published as --app-h, and every full-height surface measures
+ * from it rather than from dvh. dvh stays as the fallback for the first paint
+ * and for anything without the API.
+ *
+ * Typing is still read from FOCUS and never from arithmetic, because that is
+ * the thing itself rather than a measurement of its side effect.
  */
-function useTypingFlag() {
+function useWindowMetrics() {
   useEffect(() => {
-    if (!window.matchMedia("(pointer: coarse)").matches) return;
     const root = document.documentElement;
+    const vv = window.visualViewport;
+
+    if (vv) {
+      // Rounded, or a fractional pixel on every scroll rewrites the variable
+      // and reflows a page nobody asked to move.
+      const measure = () => root.style.setProperty("--app-h", `${Math.round(vv.height)}px`);
+      measure();
+      vv.addEventListener("resize", measure);
+      var stopVv = () => { vv.removeEventListener("resize", measure); root.style.removeProperty("--app-h"); };
+    }
+
+    // Coarse pointers only: a focused input on a laptop summons no keyboard,
+    // and hiding a nav that is not in the way is a fix with no bug.
+    const coarse = window.matchMedia("(pointer: coarse)").matches;
     const typing = (el: EventTarget | null) => {
       const t = el as HTMLElement | null;
       if (!t) return false;
-      const tag = t.tagName;
-      return tag === "INPUT" || tag === "TEXTAREA" || t.isContentEditable;
+      return t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable;
     };
-    const on = (e: FocusEvent) => { if (typing(e.target)) root.setAttribute("data-kb", "open"); };
+    const on = (e: FocusEvent) => { if (coarse && typing(e.target)) root.setAttribute("data-kb", "open"); };
     const off = () => root.removeAttribute("data-kb");
     document.addEventListener("focusin", on);
     document.addEventListener("focusout", off);
+
     return () => {
+      stopVv?.();
       document.removeEventListener("focusin", on);
       document.removeEventListener("focusout", off);
       root.removeAttribute("data-kb");
@@ -126,7 +145,7 @@ export default function AppShell({
   // Three questions, not one. See src/lib/app-shell.ts: conflating them is
   // what put a footer under the chat and scrolled the page instead of the
   // thread.
-  useTypingFlag();
+  useWindowMetrics();
   const show = showsShell(pathname);
   const bar = showsBottomBar(pathname);
   const withFooter = showsFooter(pathname);

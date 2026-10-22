@@ -183,12 +183,16 @@ function TripsInner() {
     // into a chat left no visible way out, and the name of who you were
     // talking to was half gone.
     //
+    // MEASURED, NOT ASSUMED. --app-h is visualViewport.height, the one figure
+    // Android and iPhone agree on: dvh only follows the keyboard on Chromium,
+    // and Safari ignores the meta that asks it to.
+    //
     // ONE VARIABLE, not a second copy of the number. --app-bar-h is the bar
     // plus the home indicator under it, zero from md where the rail takes
     // over, and zero while the keyboard is up: the viewport has already
     // shrunk by then, so subtracting a bar that is no longer on screen left
     // the composer floating above a band of empty cream.
-    <div className="h-[calc(100dvh-4rem-var(--app-bar-h))] overflow-hidden p-0 lg:p-4">
+    <div className="h-[calc(var(--app-h)-4rem-var(--app-bar-h))] overflow-hidden p-0 lg:p-4">
       {/* AND CAPPED, like every other page. This was the one surface with no
           width at all, so a two-pane inbox stretched to whatever the monitor
           was: a list column and a thread column each half a 27-inch screen
@@ -585,7 +589,7 @@ function TripsInner() {
 
 export default function TripsPage() {
   return (
-    <Suspense fallback={<div className="h-[calc(100dvh-4rem)] bg-surface" />}>
+    <Suspense fallback={<div className="h-[calc(var(--app-h)-4rem-var(--app-bar-h))] bg-surface" />}>
       <TripsInner />
     </Suspense>
   );

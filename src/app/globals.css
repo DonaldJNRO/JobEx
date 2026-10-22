@@ -569,6 +569,16 @@ input[type="date"], input[type="time"], select {
  * With the keyboard up the bar is gone, so its height is zero and the whole
  * shrunken window belongs to the thread and the box you are typing in. From
  * md the bar does not exist at all and the rail takes over. */
+/* THE WINDOW, MEASURED RATHER THAN ASSUMED.
+ *
+ * 100dvh is the fallback for the first paint and for anything without
+ * visualViewport. AppShell overwrites --app-h with the real figure as soon
+ * as it mounts, because dvh only follows the keyboard on Chromium: Safari
+ * ignores interactive-widget entirely, and the CSSWG has an open issue
+ * saying there is no standards answer for a composer pinned under a
+ * scrolling thread. visualViewport.height is what both platforms agree on. */
+:root { --app-h: 100dvh; }
+
 :root { --app-bar-h: calc(4.5rem + env(safe-area-inset-bottom, 0px)); }
 :root[data-kb="open"] { --app-bar-h: 0px; }
 @media (min-width: 768px) { :root { --app-bar-h: 0px; } }
