@@ -164,6 +164,12 @@ export async function addToTrip(
       (listing as { businessName?: string; title?: string }).businessName
         || (listing as { title?: string }).title
         || "My trip",
+      // NOBODY ASKED FOR THIS TRIP. It exists to hold what was just added,
+      // and both inboxes hide a container so a basket does not arrive in a
+      // chat list as a conversation with one person and no messages. The
+      // app's BundleContext has stamped this since cart trips existed; the
+      // website wrote "web" and its containers showed up.
+      { via: "cart" },
     );
 
   // A fresh key per add, or the second thing somebody adds is swallowed as a

@@ -106,6 +106,34 @@ export function parseKey(key: string): { kind: ConversationKind; id: string } | 
 }
 
 /** Where a thread's messages live. */
+/**
+ * A TRIP SOMEBODY MEANT TO HAVE, as opposed to a container for a basket.
+ *
+ * Ported verbatim from the app's MessageListScreen.js:471, which has hidden
+ * these for a while. The website listed every trip, so a chat list showed
+ * containers the phone was quietly leaving out: "The Rink Arena" twice from
+ * the same second, "Sunset Haven" twice, every one of them a single person
+ * with no messages, named after the first thing somebody added to a basket.
+ *
+ * Intent, not member count. BundleContext stamps `createdVia: 'cart'` on a
+ * trip spun up to hold a cart item, and says so where it writes it.
+ *
+ * The legacy clause is the reason this is not one line. Trips written before
+ * createdVia existed carry no flag, and defaulting those to "show" would put
+ * every old container back in the list. For those only, the old proxy holds:
+ * a flagless single-member trip is overwhelmingly a container, and anything
+ * genuinely shared has two members and survives either way.
+ */
+export function isRealConversation(v: Record<string, unknown>): boolean {
+  if (v.travelType === "solo") return false;
+  if (v.createdVia === "cart") return false;
+  if (v.createdVia === undefined) {
+    const members = Array.isArray(v.memberIds) ? v.memberIds.length : 0;
+    if (members <= 1) return false;
+  }
+  return true;
+}
+
 export function messagesPath(kind: ConversationKind, id: string): [string, string, string] {
   return [kind === "chat" ? "chats" : "trips", id, "messages"];
 }
@@ -179,7 +207,10 @@ export function watchMyConversations(
   const unsubTrip = onSnapshot(
     tripQ,
     (snap) => {
-      trips = snap.docs.map((d) => {
+      trips = snap.docs
+        // See isRealConversation: a basket is not a conversation.
+        .filter((d) => isRealConversation(d.data() as Record<string, unknown>))
+        .map((d) => {
         const v = d.data() as Record<string, unknown>;
         const selected = (Array.isArray(v.selectedUsers) ? v.selectedUsers : []) as Array<Record<string, unknown>>;
         return {

@@ -161,6 +161,16 @@ export interface TripDestination {
 }
 
 export interface NewTripDetails {
+  /**
+   * WHY THIS TRIP EXISTS, which is what the inbox filters on.
+   *
+   * "web" is somebody deliberately starting one. "cart" is a container spun
+   * up to hold a basket item, and both inboxes hide those: see
+   * isRealConversation, ported from the app's MessageListScreen. Writing
+   * "web" on a container is how "The Rink Arena" ends up looking like a trip
+   * somebody meant to have.
+   */
+  via?: "web" | "cart";
   destination?: TripDestination | null;
   /** Local calendar dates as the person picked them, "2026-12-24". */
   startDate?: string | null;
@@ -193,7 +203,7 @@ export async function createTrip(
     travelType: "group",
     // So a reader can tell where a trip came from, as createdVia does for the
     // wizard and the cart.
-    createdVia: "web",
+    createdVia: details.via ?? "web",
     isSoloTravel: false,
     // WHERE AND WHEN, in the three shapes the app already reads.
     //
