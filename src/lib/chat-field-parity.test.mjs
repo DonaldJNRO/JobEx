@@ -18,6 +18,7 @@
 // Run: tsx src/lib/chat-field-parity.test.mjs
 
 import { readFileSync, existsSync } from "node:fs";
+import { readSibling, skipNote } from "./sibling.mjs";
 
 let fails = 0;
 const ok = (cond, label) => {
@@ -40,10 +41,10 @@ ok(/d\.sentAt \?\? d\.timestamp/.test(CHAT), "sentAt first, falling back to time
 
 // THE OTHER HALF OF THE PAIR. If the app is on disk, hold the two together
 // rather than trusting a comment about what it does.
-const APP = "/Users/k9/Downloads/sabie-v53-main/contexts/MessageContext.js";
+const APP_SRC = readSibling("sabie-v53-main", "contexts", "MessageContext.js");
 console.log("\nand the phone agrees, where the phone is on disk");
-if (existsSync(APP)) {
-  const src = readFileSync(APP, "utf8");
+if (APP_SRC) {
+  const src = APP_SRC;
   ok(/orderBy\('sentAt'/.test(src), "the app orders by sentAt, which is why the web must");
 } else {
   console.log("  --   sabie-v53-main not on this machine, skipped");

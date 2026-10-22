@@ -59,8 +59,23 @@ export const LADDER: Rung[] = [
  * deciding whether to pay needs to know.
  */
 export function oneLine(): string {
-  return `Free to cancel up to ${FULL_REFUND_HOURS} hours before. `
-    + `Inside that, half comes back. Inside ${HALF_REFUND_HOURS} hours, the operator keeps it.`;
+  // ONE LITERAL, NOT TWO JOINED WITH `+`.
+  //
+  // This was two template literals concatenated across a line break, and the
+  // PRODUCTION BUILD dropped the text between the interpolation and the
+  // closing backtick. Live on sabieapp.com it read:
+  //
+  //   "Free to cancel up to 48Inside that, half comes back."
+  //
+  // The source was right the whole time. Running oneLine() under tsx returns
+  // the correct sentence, and cancellation.test.mjs asserts it and passes.
+  // Only the built bundle was wrong, which is why a source test could never
+  // have caught it: see scripts/built-copy-check.mjs, which reads the chunks
+  // `next build` actually emits.
+  //
+  // It was on the checkout, under the total, telling somebody about to pay
+  // £1,050 what happens if they cancel.
+  return `Free to cancel up to ${FULL_REFUND_HOURS} hours before. Inside that, half comes back. Inside ${HALF_REFUND_HOURS} hours, the operator keeps it.`;
 }
 
 /**

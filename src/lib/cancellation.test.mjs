@@ -29,10 +29,35 @@ console.log("\nand follows the house rules for copy");
 const copy = [...LADDER.map((r) => `${r.when} ${r.outcome}`), oneLine()].join(" ");
 ok(!/[—–]|\s-\s/.test(copy), "no dashes used as punctuation");
 
-const SERVER = "/Users/k9/Downloads/sabie-v53-main/functions/cancellationPolicy.js";
+// WHERE THE SERVER FILE MIGHT BE, in order. The first was the only one, an
+// absolute path into one machine's Downloads folder, which makes this check
+// silently skip for everybody else and for CI.
+const SERVER_CANDIDATES = [
+  new URL("../../../sabie-v53-main/functions/cancellationPolicy.js", import.meta.url).pathname,
+  "/Users/k9/Downloads/sabie-v53-main/functions/cancellationPolicy.js",
+];
+
+// existsSync IS NOT ENOUGH, and the difference cost a green suite today.
+// macOS can let a process STAT a path in a protected folder while refusing to
+// READ it, so existsSync returned true and readFileSync threw EPERM, which
+// took the whole run down instead of skipping. A check that cannot run must
+// say so; it must never fail the suite, and it must never pass quietly either.
+function readServer() {
+  for (const path of SERVER_CANDIDATES) {
+    if (!existsSync(path)) continue;
+    try {
+      return { path, src: readFileSync(path, "utf8") };
+    } catch (e) {
+      console.log(`  --   ${path} exists but cannot be read (${e.code}), trying the next`);
+    }
+  }
+  return null;
+}
+
 console.log("\nand the numbers are the server's, not ours");
-if (existsSync(SERVER)) {
-  const src = readFileSync(SERVER, "utf8");
+const server = readServer();
+if (server) {
+  const src = server.src;
   const full = Number(src.match(/FULL_REFUND_HOURS\s*=\s*(\d+)/)?.[1]);
   const half = Number(src.match(/HALF_REFUND_HOURS\s*=\s*(\d+)/)?.[1]);
   ok(full === FULL_REFUND_HOURS, `full refund window matches the server (${full})`);
@@ -40,7 +65,7 @@ if (existsSync(SERVER)) {
   ok(/percent: 100/.test(src) && /percent: 50/.test(src) && /percent: 0/.test(src),
     "and the server really does pay 100, 50 and 0");
 } else {
-  console.log("  --   sabie-v53-main not on this machine, skipped");
+  console.log("  --   sabie-v53-main not readable from here, skipped");
 }
 
 console.log(fails ? `\n${fails} FAILED` : "\nALL PASSED");

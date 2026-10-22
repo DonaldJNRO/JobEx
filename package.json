@@ -8,9 +8,10 @@
     "start": "next start",
     "lint": "echo 'next lint was removed in Next 16 and there is no ESLint config here. Use: npm run verify' && exit 1",
     "check:tokens": "node scripts/token-collision-check.mjs",
-    "test": "for f in src/lib/*.test.mjs; do printf \"\\n— %s\\n\" \"$f\"; tsx \"$f\" || exit 1; done",
+    "test": "for f in src/lib/*.test.mjs; do printf \"\\n\u2014 %s\\n\" \"$f\"; tsx \"$f\" || exit 1; done",
     "typecheck": "tsc --noEmit",
-    "verify": "npm run typecheck && npm test && npm run check:tokens"
+    "verify": "npm run typecheck && npm test && npm run check:tokens",
+    "check:built": "node scripts/built-copy-check.mjs"
   },
   "dependencies": {
     "@stripe/react-stripe-js": "^7.0.0",

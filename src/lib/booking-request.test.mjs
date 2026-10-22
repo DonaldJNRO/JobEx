@@ -118,10 +118,10 @@ is(guestCurrency(''), '', 'and neither does nothing at all')
 // keeping the comment about the naira-labelled-as-pounds bug that leg exists
 // to prevent. Nothing noticed, because nothing read the other side.
 import { readFileSync } from "node:fs";
+import { readSibling, skipNote } from "./sibling.mjs";
 
-const APP_FILE = "/Users/k9/Downloads/sabie-v53-main/utils/bookingRequestPayload.js";
-let appSrc = null;
-try { appSrc = readFileSync(APP_FILE, "utf8"); } catch { /* app repo not beside this one */ }
+const APP_SRC = readSibling("sabie-v53-main", "utils", "bookingRequestPayload.js");
+const appSrc = APP_SRC;
 
 if (!appSrc) {
   console.log("\n  skip  the app repo is not checked out beside this one");

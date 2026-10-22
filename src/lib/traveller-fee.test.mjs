@@ -13,6 +13,7 @@
 // Run: tsx src/lib/traveller-fee.test.mjs
 
 import { readFileSync, existsSync } from "node:fs";
+import { readSibling, skipNote } from "./sibling.mjs";
 import {
   TRAVELLER_FEE_PERCENT, FEE_MAX_PERCENT, FEE_FLOOR,
   travellerFeeMajor, travellerFeeMinor, breakdownOf, feeLabel,
@@ -23,16 +24,16 @@ const ok = (cond, label) => {
   if (!cond) { console.error("  FAIL " + label); fails++; } else { console.log("  ok   " + label); }
 };
 
-const FN = "/Users/k9/Downloads/sabie-v53-main/functions/travellerFee.js";
+const FN_SRC = readSibling("sabie-v53-main", "functions", "travellerFee.js");
 
 console.log("\nthe website's copy matches the function that actually charges");
-if (!existsSync(FN)) {
+if (!FN_SRC) {
   // An early return, not a skipped describe: a suite that silently does
   // nothing when a sibling repo is absent is how sabie-admin's CI stayed red
   // for days while reporting green.
   console.log("  --   functions/travellerFee.js not on this machine, parity unchecked");
 } else {
-  const src = readFileSync(FN, "utf8");
+  const src = FN_SRC;
   const pct = Number(src.match(/TRAVELLER_FEE_PERCENT\s*=\s*([\d.]+)/)?.[1]);
   const max = Number(src.match(/FEE_MAX_PERCENT\s*=\s*([\d.]+)/)?.[1]);
   ok(pct === TRAVELLER_FEE_PERCENT, `the rate is ${TRAVELLER_FEE_PERCENT} percent on both sides (server says ${pct})`);

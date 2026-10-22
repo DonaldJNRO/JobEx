@@ -13,6 +13,7 @@
 // Run: tsx src/lib/default-city.test.mjs
 
 import { readFileSync, existsSync } from "node:fs";
+import { readSibling, skipNote } from "./sibling.mjs";
 
 let fails = 0;
 const ok = (cond, label) => {
@@ -43,10 +44,10 @@ ok(/counts=\{cityCounts\}/.test(HOME), "and the home page passes real numbers");
 ok(/const cityCounts = useMemo/.test(HOME), "counted from the feed already in hand, not fetched again");
 
 // THE OTHER HALF OF THE PAIR, where the phone is on disk.
-const APP = "/Users/k9/Downloads/sabie-v53-main/screens/renter/feed/GridHomeScreen.js";
+const APP_SRC = readSibling("sabie-v53-main", "screens", "renter", "feed", "GridHomeScreen.js");
 console.log("\nand the phone still agrees");
-if (existsSync(APP)) {
-  const src = readFileSync(APP, "utf8");
+if (APP_SRC) {
+  const src = APP_SRC;
   const m = src.match(/DEFAULT_CITY\s*=\s*'([^']+)'/);
   ok(!!m, "the app declares a default city");
   ok(m && m[1].toLowerCase() === "lagos",
