@@ -174,28 +174,37 @@ function TripsInner() {
     // A CONTAINED PANEL, the way LinkedIn's messaging sits: a card with the
     // page showing around it rather than chrome running edge to edge. On a
     // phone it fills the screen, because margins there are just lost width.
-    // REVERTED, AFTER THREE ATTEMPTS MADE IT WORSE.
+    // THE PAGE WAS ONE TAB BAR TALLER THAN THE WINDOW. That is the whole
+    // bug, and it is arithmetic rather than anything a browser does:
     //
-    // The complaint was real: on a phone the page scrolls, so the thread
-    // header and its back arrow climb away under the navbar. Three fixes
-    // went out for it and each one was worse on the founder's own Android
-    // than the thing it replaced.
+    //   main's pt-16                     4.0rem   clears the fixed navbar
+    //   this column, 100dvh - 4rem     100dvh - 4rem
+    //   AppShell's pb              4.5rem + safe   clears the fixed tab bar
+    //   ----------------------------------------------------------------
+    //   total                      100dvh + 4.5rem + safe
     //
-    //   1. 100dvh minus a hardcoded 8.5rem. The shell already pads by the
-    //      bar, so the page reserved room for it twice.
-    //   2. Hiding the bar while typing, with the keyboard inferred from
-    //      innerHeight minus visualViewport.height. His browser draws its
-    //      address bar at the BOTTOM, so that gap is permanently
-    //      keyboard-sized and the bar stayed hidden on every page.
-    //   3. Sizing from visualViewport.height instead of dvh. Correct in
-    //      principle, and it left the thread scrolled entirely out of view
-    //      with the composer alone at the top of a blank screen.
+    // So the document overflowed the window by exactly one tab bar and the
+    // page scrolled by that much, which is the thread header and its back
+    // arrow climbing away under the navbar. The founder's words: "it doesn't
+    // really collapse to show me the back arrow".
     //
-    // The honest reading of three failures is that this needs a device I
-    // can put my hands on, not a fourth guess. So it is back to the shape
-    // that was merely imperfect: the header scrolls away, which is a
-    // nuisance, rather than a chat that cannot be read at all.
-    <div className="h-[calc(100dvh-4rem)] overflow-hidden p-0 lg:p-4">
+    // THREE EARLIER ATTEMPTS MISSED IT because each reached for the keyboard
+    // instead of the sum. The first subtracted 8.5rem here but LEFT the
+    // shell's padding, so it still counted the bar twice and put a band of
+    // cream under the composer. The second hid the tab bar while typing,
+    // inferring the keyboard from innerHeight minus visualViewport.height,
+    // which is permanently keyboard-sized on a browser that floats its
+    // address bar at the BOTTOM, as the founder's does. The third measured
+    // the window with visualViewport and was worse still.
+    //
+    // The negative margin is what the first attempt was missing: it cancels
+    // the shell's bottom padding for this one page, which is the only page
+    // that fills the window itself. Both numbers are the SAME bar, written
+    // once each, so the sum comes to 100dvh - 4.5rem: no page scroll, and the
+    // composer sits exactly on top of the bar rather than behind it.
+    //
+    // From md there is no bottom bar at all, so both terms go to zero.
+    <div className="h-[calc(100dvh-4rem-4.5rem-env(safe-area-inset-bottom,0px))] -mb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] md:h-[calc(100dvh-4rem)] md:mb-0 overflow-hidden p-0 lg:p-4">
       {/* AND CAPPED, like every other page. This was the one surface with no
           width at all, so a two-pane inbox stretched to whatever the monitor
           was: a list column and a thread column each half a 27-inch screen
@@ -592,7 +601,7 @@ function TripsInner() {
 
 export default function TripsPage() {
   return (
-    <Suspense fallback={<div className="h-[calc(100dvh-4rem)] bg-surface" />}>
+    <Suspense fallback={<div className="h-[calc(100dvh-4rem-4.5rem-env(safe-area-inset-bottom,0px))] md:h-[calc(100dvh-4rem)] bg-surface" />}>
       <TripsInner />
     </Suspense>
   );
