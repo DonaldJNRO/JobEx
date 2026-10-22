@@ -174,25 +174,28 @@ function TripsInner() {
     // A CONTAINED PANEL, the way LinkedIn's messaging sits: a card with the
     // page showing around it rather than chrome running edge to edge. On a
     // phone it fills the screen, because margins there are just lost width.
-    // THE BOTTOM BAR IS PART OF THE WINDOW TOO.
+    // REVERTED, AFTER THREE ATTEMPTS MADE IT WORSE.
     //
-    // This subtracted the navbar and nothing else, while AppShell pads every
-    // page by 4.5rem on a phone to clear its fixed bottom bar. So the column
-    // was one bar taller than the screen, the PAGE scrolled, and the thread
-    // header went up under the navbar with the back arrow inside it: tapping
-    // into a chat left no visible way out, and the name of who you were
-    // talking to was half gone.
+    // The complaint was real: on a phone the page scrolls, so the thread
+    // header and its back arrow climb away under the navbar. Three fixes
+    // went out for it and each one was worse on the founder's own Android
+    // than the thing it replaced.
     //
-    // MEASURED, NOT ASSUMED. --app-h is visualViewport.height, the one figure
-    // Android and iPhone agree on: dvh only follows the keyboard on Chromium,
-    // and Safari ignores the meta that asks it to.
+    //   1. 100dvh minus a hardcoded 8.5rem. The shell already pads by the
+    //      bar, so the page reserved room for it twice.
+    //   2. Hiding the bar while typing, with the keyboard inferred from
+    //      innerHeight minus visualViewport.height. His browser draws its
+    //      address bar at the BOTTOM, so that gap is permanently
+    //      keyboard-sized and the bar stayed hidden on every page.
+    //   3. Sizing from visualViewport.height instead of dvh. Correct in
+    //      principle, and it left the thread scrolled entirely out of view
+    //      with the composer alone at the top of a blank screen.
     //
-    // ONE VARIABLE, not a second copy of the number. --app-bar-h is the bar
-    // plus the home indicator under it, zero from md where the rail takes
-    // over, and zero while the keyboard is up: the viewport has already
-    // shrunk by then, so subtracting a bar that is no longer on screen left
-    // the composer floating above a band of empty cream.
-    <div className="h-[calc(var(--app-h)-4rem-var(--app-bar-h))] overflow-hidden p-0 lg:p-4">
+    // The honest reading of three failures is that this needs a device I
+    // can put my hands on, not a fourth guess. So it is back to the shape
+    // that was merely imperfect: the header scrolls away, which is a
+    // nuisance, rather than a chat that cannot be read at all.
+    <div className="h-[calc(100dvh-4rem)] overflow-hidden p-0 lg:p-4">
       {/* AND CAPPED, like every other page. This was the one surface with no
           width at all, so a two-pane inbox stretched to whatever the monitor
           was: a list column and a thread column each half a 27-inch screen
@@ -589,7 +592,7 @@ function TripsInner() {
 
 export default function TripsPage() {
   return (
-    <Suspense fallback={<div className="h-[calc(var(--app-h)-4rem-var(--app-bar-h))] bg-surface" />}>
+    <Suspense fallback={<div className="h-[calc(100dvh-4rem)] bg-surface" />}>
       <TripsInner />
     </Suspense>
   );
