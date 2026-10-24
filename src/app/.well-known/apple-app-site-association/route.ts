@@ -42,6 +42,14 @@ export function GET() {
               { "/": "/s/*", comment: "a stay" },
               { "/": "/f/*", comment: "a film" },
               { "/": "/t/*", comment: "a trip invitation" },
+              // THE TWO THE APP GENERATES AND THIS FILE DID NOT CLAIM.
+              // utils/deepLinks.js builds every share link from one table of
+              // prefixes; nine of its eleven were listed here and these two
+              // were not, so a shared globe session or booking opened Safari
+              // while a shared listing opened the app. Found when the app
+              // moved its share links off link.sabieapp.com onto this domain.
+              { "/": "/gs/*", comment: "a globe session somebody shared" },
+              { "/": "/book/*", comment: "a booking" },
             ],
           },
         ],
