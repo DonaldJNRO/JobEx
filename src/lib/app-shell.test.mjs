@@ -15,7 +15,7 @@ for (const p of ["/", "/explore", "/listing/arrows-den", "/trips", "/cart", "/bo
 }
 
 console.log("\nand the footer is on the website pages only");
-for (const p of ["/about", "/terms", "/privacy", "/contact", "/auth/login"]) {
+for (const p of ["/about", "/terms", "/privacy", "/contact", "/auth/login", "/sources"]) {
   ok(showsFooter(p), `${p} has a footer`);
 }
 for (const p of ["/", "/trips", "/cart", "/bookings", "/account", "/listing/x"]) {
@@ -23,7 +23,7 @@ for (const p of ["/", "/trips", "/cart", "/bookings", "/account", "/listing/x"])
 }
 
 console.log("\nthe website does not");
-for (const p of ["/about", "/contact", "/terms", "/privacy", "/blog", "/auth/login", "/auth/signup"]) {
+for (const p of ["/about", "/contact", "/terms", "/privacy", "/blog", "/auth/login", "/auth/signup", "/sources"]) {
   ok(!showsShell(p), p);
 }
 

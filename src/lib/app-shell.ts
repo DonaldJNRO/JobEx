@@ -17,7 +17,10 @@
 // when you tap it.
 
 /** Routes that are a website, not the app. */
-export const MARKETING_PREFIXES = ["/about", "/contact", "/terms", "/privacy", "/blog", "/auth"];
+// /sources is the investor deck's evidence page. It is a document, not an app
+// surface, so it reads as a website: footer underneath, no rail and no bottom
+// bar. It is reached by direct link only and appears in no navigation.
+export const MARKETING_PREFIXES = ["/about", "/contact", "/terms", "/privacy", "/blog", "/auth", "/sources"];
 
 export function isMarketingRoute(pathname: string): boolean {
   const p = pathname || "/";

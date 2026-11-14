@@ -15,6 +15,15 @@ const nextConfig: NextConfig = {
   experimental: {
     viewTransition: true,
   },
+  // /evidence WAS THE ADDRESS IN AN EARLIER CUT OF THE DECK.
+  //
+  // That PDF is already in people's inboxes and cannot be recalled, so the old
+  // path has to keep working for as long as a copy of it exists. Permanent
+  // rather than temporary because /sources is now the real address and there is
+  // no plan for /evidence to ever hold a page of its own.
+  async redirects() {
+    return [{ source: "/evidence", destination: "/sources", permanent: true }];
+  },
   images: {
     remotePatterns: [
       { protocol: "https", hostname: "firebasestorage.googleapis.com" },

@@ -10,6 +10,10 @@ export const revalidate = 3600;
 // /blog is deliberately absent: it is a Coming Soon card with no posts behind
 // it, and a search result that leads there costs more than it returns. Put it
 // back the day it has something to read.
+//
+// /sources is deliberately absent too, and for the opposite reason: it is the
+// investor deck's evidence page and it carries noindex. This list is an
+// allowlist, so leaving a route out of it IS the exclusion. Do not add it.
 const STATIC_PAGES: MetadataRoute.Sitemap = [
   { url: BASE_URL, changeFrequency: "weekly", priority: 1 },
   { url: `${BASE_URL}/about`, changeFrequency: "monthly", priority: 0.7 },
