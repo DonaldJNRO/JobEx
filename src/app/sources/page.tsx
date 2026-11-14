@@ -29,6 +29,20 @@ import localFont from "next/font/local";
  * that can fail for a reason nobody on this team caused.
  *
  * Scoped to this route, so no other page pays for them.
+ *
+ * LATIN-EXT, NOT JUST LATIN, AND THAT IS THE WHOLE POINT.
+ *
+ * The first cut of these shipped Google's `latin` slice, which stops at
+ * U+00FF. Ę and ę are U+0118 and U+0119, and the naira sign is U+20A6, so
+ * every one of them fell out of the subset and the browser substituted
+ * Georgia for that single glyph. The brand name rendered as Sabi in one
+ * typeface and ę in another, which is the one typographic mistake this
+ * company cannot make, and ₦111.5 billion had the same seam in it.
+ *
+ * These three are subset from the upstream variable TTFs to latin plus
+ * latin-ext with pyftsubset, the same ranges Google serves, so the ogonek
+ * and the naira are in the file. A face added here later must cover both,
+ * and the test beside this page checks exactly that.
  */
 const display = localFont({
   src: "../../fonts/bitter.woff2",
@@ -148,7 +162,7 @@ export default function SourcesPage() {
             className="mb-5 h-7 w-auto"
           />
           <p className={`${MONO} m-0 text-caption tracking-[0.28em] text-secondary-ink`}>
-            SABIĘ · INVESTOR DECK
+            Sabię · Investor deck
           </p>
           <h1
             className={`${DISPLAY} mt-3.5 mb-0 text-display font-bold sm:text-hero leading-[1.08] tracking-normal text-balance text-ink`}
@@ -370,7 +384,7 @@ export default function SourcesPage() {
 
         <div className="flex flex-col gap-2 border-t border-line pt-5 text-small text-ink-faint">
           <p className={`${MONO} m-0 text-caption tracking-[0.2em] text-secondary-ink`}>
-            SABIĘ · EVIDENCE
+            Sabię · Evidence
           </p>
           <p className="m-0">
             Naira figures converted at approximately ₦2,000 to £1. Check the rate before
