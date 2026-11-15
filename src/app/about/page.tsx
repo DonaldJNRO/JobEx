@@ -28,10 +28,15 @@ const TEAM = [
 // about finding and asking a place.
 //
 // KEPT DELIBERATELY: Seb's "plan a Croatia trip" survives although Croatia is
-// not a city we serve and "plan" is a word this site no longer uses. He is
-// describing the PROBLEM he had before Sabię, checking two sites and messaging
-// six friends, which is the same problem the section above now describes. He
+// not a city we serve. He is describing the PROBLEM he had before Sabię,
+// checking two sites and messaging six friends about prices and dates, and he
 // is not claiming we sell Croatia.
+//
+// As of 15 Nov 2026 that quote is no longer a side note. "Message six friends
+// about prices and dates" is now the first paragraph of this page in a real
+// customer's own words, which is the strongest position a testimonial can be
+// in and the reason to protect it. If the mission copy ever moves off the
+// group again, this quote moves with it or comes out.
 //
 // Their dashes stay for the same reason the quotes do: these are real people's
 // words, and editing them to fit a style guide is worse than the style miss.
@@ -59,7 +64,7 @@ export default function AboutPage() {
         <div className="max-w-3xl mx-auto px-4">
           <h1 className="text-display sm:text-hero font-extrabold text-white mb-4 text-balance">About Sabię</h1>
           <p className="text-heading text-white/85 leading-relaxed">
-            We make a whole trip bookable, not just the bed you sleep in.
+            A trip is a group decision. We made it bookable.
           </p>
         </div>
       </section>
@@ -70,30 +75,59 @@ export default function AboutPage() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <h2 className="text-title font-bold text-ink mb-4">Our Mission</h2>
-              {/* The old copy here sold a planning tool: WhatsApp polls,
-                  spreadsheet budgets, AI recommendations, expense splitting.
-                  Three of those four name features this site does not have,
-                  and the category as a whole is one a free group chat already
-                  wins. This is the actual mission. */}
+              {/* THE PROBLEM COMES FIRST NOW, AND THE CATALOGUE SECOND.
+                  Changed 15 Nov 2026, and the reason is worth keeping.
+
+                  Every other public surface we own already led with the
+                  group. The App Store subtitle is "Plan trips with your
+                  people", its description opens "Sabię is how you plan a trip
+                  with the people you are going with", and its keywords
+                  include "friends". This page led with the catalogue. So
+                  searching the company returned a group trip product and
+                  reading this page returned a booking site, which are two
+                  different companies to anybody who checks, and checking is
+                  the first thing an investor does.
+
+                  The September version of this copy was right WHEN IT WAS
+                  WRITTEN: the website had no trips then, so selling group
+                  planning here would have named features that did not exist.
+                  It has them now. A trip, the people on it, the chat and the
+                  basket are all on this site. The invite link and the bill
+                  split are still the iOS app's alone, which is why the copy
+                  below claims one trip, one chat and one basket, and claims
+                  no wallet and no splitting. */}
               <p className="text-text-muted leading-relaxed mb-4">
-                Booking a hotel has been solved for twenty years. Everything else about a trip still happens over phone calls, voice notes, and a cousin who knows somebody.
+                Nobody plans a trip on their own. It takes seven people, one chat, a screenshot of a price that has already changed, and a date nobody ever quite agreed. The group decides, so until the group decides, nothing is booked.
+              </p>
+              <p className="text-text-muted leading-relaxed mb-4">
+                Booking a hotel has been solved for twenty years. Everything else, the restaurants and the salons and the studios and the days out, still happens over phone calls, voice notes, and a cousin who knows somebody. So we go to those places ourselves, we film them, and we make them bookable.
               </p>
               <p className="text-text-muted leading-relaxed">
-                So we go to the places the booking platforms never listed, the restaurants and the salons and the studios and the days out, we film them, and we make them bookable. A trip should be something you book, not something you arrange once you land.
+                Then we put them where the group already is. One trip, one chat, one basket, and a price that is still the price by the time everyone has said yes.
               </p>
             </div>
             <div className="grid grid-cols-2 gap-4">
               {/* Measured, not claimed. "Listings worldwide" was the worst of
-                  the four: the cities collection holds Lagos, Abuja, Jos and
-                  London live, and the 38 public listings are 20 Lagos, 7 Jos,
-                  6 Abuja, 2 London, 1 Bamako. "AI-Powered" and "Verified" were
-                  the same shape of claim the listing page was making with
-                  nothing behind it. A smaller true number beats a big one a
-                  visitor can disprove in one tap on Explore. */}
+                  the four: the cities collection holds Lagos, Abuja, Jos,
+                  London, Nottingham, Bamako and Nouakchott, and the live
+                  listings behind them, counted 15 Nov 2026, are 42 Lagos,
+                  23 Abuja, 14 Jos, 3 London, 2 Nottingham, 1 Bamako and
+                  1 Nouakchott. "AI-Powered" and "Verified" were the same
+                  shape of claim the listing page was making with nothing
+                  behind it. A smaller true number beats a big one a visitor
+                  can disprove in one tap on Explore.
+
+                  TOGETHER LEADS because the copy beside it now does. The
+                  order of these four is the order of the argument: the group
+                  is the problem, the visit is how we answer it, bookable is
+                  what that buys, and Nigeria first is where. Nigeria first
+                  stays at Lagos, Abuja and Jos deliberately: a city holding
+                  one listing is not a city we serve, whatever the cities
+                  collection says. */}
               {[
+                { icon: Users, label: "Together", desc: "One trip, one chat, one basket" },
                 { icon: Sparkles, label: "Visited", desc: "We went there ourselves" },
                 { icon: Shield, label: "Bookable", desc: "A request, not a phone number" },
-                { icon: Users, label: "Together", desc: "One trip the whole crew sees" },
                 { icon: Globe, label: "Nigeria first", desc: "Lagos, Abuja and Jos" },
               ].map((s) => (
                 <div key={s.label} className="bg-card p-5 rounded-2xl border border-line text-center">
