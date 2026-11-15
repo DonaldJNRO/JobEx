@@ -56,6 +56,17 @@ export default function Footer() {
                   no global platform can book. sitemap.ts was updated in the
                   same change, so the two no longer disagree. */}
               <li><Link href="/blog" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">Writing</Link></li>
+              {/* SOURCES IS LINKED NOW, AND IT STAYS noindex.
+                  That page was built to be unreachable: "not in the sitemap
+                  and not in the nav, on purpose", reached only by typing the
+                  address or tapping the deck. The reason given was that an
+                  evidence sheet must never outrank a product page in search,
+                  and that reason is still good. A footer link does not change
+                  it: the robots metadata keeps it out of results while a
+                  human who wants to check our numbers can now find it without
+                  being handed a URL. Linking and indexing are separate, and
+                  only the second one was ever the worry. */}
+              <li><Link href="/sources" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">Sources</Link></li>
               <li><Link href="/contact" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">Contact</Link></li>
               <li><Link href="/privacy" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">Privacy</Link></li>
               <li><Link href="/terms" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">Terms</Link></li>
