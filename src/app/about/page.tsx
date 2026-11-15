@@ -1,5 +1,43 @@
 import Image from "next/image";
 import { Globe, Users, Sparkles, Shield } from "lucide-react";
+import { cardClass } from "@/lib/ui-recipes";
+
+// THE PAIN, IN THE ORDER IT ACTUALLY HAPPENS.
+//
+// Four beats, and the order is the argument: a date that is not a date, a
+// price that moves, money one person fronts, and then the silence. Each one
+// is the step where a group LOSES the decision it had just made, which is why
+// the section ends on "nothing in that chat is a booking" rather than on us.
+//
+// Everything here is recognisable rather than measured, deliberately. The
+// measured version of this page is sabieapp.com/sources and it is about the
+// market, not about a reader's own group chat. What is behind these four, and
+// not printed here because a visitor did not ask for our internals: of our own
+// group trips, 15 of 43 never agreed a date at all, and the median one that
+// never produced a booking has been open 210 days.
+const PAIN = [
+  {
+    lead: "Somebody picks a weekend.",
+    rest: "Three people react to it. Nobody has opened their calendar, so the date is still not a date.",
+  },
+  {
+    lead: "Somebody sends a link.",
+    rest: "By the time the fourth person opens it the price has moved, and the screenshot in the chat is already wrong.",
+  },
+  {
+    lead: "Somebody pays to hold it.",
+    rest: "Then spends the next few weeks asking five people for their share.",
+  },
+  {
+    lead: "Somebody goes quiet.",
+    rest: "Then everybody does. Months later the most organised one books their own flight, and the trip quietly becomes a smaller trip.",
+  },
+];
+
+// The display face is set on h1 and h2 in globals.css, so anywhere else that
+// wants it has to name it. The numerals do, because a serif numeral beside a
+// sans sentence is what makes these read as an argument rather than a list.
+const DISPLAY = "font-[family-name:var(--font-display)]";
 
 const TEAM = [
   { name: "Donald Jr-Precious Okolocha", role: "Co-founder & CEO", image: "/images/team/team-1.jpg" },
@@ -69,12 +107,50 @@ export default function AboutPage() {
         </div>
       </section>
 
+      {/* THE PAIN GETS ITS OWN SECTION, ABOVE THE MISSION.
+          Added 15 Nov 2026. The first version of this change named the problem
+          in one sentence inside Our Mission and then spent the rest of the
+          page on us, which is the oldest mistake in a pitch: the reader has to
+          recognise themselves BEFORE they care what we built. So the group
+          chat gets the room, in four beats a reader has lived through, and the
+          mission below is now purely the answer to it. */}
+      <section className="border-y border-line bg-surface-sunken py-section">
+        <div className="max-w-5xl mx-auto px-gutter sm:px-6 lg:px-8">
+          <h2 className="text-title sm:text-display font-bold text-ink text-balance">
+            Every trip starts in a group chat. Most of them end there too.
+          </h2>
+          <p className="mt-4 max-w-2xl text-heading leading-relaxed text-ink-muted">
+            Not because nobody wanted to go. Because wanting to go and booking it are two different things, and a chat has nothing in between.
+          </p>
+
+          <ol className="mt-stack grid gap-6 sm:grid-cols-2">
+            {PAIN.map((p, i) => (
+              <li key={p.lead} className={`${cardClass()} flex gap-4`}>
+                <span aria-hidden className={`${DISPLAY} text-title font-bold leading-none tabular-nums text-secondary-ink`}>
+                  {i + 1}
+                </span>
+                <p className="min-w-0 text-text-muted leading-relaxed">
+                  <strong className="font-semibold text-ink">{p.lead}</strong> {p.rest}
+                </p>
+              </li>
+            ))}
+          </ol>
+
+          <p className="mt-stack text-title font-bold text-ink text-balance">
+            Nothing in that chat is a booking.
+          </p>
+          <p className="mt-2 max-w-2xl text-text-muted leading-relaxed">
+            Everyone agreed and nobody committed, so the thing you all wanted to do is still a message you scroll past.
+          </p>
+        </div>
+      </section>
+
       {/* Mission */}
       <section className="py-section">
         <div className="max-w-5xl mx-auto px-gutter sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-title font-bold text-ink mb-4">Our Mission</h2>
+              <h2 className="text-title font-bold text-ink mb-4">What we did about it</h2>
               {/* THE PROBLEM COMES FIRST NOW, AND THE CATALOGUE SECOND.
                   Changed 15 Nov 2026, and the reason is worth keeping.
 
@@ -97,13 +173,10 @@ export default function AboutPage() {
                   below claims one trip, one chat and one basket, and claims
                   no wallet and no splitting. */}
               <p className="text-text-muted leading-relaxed mb-4">
-                Nobody plans a trip on their own. It takes seven people, one chat, a screenshot of a price that has already changed, and a date nobody ever quite agreed. The group decides, so until the group decides, nothing is booked.
-              </p>
-              <p className="text-text-muted leading-relaxed mb-4">
                 Booking a hotel has been solved for twenty years. Everything else, the restaurants and the salons and the studios and the days out, still happens over phone calls, voice notes, and a cousin who knows somebody. So we go to those places ourselves, we film them, and we make them bookable.
               </p>
               <p className="text-text-muted leading-relaxed">
-                Then we put them where the group already is. One trip, one chat, one basket, and a price that is still the price by the time everyone has said yes.
+                Then we put them where the group already is. One trip, one chat, one basket, and a price that is still the price by the time everyone has said yes. The deciding and the booking happen in the same place, which is the only way a decision survives the week it was made in.
               </p>
             </div>
             <div className="grid grid-cols-2 gap-4">
