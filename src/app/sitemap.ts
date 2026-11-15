@@ -18,6 +18,9 @@ export const revalidate = 3600;
 // allowlist, so leaving a route out of it IS the exclusion. Do not add it.
 const STATIC_PAGES: MetadataRoute.Sitemap = [
   { url: BASE_URL, changeFrequency: "weekly", priority: 1 },
+  // Second only to the home page. It is the page that converts a stranger:
+  // it answers whether anybody visited and what happens to their money.
+  { url: `${BASE_URL}/how-it-works`, changeFrequency: "monthly", priority: 0.9 },
   { url: `${BASE_URL}/about`, changeFrequency: "monthly", priority: 0.7 },
   { url: `${BASE_URL}/blog`, changeFrequency: "monthly", priority: 0.6 },
   // The post itself, and above the index on purpose: the index is a list of

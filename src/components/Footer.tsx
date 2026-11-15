@@ -48,13 +48,14 @@ export default function Footer() {
           <div>
             <h4 className="text-small font-semibold text-ink mb-4 uppercase tracking-wider">Company</h4>
             <ul className="space-y-2.5 text-small">
+              <li><Link href="/how-it-works" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">How it works</Link></li>
               <li><Link href="/about" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">About</Link></li>
-              {/* NO BLOG LINK until there is a blog. /blog is a Coming Soon
-                  card with no posts and no [slug] route behind it. sitemap.ts
-                  already excludes it for exactly that reason, and the two
-                  disagreeing meant we kept it out of search results while
-                  still sending our own visitors to it from every page. Put
-                  this back the day it has something to read. */}
+              {/* BACK IN, 15 Nov 2026. The note here said to restore this "the
+                  day it has something to read", and that day is today: /blog
+                  carries one post, the 91 live businesses and the 68 of them
+                  no global platform can book. sitemap.ts was updated in the
+                  same change, so the two no longer disagree. */}
+              <li><Link href="/blog" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">Writing</Link></li>
               <li><Link href="/contact" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">Contact</Link></li>
               <li><Link href="/privacy" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">Privacy</Link></li>
               <li><Link href="/terms" className="inline-flex items-center min-h-9 hover:text-ink transition-colors">Terms</Link></li>

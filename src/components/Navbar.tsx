@@ -14,7 +14,16 @@ import { useAuth } from "@/contexts/AuthContext";
 // stacked on top of each other with nothing in common. They are in the
 // footer, on every page that has one, which is where a person looks for
 // them.
-const NAV_LINKS: { href: string; label: string }[] = [];
+// HOW IT WORKS IS THE EXCEPTION, and the comment above says why it can be.
+// About and Contact came off this bar because they are where you READ about
+// us and the rail already carries where you can GO. This one is neither: it
+// is the page that answers "did anyone actually go there" and "what happens
+// to my money", which a first-time visitor needs BEFORE they will put a card
+// in. In the footer it is found by people who already trust us, which is the
+// wrong half of the audience.
+const NAV_LINKS: { href: string; label: string }[] = [
+  { href: "/how-it-works", label: "How it works" },
+];
 
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
