@@ -2,41 +2,40 @@ import Image from "next/image";
 import { Globe, Users, Sparkles, Shield } from "lucide-react";
 import { cardClass } from "@/lib/ui-recipes";
 
-// THE PAIN, IN THE ORDER IT ACTUALLY HAPPENS.
+// THE PROBLEM, AND IT HAS TWO SIDES BECAUSE WE ARE A MARKETPLACE.
 //
-// Four beats, and the order is the argument: a date that is not a date, a
-// price that moves, money one person fronts, and then the silence. Each one
-// is the step where a group LOSES the decision it had just made, which is why
-// the section ends on "nothing in that chat is a booking" rather than on us.
+// CORRECTED 15 Nov 2026, and the correction is the point. The first version
+// of this section was the group chat: a date nobody agreed, a price that
+// moved, one person fronting the money. It was recognisable and it was the
+// wrong problem, because it is a TRAVELLER'S problem and nothing in it
+// touches supply. An operator does not care whether her friends agreed a
+// date. A marketplace that explains one side of itself has explained
+// nothing.
 //
-// Everything here is recognisable rather than measured, deliberately. The
-// measured version of this page is sabieapp.com/sources and it is about the
-// market, not about a reader's own group chat. What is behind these four, and
-// not printed here because a visitor did not ask for our internals: of our own
-// group trips, 15 of 43 never agreed a date at all, and the median one that
-// never produced a booking has been open 210 days.
-const PAIN = [
+// The deck has this right and this page now matches it. A business that is
+// on no register cannot be checked, so the traveller has nothing to look up
+// and the business has no way to prove itself, and both of them are stuck on
+// the same missing thing. That is one problem with two faces, it covers
+// supply and demand in one sentence, and it is why we go in person at all.
+//
+// The group stays in the product and comes back as ONE LINE in the answer
+// below, where it belongs: it is how a trip gets booked, not why anybody
+// needs us.
+const PROBLEM = [
   {
-    lead: "Somebody picks a weekend.",
-    rest: "Three people react to it. Nobody has opened their calendar, so the date is still not a date.",
+    eyebrow: "The traveller",
+    lead: "She has no way to check.",
+    body: "She finds the place on Instagram, because there is nowhere else to look. The one check the market offers, a visit, a housekeeper, a phone call, can be bought. So she transfers the money to a stranger, because a transfer is the only way to pay, and a transfer cannot be undone. She finds out in December.",
   },
   {
-    lead: "Somebody sends a link.",
-    rest: "By the time the fourth person opens it the price has moved, and the screenshot in the chat is already wrong.",
-  },
-  {
-    lead: "Somebody pays to hold it.",
-    rest: "Then spends the next few weeks asking five people for their share.",
-  },
-  {
-    lead: "Somebody goes quiet.",
-    rest: "Then everybody does. Months later the most organised one books their own flight, and the trip quietly becomes a smaller trip.",
+    eyebrow: "The business",
+    lead: "It has no way to be checked.",
+    body: "It is real, it is good, and it is on no register, so there is nothing for her to look up. It never applied to a platform, keeps no live calendar and cannot take a card from London. It can be recommended and it cannot be booked, so it waits for whoever walks past the door.",
   },
 ];
 
 // The display face is set on h1 and h2 in globals.css, so anywhere else that
-// wants it has to name it. The numerals do, because a serif numeral beside a
-// sans sentence is what makes these read as an argument rather than a list.
+// wants it has to name it.
 const DISPLAY = "font-[family-name:var(--font-display)]";
 
 const TEAM = [
@@ -102,45 +101,42 @@ export default function AboutPage() {
         <div className="max-w-3xl mx-auto px-4">
           <h1 className="text-display sm:text-hero font-extrabold text-white mb-4 text-balance">About Sabię</h1>
           <p className="text-heading text-white/85 leading-relaxed">
-            A trip is a group decision. We made it bookable.
+            The trusted way to discover, book and pay for real experiences back home.
           </p>
         </div>
       </section>
 
-      {/* THE PAIN GETS ITS OWN SECTION, ABOVE THE MISSION.
-          Added 15 Nov 2026. The first version of this change named the problem
-          in one sentence inside Our Mission and then spent the rest of the
-          page on us, which is the oldest mistake in a pitch: the reader has to
-          recognise themselves BEFORE they care what we built. So the group
-          chat gets the room, in four beats a reader has lived through, and the
-          mission below is now purely the answer to it. */}
+      {/* THE PROBLEM GETS ITS OWN SECTION, ABOVE THE ANSWER.
+          A reader has to recognise the problem before caring what we built,
+          and a marketplace has two readers. So: the heading states the one
+          problem, the two cards are its two faces, and the line underneath
+          says the thing neither card can say alone. The answer follows. */}
       <section className="border-y border-line bg-surface-sunken py-section">
         <div className="max-w-5xl mx-auto px-gutter sm:px-6 lg:px-8">
           <h2 className="text-title sm:text-display font-bold text-ink text-balance">
-            Every trip starts in a group chat. Most of them end there too.
+            Nobody can tell a real business from a fake one.
           </h2>
           <p className="mt-4 max-w-2xl text-heading leading-relaxed text-ink-muted">
-            Not because nobody wanted to go. Because wanting to go and booking it are two different things, and a chat has nothing in between.
+            Not the traveller sending the money, and not the business trying to take it. Most of the places worth going to are too small to be on any register, so there is nothing to check and no way to prove it.
           </p>
 
-          <ol className="mt-stack grid gap-6 sm:grid-cols-2">
-            {PAIN.map((p, i) => (
-              <li key={p.lead} className={`${cardClass()} flex gap-4`}>
-                <span aria-hidden className={`${DISPLAY} text-title font-bold leading-none tabular-nums text-secondary-ink`}>
-                  {i + 1}
-                </span>
-                <p className="min-w-0 text-text-muted leading-relaxed">
-                  <strong className="font-semibold text-ink">{p.lead}</strong> {p.rest}
+          <div className="mt-stack grid gap-6 sm:grid-cols-2">
+            {PROBLEM.map((c) => (
+              <div key={c.eyebrow} className={cardClass({ pad: "lg" })}>
+                <p className={`${DISPLAY} text-caption font-semibold uppercase tracking-widest text-secondary-ink`}>
+                  {c.eyebrow}
                 </p>
-              </li>
+                <p className="mt-3 text-heading font-bold text-ink">{c.lead}</p>
+                <p className="mt-2 text-text-muted leading-relaxed">{c.body}</p>
+              </div>
             ))}
-          </ol>
+          </div>
 
           <p className="mt-stack text-title font-bold text-ink text-balance">
-            Nothing in that chat is a booking.
+            Neither side is the problem. The missing layer between them is.
           </p>
           <p className="mt-2 max-w-2xl text-text-muted leading-relaxed">
-            Everyone agreed and nobody committed, so the thing you all wanted to do is still a message you scroll past.
+            Every scam in this market is paid before anyone turns up, and every good business in it is unbookable for exactly the same reason.
           </p>
         </div>
       </section>
@@ -175,8 +171,11 @@ export default function AboutPage() {
               <p className="text-text-muted leading-relaxed mb-4">
                 Booking a hotel has been solved for twenty years. Everything else, the restaurants and the salons and the studios and the days out, still happens over phone calls, voice notes, and a cousin who knows somebody. So we go to those places ourselves, we film them, and we make them bookable.
               </p>
+              <p className="text-text-muted leading-relaxed mb-4">
+                A named representative walks in, films the place, records her own prices, and we run the shopfront until she claims it. She fills in no forms, because there was never a form. And the money waits: a licensed provider holds it until the guest has been, so a fake listing earns nothing and there is no reason to build one.
+              </p>
               <p className="text-text-muted leading-relaxed">
-                Then we put them where the group already is. One trip, one chat, one basket, and a price that is still the price by the time everyone has said yes. The deciding and the booking happen in the same place, which is the only way a decision survives the week it was made in.
+                Nobody goes home alone, so the trip, the chat and the basket are one place. What the group decides is a thing the group can actually book.
               </p>
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -190,17 +189,17 @@ export default function AboutPage() {
                   behind it. A smaller true number beats a big one a visitor
                   can disprove in one tap on Explore.
 
-                  TOGETHER LEADS because the copy beside it now does. The
-                  order of these four is the order of the argument: the group
-                  is the problem, the visit is how we answer it, bookable is
-                  what that buys, and Nigeria first is where. Nigeria first
-                  stays at Lagos, Abuja and Jos deliberately: a city holding
-                  one listing is not a city we serve, whatever the cities
-                  collection says. */}
+                  THE ORDER IS THE ARGUMENT, and it follows the copy beside
+                  it: we went, so it can be booked, so a group can book it,
+                  and here is where. Together sits third rather than first
+                  because it is how a trip gets booked, not why anybody needs
+                  us. Nigeria first stays at Lagos, Abuja and Jos
+                  deliberately: a city holding one listing is not a city we
+                  serve, whatever the cities collection says. */}
               {[
-                { icon: Users, label: "Together", desc: "One trip, one chat, one basket" },
                 { icon: Sparkles, label: "Visited", desc: "We went there ourselves" },
                 { icon: Shield, label: "Bookable", desc: "A request, not a phone number" },
+                { icon: Users, label: "Together", desc: "One trip, one chat, one basket" },
                 { icon: Globe, label: "Nigeria first", desc: "Lagos, Abuja and Jos" },
               ].map((s) => (
                 <div key={s.label} className="bg-card p-5 rounded-2xl border border-line text-center">
