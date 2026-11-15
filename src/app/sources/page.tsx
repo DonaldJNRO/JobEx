@@ -170,81 +170,114 @@ export default function SourcesPage() {
             Evidence
           </h1>
           <p className="mt-4 max-w-[62ch] text-heading text-ink-muted">
-            Every figure in the deck, what its source actually measured, and a link to the
-            source where one is published. Figures that cut against us are included too.
+            Every figure we state in public, what its source actually measured, and a link to
+            the source where one is published. Figures that cut against us are included too.
+          </p>
+          <p className={`${MONO} mt-4 m-0 text-caption uppercase tracking-[0.18em] text-ink-faint`}>
+            Last reviewed 15 November 2026
           </p>
         </header>
 
         <section className="flex flex-col">
-          <SectionHead label="Slide 03 · The problem">
-            Three figures, read left to right as one sentence: who comes home, what it costs
-            them, and why it happens.
+          <SectionHead label="Where the money goes">
+            One city, one season, measured by the state tourism ministry&apos;s own research
+            partner.
           </SectionHead>
 
           <Row
-            figure="550,000"
-            unit="Arrivals"
-            claim="Flew into Lagos last December. Nearly 90% were Nigerians living abroad."
+            figure="£223m"
+            unit="One season, Lagos"
+            claim="Spent in Lagos across the 2025 festive season."
             source={
               <>
-                MO Africa Company Limited, Detty December 2024 report, reported by Premium
-                Times and the African Travel and Tourism Association.{" "}
+                MO Africa Co, <i>The Economics of Euphoria: Lagos&apos; Detty December 2025</i>,
+                produced with the Lagos State Ministry of Tourism, Arts and Culture.{" "}
+                <a href="https://businessday.ng/news/article/real-estate-investors-cash-in-as-lagos-detty-december-earnings-triple-to-n396bn/">
+                  Read the report coverage
+                </a>
+              </>
+            }
+            noteLead="What it measures."
+            note="₦396.54bn across a 55-day window, mid November 2025 to 10 January 2026. Converted at ₦1,774 to the pound."
+          />
+
+          <Row
+            figure="£73m"
+            unit="Of that, going out"
+            claim="Went on entertainment and nightlife. Almost a third of everything spent."
+            source="Same report."
+            noteLead="What it measures."
+            note="₦129.55bn, 32.67% of the season total. Accommodation was ₦175.4bn, food and dining 12.91%, fashion and retail 9.3%, wellness 0.9%."
+          />
+
+          <Row
+            figure="3×"
+            unit="Year on year"
+            claim="Three times the previous season, and part of that is better counting."
+            source={
+              <>
+                The 2024 season was ₦111.5bn.{" "}
                 <a href="https://atta.travel/resource/lagos-generates-n111-5-billion-in-detty-december.html">
-                  Read the figures
+                  Read the 2024 figures
                 </a>
               </>
             }
-            noteLead="What it measures."
-            note="Passenger arrivals at Murtala Muhammed International Airport over the holiday period, not unique individuals. Total visitors to Lagos across the period were about 1.2 million including domestic travel."
+            noteLead="Read this carefully."
+            note="The 2025 report widened its definition to include airfare, local transport and enabler services, and tracked domestic travel better. So part of the increase is measurement rather than growth. We say so every time we quote it."
           />
 
           <Row
-            figure="£12.3m"
-            unit="One year, UK"
-            claim="Lost booking travel in one year, by 6,640 people. £1,851 each."
-            source={
-              <>
-                Action Fraud and the National Fraud Intelligence Bureau, calendar year 2023,
-                published February 2024 with ABTA.{" "}
-                <a href="https://www.abta.com/news/dont-lose-out-flying-out-action-fraud-urge-holiday-makers-watch-out-fraudsters-online">
-                  Read the report summary
-                </a>
-              </>
-            }
+            figure="55%"
+            unit="From abroad"
+            claim="Of that spending came from travellers arriving from outside Nigeria."
+            source="Same report."
             noteLead="What it measures."
-            note="Reports made to Action Fraud in the United Kingdom, not confirmed convictions or verified victims. Action Fraud and ABTA both state the true figure is likely higher, because many people do not report. This is the buyer's side of the transaction, which is where Sabię's customer sits."
+            note="400,000 international arrivals, led by the United States at 27% and the United Kingdom at 24%."
           />
 
           <Row
-            figure="93%"
-            unit="Of employment"
-            claim="Of Nigerian work is informal. No register to check, so you check Instagram."
-            source={
-              <>
-                National Bureau of Statistics, Nigeria. Nigeria Labour Force Survey, Q2 2024.{" "}
-                <a href="https://www.nigerianstat.gov.ng/pdfuploads/NLFS_Q2_2024.pdf">
-                  Read the survey (PDF)
-                </a>
-              </>
-            }
-            noteLead="What it measures."
-            note="Informal employment as a share of total employment, stated as 93.0%, up from 92.7% in Q1 2024. It includes subsistence agriculture, so the slice Sabię can address is smaller than the headline. The point stands either way: no register reaches these businesses."
+            figure="2.4m"
+            unit="Travellers"
+            claim="People travelled to Lagos for the season."
+            source="Same report."
+            noteLead="Why not the bigger number."
+            note="1.6 million domestic land arrivals, 450,000 domestic air arrivals and 400,000 from abroad. The report's headline of 3.6 million participants also counts 1.2 million resident hosts, who are not travelling, so we do not use it."
           />
         </section>
 
         <section className="flex flex-col">
-          <SectionHead label="Said out loud, not printed on the slide">
-            Held back for questions, because four figures stopped landing where three did.
+          <SectionHead label="What it costs people">
+            The buyer&apos;s side of the transaction, which is where Sabię&apos;s customer sits.
           </SectionHead>
 
           <Row
-            figure="Africa"
-            unit="Most targeted"
-            claim="The police named flights to Africa, and the visiting friends and family market, among the most targeted."
+            figure="£12.3m"
+            unit="One year, UK"
+            claim="Stolen from people booking travel, by 6,640 reports. £1,851 each."
             source={
               <>
-                Action Fraud and the National Fraud Intelligence Bureau annual reports, via
-                ABTA.{" "}
+                Action Fraud and the National Fraud Intelligence Bureau, calendar year 2023,
+                released February 2024 with ABTA.{" "}
+                <a href="https://www.abta.com/news/dont-lose-out-flying-out-action-fraud-urge-holiday-makers-watch-out-fraudsters-online">
+                  Read the summary
+                </a>{" "}
+                ·{" "}
+                <a href="https://www.actionfraud.police.uk/campaign/holidayfraud">
+                  Action Fraud campaign page
+                </a>
+              </>
+            }
+            noteLead="What it measures."
+            note="Reports made to Action Fraud, not convictions or verified victims. This is the most recent figure they have published and it remains live on their campaign page. Both Action Fraud and ABTA state the true number is higher, because most people do not report."
+          />
+
+          <Row
+            figure="Africa"
+            unit="Named twice"
+            claim="UK police named flights to Africa, and the visiting friends and family market, among the most targeted."
+            source={
+              <>
+                Action Fraud and NFIB annual reports, via ABTA.{" "}
                 <a href="https://www.abta.com/news/new-report-reveals-seven-million-pounds-lost-holiday-booking-fraud">
                   2018 report
                 </a>{" "}
@@ -255,72 +288,29 @@ export default function SourcesPage() {
               </>
             }
             noteLead="Read this carefully."
-            note="The 2018 wording is that fraudsters particularly target the visiting friends and family market, with flights to Africa and the Indian subcontinent dominating the list of affected destinations. 53% of all reported crimes that year were airline tickets. The 2016 report says the same. Recent releases stopped publishing the destination breakdown, so the destination evidence is 2016 and 2018 while the money figure is 2023. Two separate years is a pattern, and we claim no more than that."
-          />
-
-          <Row
-            figure="4%"
-            unit="Reported"
-            claim="Only 4% of scams in Nigeria are ever reported to authorities."
-            source={
-              <>
-                Global Anti-Scam Alliance, State of Scams in Nigeria 2026.{" "}
-                <a href="https://gasa.org/knowledge-base/reports/state-of-scams-in-nigeria-2026">
-                  Read the summary
-                </a>
-              </>
-            }
-            noteLead="What it measures."
-            note={
-              <>
-                A survey panel of 1,180 Nigerian adults, not a census. 84% encountered a scam
-                in the year and 22% suffered loss. That 22% is money{" "}
-                <b className="font-semibold text-ink">or data</b>, not money alone, and we
-                never state it as money alone.
-              </>
-            }
+            note="In 2018, 53% of reported travel fraud was airline tickets, and Hajj travel carried the highest average loss of any category at almost £10,000 per reported case. Recent releases stopped publishing the destination breakdown, so the destination evidence is 2016 and 2018 while the money figure is 2023. Two separate years is a pattern, and we claim no more than that."
           />
 
           <Row
             figure="38%"
             unit="Bank transfer"
-            claim="Of African travellers pay by bank transfer, roughly twice the global rate. A transfer cannot be reversed."
+            claim="Of African travellers pay by bank transfer, against 18% globally. A transfer cannot be reversed."
             source={
               <>
-                IATA Global Passenger Survey 2025.{" "}
+                IATA, <i>Global Passenger Survey 2025</i>, sample of 10,534.{" "}
                 <a href="https://assets.iata.org/download/assets/Global_Passenger_Survey__GPS__2025___Highlights.pdf/b2f5075ac07a11f0a844a6bbf78131c6">
                   Read the highlights (PDF)
                 </a>
               </>
             }
             noteLead="What it measures."
-            note="Stated payment preference among 10,534 surveyed air passengers. The irreversibility point is a property of bank transfers, not a survey finding."
-          />
-        </section>
-
-        <section className="flex flex-col">
-          <SectionHead label="Elsewhere in the deck" />
-
-          <Row
-            figure="£56m"
-            unit="Slide 08"
-            claim="Spent on tourism and entertainment in Lagos in December alone. 1.2 million visitors that month, and short lets averaged £60 a night."
-            source={
-              <>
-                MO Africa Company Limited, Detty December 2024.{" "}
-                <a href="https://atta.travel/resource/lagos-generates-n111-5-billion-in-detty-december.html">
-                  Read the figures
-                </a>
-              </>
-            }
-            noteLead="What it measures."
-            note="₦111.5 billion in sector revenue, about 1.2 million visitors including domestic travel, and ₦120,000 as the average short let night, converted at roughly ₦2,000 to £1."
+            note="Stated payment preference among surveyed air passengers. IATA describes it as more than double the global average. The irreversibility is a property of bank transfers, not a survey finding."
           />
 
           <Row
-            figure="£650"
-            unit="Slide A4"
-            claim="A diaspora family visited the Ikoyi property first. A housekeeper confirmed the agent managed it. They transferred the money and he deactivated the account."
+            figure="£733"
+            unit="One family"
+            claim="A family who checked the property in person still lost the money."
             source={
               <>
                 Vanguard, October 2025.{" "}
@@ -330,12 +320,135 @@ export default function SourcesPage() {
               </>
             }
             noteLead="Why this case and not a bigger one."
-            note="₦1.3 million, converted at roughly ₦2,000 to £1. It is on the slide because the family did the one check the market offers, going to the property in person, and the person on site had been bought."
+            note="₦1.3 million. They found a short-let agent on Instagram for a flat in Ikoyi, visited the property, and a housekeeper on site confirmed he managed it. They paid. He deleted the account. It is here because they did the one check the market offers, and the person on site had been bought."
           />
         </section>
 
         <section className="flex flex-col">
-          <SectionHead label="What we could not find, and what we left out" />
+          <SectionHead label="Why it cannot be checked" />
+
+          <Row
+            figure="93%"
+            unit="Of employment"
+            claim="Of Nigerian work is informal. There is no register to query."
+            source={
+              <>
+                National Bureau of Statistics, Nigeria Labour Force Survey, Q2 2024.{" "}
+                <a href="https://www.nigerianstat.gov.ng/pdfuploads/NLFS_Q2_2024.pdf">
+                  Read the survey (PDF)
+                </a>
+              </>
+            }
+            noteLead="We are careful with this one."
+            note="It measures employment, a large share of it subsistence agriculture, not specifically the businesses a traveller would book. We use it to make one narrow point and no more: there is no register to query."
+          />
+
+          <Row
+            figure="4%"
+            unit="Reported"
+            claim="Of scams in Nigeria are ever reported. 84% of adults encountered one."
+            source={
+              <>
+                Global Anti-Scam Alliance, <i>State of Scams in Nigeria 2026</i>.{" "}
+                <a href="https://gasa.org/knowledge-base/reports/state-of-scams-in-nigeria-2026">
+                  Read the summary
+                </a>
+              </>
+            }
+            noteLead="What it measures."
+            note={
+              <>
+                A survey panel of 1,180 Nigerian adults, not a census. 22% suffered a loss,
+                and that is money{" "}
+                <b className="font-semibold text-ink">or data</b>, not money alone. We never
+                state it as money alone.
+              </>
+            }
+          />
+
+          <Row
+            figure="None"
+            unit="Verify in person"
+            claim="No platform sends a person to verify a business in Lagos."
+            source="An argument, not a statistic, and we label it as one."
+            noteLead="What we do not claim."
+            note="Major platforms verify an email address or a document upload. We have found no published figure for what fraud costs an honest trader, so we do not quote one."
+          />
+        </section>
+
+        <section className="flex flex-col">
+          <SectionHead label="Why this is possible now" />
+
+          <Row
+            figure="64.4%"
+            unit="Of adults"
+            claim="Of Nigerian adults now use digital financial services, against 45% in 2023."
+            source={
+              <>
+                EFInA, <i>Access to Financial Services in Nigeria 2026</i> (A2F, 9th survey).{" "}
+                <a href="https://nannews.ng/94-2m-nigerians-use-financial-products-formal-inclusion-hits-73-efina/">
+                  Read the coverage
+                </a>{" "}
+                ·{" "}
+                <a href="https://www.arise.tv/opay-deepens-financial-inclusion-as-digital-finance-reaches-64-4-of-nigerians/">
+                  and the digital finance figure
+                </a>
+              </>
+            }
+            noteLead="What it measures."
+            note="Formal financial inclusion reached 73%, passing the national strategy's 70% target."
+          />
+
+          <Row
+            figure="£6.32"
+            unit="Per business"
+            claim="Is what it costs us to send a person to check one business."
+            source="Sabię internal data, 2026. Measured field receipts, not a projection."
+            noteLead="How it is counted."
+            note="₦986,238 of reimbursed field receipts across 88 businesses visited, which is ₦11,207 each, converted at ₦1,774. It is the transport and access cost the rep actually paid out of pocket and we reimbursed. It does not include the rep's time."
+          />
+
+          <Row
+            figure="£3.6bn"
+            unit="A year, domestic"
+            claim="Nigerian travel spending is overwhelmingly domestic, and it has no season."
+            source={
+              <>
+                WTTC, <i>Travel and Tourism Economic Impact Research 2026</i>, via Intelpoint.{" "}
+                <a href="https://intelpoint.co/?p=9182">Read the figures</a>
+              </>
+            }
+            noteLead="What it measures."
+            note="₦6.39tn domestic visitor spending in 2025 against ₦461bn from international visitors: roughly ₦93 in every ₦100 spent on travel in Nigeria comes from people already in the country. It is the answer to the seasonality question. Our cost is seasonal; this market is not."
+          />
+        </section>
+
+        <section className="flex flex-col">
+          <SectionHead label="Our own numbers">
+            Available to investors and press on request.
+          </SectionHead>
+
+          <Row
+            figure="88"
+            unit="Businesses"
+            claim="Registered in person, each one visited by a named member of our team."
+            source="Sabię internal data, 2026."
+            noteLead="What a visit is."
+            note="A recorded date, GPS, and film. The rep is named on the listing, which is the part a traveller can check and the part a fake page cannot copy."
+          />
+
+          <Row
+            figure="64"
+            unit="Of the 88"
+            claim="Cannot be listed on any global platform at all."
+            source="Sabię internal data, 2026."
+            noteLead="What we found."
+            note="There is no Booking.com for a barber, a café or a skating rink. Of the 24 that could be listed somewhere, 8 already were, and every one of those 8 is a hotel."
+          />
+        </section>
+
+        <section className="flex flex-col">
+          <SectionHead label="How we handle figures" />
 
           <div className="mt-5 rounded-[14px] border border-line bg-card p-6 text-body text-ink-muted">
             <h3 className={`${DISPLAY} m-0 mb-3 text-title font-semibold text-ink`}>
@@ -387,9 +500,19 @@ export default function SourcesPage() {
             Sabię · Evidence
           </p>
           <p className="m-0">
-            Naira figures converted at approximately ₦2,000 to £1. Check the rate before
-            presenting. Where a source publishes no public link, the report is named in full
-            so it can be requested directly.
+            Naira figures are converted at ₦1,774 to the pound as at 15 November 2026, and we
+            re-check the rate before quoting. Where a source publishes no public link, the
+            report is named in full so it can be requested directly.
+          </p>
+          <p className="m-0">
+            Something here look wrong? Tell us at{" "}
+            <a
+              href="mailto:hello@sabieapp.com"
+              className="text-secondary-ink underline underline-offset-[3px]"
+            >
+              hello@sabieapp.com
+            </a>{" "}
+            and we will correct it.
           </p>
         </div>
       </div>
