@@ -7,9 +7,11 @@ const BASE_URL = "https://www.sabieapp.com";
 // afternoon, and the read is thirty-odd documents, not a crawl.
 export const revalidate = 3600;
 
-// /blog is deliberately absent: it is a Coming Soon card with no posts behind
-// it, and a search result that leads there costs more than it returns. Put it
-// back the day it has something to read.
+// /blog is IN now, and the comment it replaces said to put it back "the day it
+// has something to read". 15 Nov 2026 is that day: it carries one post, the 91
+// live businesses and the 68 of them no global platform can book. One post is
+// the whole design rather than a soft launch, so there is no empty second slot
+// waiting to age.
 //
 // /sources is deliberately absent too, and for the opposite reason: it is the
 // investor deck's evidence page and it carries noindex. This list is an
@@ -17,6 +19,10 @@ export const revalidate = 3600;
 const STATIC_PAGES: MetadataRoute.Sitemap = [
   { url: BASE_URL, changeFrequency: "weekly", priority: 1 },
   { url: `${BASE_URL}/about`, changeFrequency: "monthly", priority: 0.7 },
+  { url: `${BASE_URL}/blog`, changeFrequency: "monthly", priority: 0.6 },
+  // The post itself, and above the index on purpose: the index is a list of
+  // one, and the thing worth ranking is the count inside it.
+  { url: `${BASE_URL}/blog/nowhere-to-list`, changeFrequency: "yearly", priority: 0.7 },
   { url: `${BASE_URL}/contact`, changeFrequency: "monthly", priority: 0.6 },
   { url: `${BASE_URL}/privacy`, changeFrequency: "yearly", priority: 0.3 },
   { url: `${BASE_URL}/terms`, changeFrequency: "yearly", priority: 0.3 },
