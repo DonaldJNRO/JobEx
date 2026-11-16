@@ -95,7 +95,13 @@ export default function CityPicker({
         onClick={() => setOpen(true)}
         aria-haspopup="dialog"
         aria-expanded={open}
-        className="inline-flex items-center gap-1.5 rounded-full px-1 text-heading font-bold tracking-tight text-ink"
+        // NOTHING TO CHOOSE FROM IS NOT A CHOICE. The home page now renders
+        // this from the first paint rather than waiting for the cities to
+        // arrive, so that the sticky bar does not change height underneath
+        // somebody. For the moment before they land there is no sheet worth
+        // opening, so the trigger holds its place and does not respond.
+        disabled={live.length === 0}
+        className="inline-flex items-center gap-1.5 rounded-full px-1 text-heading font-bold tracking-tight text-ink disabled:cursor-default"
       >
         {current ? current.name : "Everywhere"}
         <ChevronDown className="h-4 w-4 text-ink-muted" />

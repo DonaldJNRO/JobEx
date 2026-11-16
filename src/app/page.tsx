@@ -200,9 +200,16 @@ export default function HomePage() {
           steering it should not mean scrolling back up to find the controls. */}
       <div data-sticky-filters className="sticky top-16 z-20 border-b border-line bg-surface/95 backdrop-blur">
         <div className="flex flex-wrap items-center gap-3 px-4 py-3 sm:px-6 lg:px-8">
-          {cities.length > 0 && (
-            <CityPicker cities={cities} selected={city} onSelect={pickCity} counts={cityCounts} />
-          )}
+          {/* ALWAYS IN THE ROW, EVEN BEFORE THE CITIES ARRIVE.
+              This was gated on `cities.length > 0`, and the cities come from a
+              fetch, so the sticky bar painted with no city picker in it and
+              then grew one. In a flex-wrap row that pushes the search box
+              sideways, and on a narrow screen it re-wraps the row and changes
+              the BAR'S HEIGHT, which moves everything below it. The picker
+              reads "Everywhere" and refuses to open until it has somewhere to
+              send you, which is a label changing width rather than a control
+              appearing out of nothing. */}
+          <CityPicker cities={cities} selected={city} onSelect={pickCity} counts={cityCounts} />
 
           <div className="relative min-w-0 flex-1 sm:max-w-sm">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-faint" />
@@ -237,9 +244,13 @@ export default function HomePage() {
           and scroll-pl-4 because scroll-snap-align: start snaps to the
           SCROLLPORT edge and ignores padding.
 
-          FILLED, NOT OUTLINED, and the active one is PURPLE. globals.css is
-          explicit that purple is the action and gold is an accent that never
-          fills something you press. */}
+          FILLED, NOT OUTLINED, and the chosen one takes the SELECTION colour,
+          which is charcoal. This comment used to say purple, from before the
+          de-purpling, and that is exactly how a retired colour creeps back in.
+          globals.css is explicit now: gold FILLS the one thing you press on a
+          screen, and charcoal marks the things that are simply true, a chosen
+          category among them. A gold pill here would compete with the one gold
+          button on the page. ui-recipes.test.mjs asserts it. */}
         <div className="flex gap-2 overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-pl-4 px-4 pb-3 sm:px-6 lg:px-8">
         {CATEGORIES.map((c) => {
           const active = tab === c.id;
