@@ -19,39 +19,18 @@
 // (GridCard.js:745). One live listing has no photo at all, and a grey
 // rectangle in a wall of photographs reads as broken rather than as missing.
 
-import { useEffect, useState } from "react";
 import ListingCard from "./ListingCard";
 import { splitColumns } from "@/lib/masonry";
+import { useFeedColumns } from "@/lib/useFeedColumns";
 import { getListingImage, type Listing } from "@/lib/listings";
 
-// COLUMNS FOLLOW THE WINDOW, not a fixed pair.
-//
-// Two on a phone, as the app has. Then more as there is room, because a
-// 1920px monitor showing three columns in a 1280px strip with white either
-// side is a page that does not know it is in a browser. Measured against the
-// rail: these are widths of the FEED, after the 224px sidebar is taken out.
-const BREAKS: [number, number][] = [
-  [1700, 5],
-  [1340, 4],
-  [980, 3],
-  [0, 2],
-];
-
 export default function MasonryFeed({ listings }: { listings: Listing[] }) {
-  // Server-render two columns, which is the phone shape and the common case,
-  // then widen once the browser can say so. Rendering three on the server and
-  // two on the client would reflow the whole wall on hydration.
-  const [columns, setColumns] = useState(2);
-
-  useEffect(() => {
-    const apply = () => {
-      const w = window.innerWidth;
-      setColumns(BREAKS.find(([min]) => w >= min)?.[1] ?? 2);
-    };
-    apply();
-    window.addEventListener("resize", apply);
-    return () => window.removeEventListener("resize", apply);
-  }, []);
+  // COLUMNS FOLLOW THE WINDOW, and the count comes from the shared hook so
+  // the skeleton on the home page cannot disagree with the wall that replaces
+  // it. It did: the skeleton was hardcoded to two, so every desktop visitor
+  // watched the page re-lay-out from two columns into four at the moment the
+  // listings landed. See lib/feed-columns.ts.
+  const columns = useFeedColumns();
 
   const shown = listings.filter((l) => getListingImage(l));
   const split = splitColumns(shown, columns);

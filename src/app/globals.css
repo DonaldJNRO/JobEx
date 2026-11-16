@@ -319,7 +319,13 @@
    opacity. Content must never need JS to become readable, so the hidden state
    is switched on by the hook itself, once it is running and able to undo it. */
 .reveal { opacity: 1; transform: none; }
-html.reveal-ready .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1); }
+/* SHORTER AND SMALLER, because the old values were the amateur tell.
+   20px over 0.7s, on eight separate sections of the listing page, each fired
+   when it was already 5% on screen: reading down the page was a sequence of
+   blank slabs sliding up behind you. A reveal is meant to be noticed only in
+   its absence. 10px over 0.4s, started a screen-quarter early by the hook's
+   rootMargin, is a section that is simply there by the time you reach it. */
+html.reveal-ready .reveal { opacity: 0; transform: translateY(10px); transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
 html.reveal-ready .reveal.visible { opacity: 1; transform: translateY(0); }
 @media (prefers-reduced-motion: reduce) {
   .reveal, html.reveal-ready .reveal { opacity: 1 !important; transform: none !important; }

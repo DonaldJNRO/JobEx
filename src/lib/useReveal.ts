@@ -45,20 +45,45 @@ export function useReveal() {
           }
         }
       },
-      { threshold: 0.05, rootMargin: "50px 0px 0px 0px" },
+      // IT HAS TO START BEFORE YOU GET THERE, or it is not a reveal, it is a
+      // section arriving late. This was `50px 0px 0px 0px`, which expands the
+      // TOP of the viewport: no help at all to somebody scrolling DOWN, which
+      // is everybody. A section therefore sat blank until 5% of it was already
+      // on screen and then took 0.7s to fade up, so reading down the page was
+      // a sequence of empty slabs filling in behind you. Expanding the BOTTOM
+      // instead starts the fade a screen-quarter early, so by the time it is
+      // in front of you it has finished.
+      { threshold: 0.01, rootMargin: "0px 0px 25% 0px" },
     );
 
+    // ONE QUERY PER FRAME, NOT ONE PER MUTATION.
+    //
+    // This was the MutationObserver's callback directly, so every childList
+    // change anywhere under <body> ran a fresh querySelectorAll over the whole
+    // document. On the feed that is sixty cards mounting and sixty lazy images
+    // swapping in, each one triggering a full-document scan, which is paid for
+    // in dropped frames while scrolling. Coalescing into a single rAF turns a
+    // burst of a hundred scans into one.
+    let queued = 0;
     const observeAll = () => {
       document.querySelectorAll(".reveal:not(.visible)").forEach((el) => io.observe(el));
+    };
+    const schedule = () => {
+      if (queued) return;
+      queued = requestAnimationFrame(() => {
+        queued = 0;
+        observeAll();
+      });
     };
     observeAll();
 
     // Async content mounts long after this hook does. Without this, anything
     // that arrives from a fetch is never observed and never revealed.
-    const mo = new MutationObserver(observeAll);
+    const mo = new MutationObserver(schedule);
     mo.observe(document.body, { childList: true, subtree: true });
 
     return () => {
+      if (queued) cancelAnimationFrame(queued);
       io.disconnect();
       mo.disconnect();
       root.classList.remove("reveal-ready");

@@ -33,11 +33,11 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import { MapPin, Search, X } from "lucide-react";
 import AppStrip from "@/components/AppStrip";
 import MasonryFeed from "@/components/MasonryFeed";
+import FeedSkeleton from "@/components/FeedSkeleton";
 import { getPublicCatalogue, listingPlace, categoryOf, categoryLabelOf, getListingImage, getListingPriceParts, CATEGORY_IDS, CATEGORY_LABELS, Listing } from "@/lib/listings";
 import { getKnownCities, inCity, areaIndexFrom, type KnownCity } from "@/lib/listings";
 import CityPicker from "@/components/CityPicker";
 import { matchesSearch } from "@/lib/listing-search";
-import { useReveal } from "@/lib/useReveal";
 import { DEFAULT_CITY_ID } from "@/lib/listing-place";
 
 // Built from the one table, not typed out again. A pill whose id no filter
@@ -51,7 +51,6 @@ const CATEGORIES = [
 export default function HomePage() {
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
-  const revealRef = useReveal();
   const [failed, setFailed] = useState(false);
 
   // AN OUTAGE IS NOT AN EMPTY MARKETPLACE. This caught into [], so a
@@ -180,7 +179,14 @@ export default function HomePage() {
   }, [listings, city, cities, tab, term]);
 
   return (
-    <div ref={revealRef} className="min-h-screen bg-surface">
+    // NO SCROLL-REVEAL ON THE FEED. This div used to carry a ref from
+    // useReveal, and the hook ignores the ref: it watches the document. There
+    // is no .reveal element anywhere on this page, so all the hook did here
+    // was install a MutationObserver on <body> with subtree:true whose
+    // callback ran a full-document querySelectorAll. Sixty cards mounting and
+    // sixty lazy images swapping in is several hundred of those scans, paid
+    // for in dropped frames, on the one page that must never scroll badly.
+    <div className="min-h-screen bg-surface">
       <AppStrip />
 
       {/* ONE BAR, NOT A HERO.
@@ -253,32 +259,13 @@ export default function HomePage() {
       </div>
 
       {loading ? (
-        // THREE ROWS, NOT ONE. The listings are fetched in the browser, so the
-        // first paint is always this. A single skeleton row meant the page
-        // stood at one row tall and then grew to six the moment the data
-        // landed, shoving the story and the testimonials down the screen. That
-        // jump is the other half of "it glitches a bit when it loads". Three is
-        // the honest middle: close to what usually arrives, and never a promise
-        // of rows that do not exist, because it carries no headings.
-        // A SKELETON THE SHAPE OF THE WALL, with varied heights, because a
-        // grid of identical rectangles that resolves into a ragged wall is
-        // its own small jump. The ratios are the app's own skeleton pair
-        // (GridSkeleton.js:33), so both surfaces wait in the same shape.
-        <div className="flex gap-3 px-4 sm:gap-4 sm:px-6 lg:px-8">
-          {[[1.33, 0.75, 1.5, 1.0], [0.75, 1.33, 1.21, 1.75]].map((column, c) => (
-            <div key={c} className="flex min-w-0 flex-1 flex-col gap-3 sm:gap-4">
-              {column.map((ratio, i) => (
-                <div key={i} className="animate-pulse">
-                  <div className="rounded-2xl bg-surface-sunken" style={{ aspectRatio: `1 / ${ratio}` }} />
-                  <div className="space-y-2 pt-3">
-                    <div className="h-4 w-3/4 rounded-lg bg-surface-sunken" />
-                    <div className="h-3 w-1/2 rounded-lg bg-surface-sunken" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
+        // A SKELETON THE SHAPE OF THE WALL. The listings are fetched in the
+        // browser, so the first paint is always this, and for a long time it
+        // was the wrong shape in two ways at once: two columns where the wall
+        // has up to five, and a caption a third too short, so the page
+        // re-laid-out AND grew when the data landed. Both halves now live in
+        // FeedSkeleton beside the arithmetic the wall itself uses.
+        <FeedSkeleton />
       ) : failed ? (
         <LoadError what="the places" onRetry={load} />
       ) : feed.length ? (
