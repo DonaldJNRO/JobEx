@@ -174,7 +174,7 @@ export default function SourcesPage() {
             the source where one is published. Figures that cut against us are included too.
           </p>
           <p className={`${MONO} mt-4 m-0 text-caption uppercase tracking-[0.18em] text-ink-faint`}>
-            Last reviewed 15 November 2026
+            Last reviewed 21 November 2026
           </p>
         </header>
 
@@ -251,24 +251,28 @@ export default function SourcesPage() {
           </SectionHead>
 
           <Row
-            figure="£12.3m"
+            figure="£11.2m"
             unit="One year, UK"
-            claim="Stolen from people booking travel, by 6,640 reports. £1,851 each."
+            claim="Stolen from people booking travel, by 6,066 reports. £1,844 each."
             source={
               <>
-                Action Fraud and the National Fraud Intelligence Bureau, calendar year 2023,
-                released February 2024 with ABTA.{" "}
-                <a href="https://www.abta.com/news/dont-lose-out-flying-out-action-fraud-urge-holiday-makers-watch-out-fraudsters-online">
+                Action Fraud and the National Fraud Intelligence Bureau, calendar year 2024,
+                released February 2025.{" "}
+                <a href="https://www.atol.org/news-and-blogs/2025/02/24/dont-let-fraudsters-trip-you-up-this-summer-new-alert-issued-as-people-look-to-snap-up-online-holiday-deals/">
                   Read the summary
                 </a>{" "}
                 ·{" "}
                 <a href="https://www.actionfraud.police.uk/campaign/holidayfraud">
                   Action Fraud campaign page
+                </a>{" "}
+                ·{" "}
+                <a href="https://www.abta.com/news/dont-lose-out-flying-out-action-fraud-urge-holiday-makers-watch-out-fraudsters-online">
+                  the 2023 release with ABTA
                 </a>
               </>
             }
-            noteLead="What it measures."
-            note="Reports made to Action Fraud, not convictions or verified victims. This is the most recent figure they have published and it remains live on their campaign page. Both Action Fraud and ABTA state the true number is higher, because most people do not report."
+            noteLead="Both years, because the losses fell."
+            note="£11,183,957 across 6,066 reports in 2024, an average of £1,844. The year before it was £12.3 million across 6,640 reports, an average of £1,851. So the total fell and the average barely moved, and we show both years rather than quoting only the larger older number. These are reports made to Action Fraud, not convictions or verified victims, and both Action Fraud and ABTA state the true number is higher because most people do not report."
           />
 
           <Row
@@ -322,6 +326,28 @@ export default function SourcesPage() {
             noteLead="Why this case and not a bigger one."
             note="₦1.3 million. They found a short-let agent on Instagram for a flat in Ikoyi, visited the property, and a housekeeper on site confirmed he managed it. They paid. He deleted the account. It is here because they did the one check the market offers, and the person on site had been bought."
           />
+
+          <Row
+            figure="Twice"
+            unit="In four days, Lagos"
+            claim="The Lagos state consumer regulator warned visitors about exactly this, days before the season opened."
+            source={
+              <>
+                Lagos State Consumer Protection Agency (LASCOPA), warnings issued 17 and 20
+                November 2026 by its General Manager and Chief Executive, Afolabi Solebo,
+                ahead of Detty December 2026.{" "}
+                <a href="https://theguildng.com/lagos-govt-warns-detty-december-visitors-against-fake-hotels-others/">
+                  Read the coverage
+                </a>{" "}
+                ·{" "}
+                <a href="https://politicaleconomistng.com/detty-december-lascopa-warns-tourists-against-fake-short-lets-fraudulent-hotel-bookings-event-scams/">
+                  and a second report
+                </a>
+              </>
+            }
+            noteLead="What it named."
+            note="Four things: operators advertising non-existent hotels and short let apartments who take payment and disappear, unusually cheap accommodation offers, unverified promotions on Instagram and WhatsApp, and demands for full payment into personal bank accounts. We found no primary document published by the agency, so these links are to press coverage of the warnings rather than to the warnings themselves."
+          />
         </section>
 
         <section className="flex flex-col">
@@ -367,6 +393,58 @@ export default function SourcesPage() {
           />
 
           <Row
+            figure="8.68%"
+            unit="Of reviews, 2024"
+            claim="Of everything submitted to Tripadvisor in 2024 was a fake review. 2.7 million of them."
+            source={
+              <>
+                Tripadvisor, <i>Review Transparency Report 2025</i>, covering 2024.{" "}
+                <a href="https://www.tripadvisor.com/TransparencyReport2025">
+                  Read the report
+                </a>
+              </>
+            }
+            noteLead="Read this carefully."
+            note="2.7 million fake review submissions out of 31.1 million reviews submitted, which is 8.68 per cent, and more than double the number detected in 2022. Tripadvisor separately removed over 200,000 reviews as suspected AI written, and that figure is NOT part of the 2.7 million and is not a count of fakes. Tripadvisor says most AI written reviews are not fake, because ordinary travellers use AI to tidy up their own writing, so we do not present it as a fraud number."
+          />
+
+          <Row
+            figure="Banned"
+            unit="UK, April 2025"
+            claim="Fake reviews are now unlawful in the UK outright, with no need to prove anybody was harmed."
+            source={
+              <>
+                Digital Markets, Competition and Consumers Act 2024, consumer provisions, in
+                force 6 April 2025 under SI 2025/272, made 4 March 2025.{" "}
+                <a href="https://www.legislation.gov.uk/ukpga/2024/13">
+                  Read the Act
+                </a>{" "}
+                ·{" "}
+                <a href="https://www.legislation.gov.uk/uksi/2025/272">
+                  and the commencement regulations
+                </a>
+              </>
+            }
+            noteLead="What it does, and what it does not do."
+            note={
+              <>
+                A review not based on a genuine experience is treated as unfair in all
+                circumstances, so no proof of effect on consumers is needed. Commissioning
+                fake reviews and selling services that facilitate them are banned too, and
+                publishers of reviews carry a positive duty to take reasonable and
+                proportionate steps to prevent and remove fake ones. The CMA enforces
+                directly and can fine up to 10 per cent of global turnover, and its three
+                month grace period ended around June 2025. It bans publishing fake reviews
+                and places a duty on publishers.{" "}
+                <b className="font-semibold text-ink">
+                  It does not require a listing to be physically verified
+                </b>
+                , and we do not claim that it does.
+              </>
+            }
+          />
+
+          <Row
             figure="None"
             unit="Verify in person"
             claim="No platform sends a person to verify a business in Lagos."
@@ -400,12 +478,23 @@ export default function SourcesPage() {
           />
 
           <Row
-            figure="£6.32"
+            figure="£20.65"
             unit="Per business"
-            claim="Is what it costs us to send a person to check one business."
-            source="Sabię internal data, 2026. Measured field receipts, not a projection."
+            claim="Is what it costs us to put one business on the platform. Fully loaded."
+            source="Sabię internal data, 2026. Measured payroll and expenses, not a projection. No public link; available to investors and press on request."
             noteLead="How it is counted."
-            note="₦986,238 of reimbursed field receipts across 88 businesses visited, which is ₦11,207 each, converted at ₦1,774. It is the transport and access cost the rep actually paid out of pocket and we reimbursed. It does not include the rep's time."
+            note={
+              <>
+                ₦1,000,000 of field payroll plus ₦1,088,938 of field expenses between 14
+                September and 15 November 2026, divided by the 57 businesses that went live
+                in that window. ₦36,648 each, converted at ₦1,774.94 to the pound. It
+                includes the field team salaries as well as their transport, data and
+                incidentals.{" "}
+                <b className="font-semibold text-ink">Nothing is excluded.</b> It supersedes
+                an earlier figure of £6.32, which counted reimbursed receipts only and left
+                the salaries out.
+              </>
+            }
           />
 
           <Row
