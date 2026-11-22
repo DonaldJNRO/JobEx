@@ -16,6 +16,12 @@ export const revalidate = 3600;
 // /sources is deliberately absent too, and for the opposite reason: it is the
 // investor deck's evidence page and it carries noindex. This list is an
 // allowlist, so leaving a route out of it IS the exclusion. Do not add it.
+//
+// /model and /why are absent for the same reason and must stay absent. Both
+// are deck detail carrying noindex: /model is three years of cash position,
+// and /why names four other companies. Neither is what a search for Sabie
+// should return, and adding either here would fight the noindex rather than
+// honour it.
 const STATIC_PAGES: MetadataRoute.Sitemap = [
   { url: BASE_URL, changeFrequency: "weekly", priority: 1 },
   // Second only to the home page. It is the page that converts a stranger:
