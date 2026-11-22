@@ -611,8 +611,9 @@ export default function WhyPage() {
               </p>
               <p className="m-0">
                 On stays, which is the like-for-like test, it is nearer one in two. We have
-                already said in public that eight of our stays are listed on a global platform,
-                and this check found the same eight.{" "}
+                already said in public that eight of our stays are listed on a global platform.
+                This check counted eight clear matches too, arrived at separately, though we
+                have not gone back to confirm they are the same eight businesses.{" "}
                 <Link
                   href="/blog/nowhere-to-list"
                   className="text-secondary-ink underline underline-offset-[3px]"
