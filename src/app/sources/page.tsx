@@ -198,7 +198,7 @@ export default function SourcesPage() {
               </>
             }
             noteLead="What it measures."
-            note="₦396.54bn across a 55-day window, mid November 2025 to 10 January 2026. Converted at ₦1,774 to the pound."
+            note="₦396.54bn across a 55-day window, mid November 2025 to 10 January 2026. Converted at ₦1,774.94 to the pound."
           />
 
           <Row
@@ -277,22 +277,18 @@ export default function SourcesPage() {
 
           <Row
             figure="Africa"
-            unit="Named twice"
+            unit="Named by UK police"
             claim="UK police named flights to Africa, and the visiting friends and family market, among the most targeted."
             source={
               <>
-                Action Fraud and NFIB annual reports, via ABTA.{" "}
+                Action Fraud and NFIB annual report, via ABTA.{" "}
                 <a href="https://www.abta.com/news/new-report-reveals-seven-million-pounds-lost-holiday-booking-fraud">
                   2018 report
-                </a>{" "}
-                and{" "}
-                <a href="https://www.abta.com/news/new-report-shows-growing-number-people-are-falling-victim-holiday-booking-fraud">
-                  2016 report
                 </a>
               </>
             }
             noteLead="Read this carefully."
-            note="In 2018, 53% of reported travel fraud was airline tickets, and Hajj travel carried the highest average loss of any category at almost £10,000 per reported case. Recent releases stopped publishing the destination breakdown, so the destination evidence is 2016 and 2018 while the money figure is 2023. Two separate years is a pattern, and we claim no more than that."
+            note="In 2018, 53% of reported travel fraud was airline tickets. Recent releases stopped publishing the destination breakdown, so the destination evidence is 2018 while the money figure above is 2024. One year is one year, and we claim no more than that."
           />
 
           <Row
@@ -478,18 +474,19 @@ export default function SourcesPage() {
           />
 
           <Row
-            figure="£20.65"
+            figure="£18.84"
             unit="Per business"
             claim="Is what it costs us to put one business on the platform. Fully loaded."
             source="Sabię internal data, 2026. Measured payroll and expenses, not a projection. No public link; available to investors and press on request."
             noteLead="How it is counted."
             note={
               <>
-                ₦1,000,000 of field payroll plus ₦1,088,938 of field expenses between 14
-                September and 15 November 2026, divided by the 57 businesses that went live
-                in that window. ₦36,648 each, converted at ₦1,774.94 to the pound. It
-                includes the field team salaries as well as their transport, data and
-                incidentals.{" "}
+                ₦1,000,000 of field payroll plus ₦973,238 of field expenses between 14
+                September and 15 November 2026, divided by the 59 businesses that went live
+                in that window. ₦33,445 each, converted at ₦1,774.94 to the pound. The
+                expenses are 93 receipts, each one photographed and logged by the rep who
+                spent it. It includes the field team salaries as well as their transport,
+                data and incidentals.{" "}
                 <b className="font-semibold text-ink">Nothing is excluded.</b> It supersedes
                 an earlier figure of £6.32, which counted reimbursed receipts only and left
                 the salaries out.
@@ -518,21 +515,26 @@ export default function SourcesPage() {
           </SectionHead>
 
           <Row
-            figure="88"
+            figure="93"
             unit="Businesses"
             claim="Registered in person, each one visited by a named member of our team."
-            source="Sabię internal data, 2026."
+            source="Sabię internal data, 24 November 2026."
             noteLead="What a visit is."
-            note="A recorded date, GPS, and film. The rep is named on the listing, which is the part a traveller can check and the part a fake page cannot copy."
+            note="A recorded date, GPS, and film. The rep is named on the listing, which is the part a traveller can check and the part a fake page cannot copy. 86 of the 93 are in Nigeria, across Lagos, Abuja and Jos. The rest are in London, Nottingham, Bamako and Nouakchott."
           />
 
           <Row
-            figure="64"
-            unit="Of the 88"
-            claim="Cannot be listed on any global platform at all."
-            source="Sabię internal data, 2026."
-            noteLead="What we found."
-            note="There is no Booking.com for a barber, a café or a skating rink. Of the 24 that could be listed somewhere, 8 already were, and every one of those 8 is a hotel."
+            figure="29"
+            unit="Of 40 checked"
+            claim="Cannot be found on Booking.com, Airbnb or Wakanow."
+            source={
+              <>
+                Sabię internal data, checked 22 November 2026.{" "}
+                <a href="/why">The method in full, including the part that weakens it</a>
+              </>
+            }
+            noteLead="What we found, and what it does not mean."
+            note="A sample of 40, drawn on 22 November from the Nigerian businesses live that day: all 20 of the places to stay, plus 20 of the rest picked at random. Of the 20 stays, 11 were found. Of the 20 everything else, which is cafés, spas, a barber, a boat trip and an art exhibition, none were. So roughly two thirds of the number is businesses these platforms have no category for. There is no Booking.com for a barber, and that is a fact about what a catalogue is built to hold rather than about anybody being careless."
           />
         </section>
 
@@ -589,8 +591,8 @@ export default function SourcesPage() {
             Sabię · Evidence
           </p>
           <p className="m-0">
-            Naira figures are converted at ₦1,774 to the pound as at 15 November 2026, and we
-            re-check the rate before quoting. Where a source publishes no public link, the
+            Naira figures are converted at ₦1,774.94 to the pound as at 15 November 2026, and
+            we re-check the rate before quoting. Where a source publishes no public link, the
             report is named in full so it can be requested directly.
           </p>
           <p className="m-0">
