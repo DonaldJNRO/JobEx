@@ -143,6 +143,31 @@ function Row({
   );
 }
 
+/**
+ * The deck conversions under a figure its source published in naira.
+ *
+ * TWO DECKS, TWO CURRENCIES, ONE ADDRESS. A dollar cut of the deck links to
+ * this same page, where everything used to be in sterling, so an American
+ * investor following the link landed on a page that disagreed with the deck in
+ * their hand. The fix is not a second page: two pages is two things to keep in
+ * sync and they drift, which is how £6.32 and £20.65 came to disagree. A
+ * sources page is about provenance, so the figure is published in the unit its
+ * source used and both conversions sit beneath it with the rate that produced
+ * them.
+ *
+ * A figure its source published in pounds or dollars is NOT converted into the
+ * other, because then neither number matches the source any more.
+ */
+function Conversions({ gbp, usd }: { gbp: string; usd: string }) {
+  return (
+    <>
+      {" "}
+      <b className="font-semibold text-ink">{gbp}</b> at ₦1,774.94 to the pound.{" "}
+      <b className="font-semibold text-ink">{usd}</b> at ₦1,363 to the dollar.
+    </>
+  );
+}
+
 export default function SourcesPage() {
   return (
     <div
@@ -174,7 +199,7 @@ export default function SourcesPage() {
             the source where one is published. Figures that cut against us are included too.
           </p>
           <p className={`${MONO} mt-4 m-0 text-caption uppercase tracking-[0.18em] text-ink-faint`}>
-            Last reviewed 21 November 2026
+            Last reviewed 25 November 2026
           </p>
         </header>
 
@@ -185,7 +210,7 @@ export default function SourcesPage() {
           </SectionHead>
 
           <Row
-            figure="£223m"
+            figure="₦396.54bn"
             unit="One season, Lagos"
             claim="Spent in Lagos across the 2025 festive season."
             source={
@@ -198,16 +223,27 @@ export default function SourcesPage() {
               </>
             }
             noteLead="What it measures."
-            note="₦396.54bn across a 55-day window, mid November 2025 to 10 January 2026. Converted at ₦1,774.94 to the pound."
+            note={
+              <>
+                Across a 55-day window, mid November 2025 to 10 January 2026.
+                <Conversions gbp="£223m" usd="$291m" />
+              </>
+            }
           />
 
           <Row
-            figure="£73m"
+            figure="₦129.55bn"
             unit="Of that, going out"
             claim="Went on entertainment and nightlife. Almost a third of everything spent."
             source="Same report."
             noteLead="What it measures."
-            note="₦129.55bn, 32.67% of the season total. Accommodation was ₦175.4bn, food and dining 12.91%, fashion and retail 9.3%, wellness 0.9%."
+            note={
+              <>
+                32.67% of the season total. Accommodation was ₦175.4bn, food and dining
+                12.91%, fashion and retail 9.3%, wellness 0.9%.
+                <Conversions gbp="£73m" usd="$95m" />
+              </>
+            }
           />
 
           <Row
@@ -251,9 +287,39 @@ export default function SourcesPage() {
           </SectionHead>
 
           <Row
+            figure="38%"
+            unit="Travellers scammed"
+            claim="Of travellers have hit a travel scam. Of those who lost money, nearly half lost over $500."
+            source={
+              <>
+                McAfee, press release, 19 May 2026. Fieldwork March 2026, 6,000 respondents
+                across Australia, France, Germany, Japan, the United States and the United
+                Kingdom.{" "}
+                <a href="https://www.mcafee.com/en-us/newsroom/press-releases/2026/1-in-3-travelers-face-travel-scams-as-rising-costs-create-new-fraud-opportunities.html">
+                  Read the release
+                </a>
+              </>
+            }
+            noteLead="Three things, before you open the link."
+            note={
+              <>
+                McAfee&apos;s own headline says 1 in 3 while its body says 38%. We publish 38
+                and cite the body, because anybody who opens the link will see the
+                discrepancy and getting there first costs nothing. Of those who met a scam,
+                41% lost money, and 48% of those lost more than $500. It is{" "}
+                <b className="font-semibold text-ink">survey self report, not recorded crime</b>
+                , which is a softer kind of evidence than the police figure below. And none of
+                the six countries surveyed is African. It measures travellers from wealthy
+                markets, which happens to be exactly who Sabię carries, and it is not a
+                measure of everybody.
+              </>
+            }
+          />
+
+          <Row
             figure="£11.2m"
             unit="One year, UK"
-            claim="Stolen from people booking travel, by 6,066 reports. £1,844 each."
+            claim="Stolen from people booking travel, across 6,066 reports. £1,844 each. This is recorded crime, which is the harder evidence sitting behind the survey above."
             source={
               <>
                 Action Fraud and the National Fraud Intelligence Bureau, calendar year 2024,
@@ -271,29 +337,46 @@ export default function SourcesPage() {
                 </a>
               </>
             }
-            noteLead="Both years, because the losses fell."
-            note="£11,183,957 across 6,066 reports in 2024, an average of £1,844. The year before it was £12.3 million across 6,640 reports, an average of £1,851. So the total fell and the average barely moved, and we show both years rather than quoting only the larger older number. These are reports made to Action Fraud, not convictions or verified victims, and both Action Fraud and ABTA state the true number is higher because most people do not report."
+            noteLead="Both years, and why it is no longer the headline."
+            note="£11,183,957 across 6,066 reports in 2024, an average of £1,844. The year before it was £12.3 million across 6,640 reports, an average of £1,851. So the total fell and the average barely moved, and we show both years rather than quoting only the larger older number. These are reports made to Action Fraud, not convictions or verified victims, and both Action Fraud and ABTA state the true number is higher because most people do not report. This was our lead figure until November 2026. It counts UK victims only, and the United States overtook the United Kingdom as the largest source of diaspora arrivals to Lagos in 2025, so a number measuring one shrinking market was describing less and less of the people we carry. It moved behind the survey rather than off the page."
           />
 
           <Row
-            figure="Africa"
-            unit="Named by UK police"
-            claim="UK police named flights to Africa, and the visiting friends and family market, among the most targeted."
+            figure="54%"
+            unit="Travelling to Africa"
+            claim="Of victims who named a destination were travelling to Africa. UK police named flights to Africa, and the visiting friends and family market, among the most targeted."
             source={
               <>
-                Action Fraud and NFIB annual report, via ABTA.{" "}
+                Action Fraud and NFIB annual reports.{" "}
+                <a href="https://www.actionfraud.police.uk/news/action-fraud-reports-show-6-7-million-lost-to-holiday-booking-fraud">
+                  2017 report
+                </a>{" "}
+                ·{" "}
                 <a href="https://www.abta.com/news/new-report-reveals-seven-million-pounds-lost-holiday-booking-fraud">
-                  2018 report
+                  and the 2018 report, via ABTA
                 </a>
               </>
             }
             noteLead="Read this carefully."
-            note="In 2018, 53% of reported travel fraud was airline tickets. Recent releases stopped publishing the destination breakdown, so the destination evidence is 2018 while the money figure above is 2024. One year is one year, and we claim no more than that."
+            note={
+              <>
+                The 54% is{" "}
+                <b className="font-semibold text-ink">
+                  of victims who named a destination
+                </b>
+                , not of all victims, and we never state it as all victims. In 2017, £6.7
+                million was lost across 4,700 reports and 47% of it was airline tickets; in
+                2018, 53% was airline tickets. Recent releases stopped publishing the
+                destination breakdown, so the destination evidence is 2017 and 2018 while the
+                money figure above is 2024. One year is one year, and we claim no more than
+                that.
+              </>
+            }
           />
 
           <Row
             figure="38%"
-            unit="Bank transfer"
+            unit="Pay by transfer"
             claim="Of African travellers pay by bank transfer, against 18% globally. A transfer cannot be reversed."
             source={
               <>
@@ -454,6 +537,33 @@ export default function SourcesPage() {
           <SectionHead label="Why this is possible now" />
 
           <Row
+            figure="$3"
+            unit="A minute of film"
+            claim="A minute of generated video costs three dollars. Every business we list gets a film, and three years ago that was a production budget."
+            source={
+              <>
+                Google, Gemini API pricing. Veo 3.1 Lite at $0.05 a second of 720p video,
+                against $0.40 a second for standard Veo 3.1.{" "}
+                <a href="https://ai.google.dev/gemini-api/docs/pricing">
+                  Read the pricing
+                </a>
+              </>
+            }
+            noteLead="Dated on purpose, because this price falls."
+            note={
+              <>
+                Checked 25 November 2026. $0.05 a second is $3.00 a minute, and the standard
+                model at $0.40 a second is $24.00 a minute, so three dollars is the{" "}
+                <b className="font-semibold text-ink">low end of the range</b> and not the
+                price of any minute of film. Veo 3.1 was announced 15 October 2025 and the
+                Lite tier that gives this price arrived later, so the model&apos;s launch and
+                this number are not the same date. Google publishes in dollars, so there is
+                nothing to convert.
+              </>
+            }
+          />
+
+          <Row
             figure="64.4%"
             unit="Of adults"
             claim="Of Nigerian adults now use digital financial services, against 45% in 2023."
@@ -474,7 +584,7 @@ export default function SourcesPage() {
           />
 
           <Row
-            figure="£18.84"
+            figure="₦33,445"
             unit="Per business"
             claim="Is what it costs us to put one business on the platform. Fully loaded."
             source="Sabię internal data, 2026. Measured payroll and expenses, not a projection. No public link; available to investors and press on request."
@@ -483,19 +593,20 @@ export default function SourcesPage() {
               <>
                 ₦1,000,000 of field payroll plus ₦973,238 of field expenses between 14
                 September and 15 November 2026, divided by the 59 businesses that went live
-                in that window. ₦33,445 each, converted at ₦1,774.94 to the pound. The
+                in that window. The
                 expenses are 93 receipts, each one photographed and logged by the rep who
                 spent it. It includes the field team salaries as well as their transport,
                 data and incidentals.{" "}
                 <b className="font-semibold text-ink">Nothing is excluded.</b> It supersedes
                 an earlier figure of £6.32, which counted reimbursed receipts only and left
                 the salaries out.
+                <Conversions gbp="£18.84" usd="$24.54" />
               </>
             }
           />
 
           <Row
-            figure="£3.6bn"
+            figure="₦6.39tn"
             unit="A year, domestic"
             claim="Nigerian travel spending is overwhelmingly domestic, and it has no season."
             source={
@@ -505,7 +616,17 @@ export default function SourcesPage() {
               </>
             }
             noteLead="What it measures."
-            note="₦6.39tn domestic visitor spending in 2025 against ₦461bn from international visitors: roughly ₦93 in every ₦100 spent on travel in Nigeria comes from people already in the country. It is the answer to the seasonality question. Our cost is seasonal; this market is not."
+            note={
+              <>
+                Domestic visitor spending in 2025, against ₦461bn from international
+                visitors, so roughly ₦93 in every ₦100 spent on travel in Nigeria comes from
+                people already in the country. It is the answer to the seasonality question.
+                Our cost is seasonal; this market is not.
+                <Conversions gbp="£3.60bn" usd="$4.69bn" />{" "}
+                Where the deck says £3.9bn it means domestic plus international, which is
+                ₦6.85tn, so £3.86bn and $5.03bn. Two scopes, not a disagreement.
+              </>
+            }
           />
         </section>
 
@@ -591,9 +712,13 @@ export default function SourcesPage() {
             Sabię · Evidence
           </p>
           <p className="m-0">
-            Naira figures are converted at ₦1,774.94 to the pound as at 15 November 2026, and
-            we re-check the rate before quoting. Where a source publishes no public link, the
-            report is named in full so it can be requested directly.
+            Every figure is published in the currency its source used. Naira is converted at
+            ₦1,774.94 to the pound and ₦1,363 to the dollar, both as at 24 November 2026,
+            which puts the pound at $1.3022, and we re-check the rates before quoting. A
+            figure its source published in pounds or dollars is left in that currency and
+            never converted into the other, because then neither number would match the
+            source. Where a source publishes no public link, the report is named in full so
+            it can be requested directly.
           </p>
           <p className="m-0">
             Something here look wrong? Tell us at{" "}
